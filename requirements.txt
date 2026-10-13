@@ -1,0 +1,22 @@
+# Lingkungan tim (WSL Debian, Python 3.13). Lihat README.md bagian "Setup".
+# ── eksperimen (v1–v3) ──
+numpy>=1.26
+scipy>=1.11
+pandas>=2.0
+scikit-learn>=1.4
+imbalanced-learn>=0.12
+lightgbm>=4.0
+torch>=2.1
+wfdb>=4.1
+matplotlib>=3.8
+seaborn>=0.13
+requests>=2.31          # tools/download_afdb.py
+# ── menjalankan notebook tanpa Jupyter UI (tools/run_notebook.py) ──
+nbformat>=5.9
+nbclient>=0.10
+ipykernel>=6.29
+# ── pembuat laporan PDF (vN/laporan/build_report.py) ──
+reportlab>=4.0
+pillow>=10.0
+beautifulsoup4>=4.12    # hanya v2_revisi/laporan/build_report.py --extract
+pypdfium2>=4.30         # render halaman PDF untuk cek visual

@@ -10,8 +10,11 @@ import pandas as pd
 import wfdb
 
 class AFDBExtractor:
-    def __init__(self, data_folder="./files"):
+    # Path disesuaikan dengan struktur repo (v1_lama/ dijalankan sebagai cwd);
+    # versi asli: data_folder="./files" dan keluaran ditulis ke data_folder/..
+    def __init__(self, data_folder="../data/afdb", out_dir="../cache/v1"):
         self.data_folder = data_folder
+        self.out_dir = out_dir
         self.records_file = "RECORDS"
         self.out_tabular = "dataset_hrv_tabular.csv"
         self.out_sequence = "dataset_hrv_sequence_23p.npz"
@@ -215,7 +218,8 @@ class AFDBExtractor:
             })
         
         df = pd.DataFrame(rows)
-        out_path = os.path.join(self.data_folder, "..", self.out_tabular)
+        os.makedirs(self.out_dir, exist_ok=True)
+        out_path = os.path.join(self.out_dir, self.out_tabular)
         df.to_csv(out_path, index=False)
         self.logger.info(f"BRANCH A: Tersimpan di {out_path} ({len(df)} baris)")
 
@@ -242,7 +246,8 @@ class AFDBExtractor:
             y[i] = w['label']
             records.append(w['record'])
             
-        out_path = os.path.join(self.data_folder, "..", self.out_sequence)
+        os.makedirs(self.out_dir, exist_ok=True)
+        out_path = os.path.join(self.out_dir, self.out_sequence)
         np.savez_compressed(
             out_path,
             X=X,

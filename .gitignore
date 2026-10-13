@@ -58,16 +58,19 @@ pip-delete-this-directory.txt
 ehthumbs.db
 Thumbs.db
 
-# === Machine Learning & Data Files (Optional/Custom) ===
-# Uncomment the lines below if you do NOT want to push datasets or model outputs to GitHub
-dataset_hrv.csv
-raw_71.json
-files/
-# model_export/
+# === Data, cache, log (bisa dibuat ulang; lihat README.md) ===
+# AFDB mentah + data perangkat (raw_*.json)
+data/
+# hasil ekstraksi & OOF bersama semua versi
+cache/
+# log runner & status
+logs/
+# gambar & tables.json sementara pembuat laporan
+**/laporan/_build/
+raw_*.json
 *.csv
-*.json
+*.npz
 penjelasan.md
 
-raw_71.json
-dataset_hrv_tabular.csv
-dataset_hrv_sequence_23p.npz
+# Yang TETAP di-commit walau berekstensi json: metadata model (wajib untuk predictor)
+# dan notebook. Aturan lama "*.json" membuat model_export/sihedaf_v2.json tidak pernah ter-commit.
