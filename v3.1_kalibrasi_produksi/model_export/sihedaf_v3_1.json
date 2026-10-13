@@ -1,0 +1,202 @@
+{
+  "model_name": "MicroTransformer",
+  "model_config": {
+    "input_dim": 2,
+    "d_model": 32,
+    "nhead": 2,
+    "dim_ff": 64,
+    "num_classes": 3,
+    "dropout": 0.1
+  },
+  "labels_map": {
+    "0": "Normal",
+    "1": "AFIB (Atrial Fibrillation)",
+    "2": "AFL (Atrial Flutter)"
+  },
+  "mu": [
+    744.079345703125,
+    -3.2246053218841553
+  ],
+  "sigma": [
+    248.91668701171875,
+    231.06088256835938
+  ],
+  "preprocessing": {
+    "fs_device": 50,
+    "window_sec": 10.0,
+    "max_beats": 30,
+    "ibi_min_ms": 300.0,
+    "ibi_max_ms": 2000.0,
+    "max_outliers": 1,
+    "min_ibi": 4,
+    "ibi_unit": "ms",
+    "sequence_features": [
+      "ibi_ms",
+      "delta_ibi_ms"
+    ]
+  },
+  "training": {
+    "rpeak_source": "detector",
+    "epochs": 30,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 256,
+    "loss": "weighted cross-entropy",
+    "stride_sec": {
+      "0": 5.0,
+      "1": 5.0,
+      "2": 5.0
+    },
+    "n_windows": 165978,
+    "class_counts": [
+      99000,
+      65826,
+      1152
+    ],
+    "records": [
+      "04015",
+      "04043",
+      "04048",
+      "04126",
+      "04746",
+      "04908",
+      "04936",
+      "05091",
+      "05121",
+      "05261",
+      "06426",
+      "06453",
+      "06995",
+      "07162",
+      "07859",
+      "07879",
+      "07910",
+      "08215",
+      "08219",
+      "08378",
+      "08405",
+      "08434",
+      "08455"
+    ],
+    "train_time_sec": 88.9
+  },
+  "weights_sha256": "1a602bb07767afea789135ef9b7c4232f08252102dab56df0a4242147f841c07",
+  "version": "3.1",
+  "class_bias": [
+    0.0,
+    -0.5,
+    -4.5
+  ],
+  "parent": {
+    "version": "v2_revisi",
+    "metadata": "v2_revisi/model_export/sihedaf_v2.json",
+    "metadata_sha256": "27c5ffe786d64c7c83f0d7f3d9d7ac8f4a337cde964ffaca0168c1f009f19b6b",
+    "class_bias": [
+      0.0,
+      2.0,
+      -3.0
+    ],
+    "cv_metrics": {
+      "argmax": {
+        "Macro-F1 (pooled)": 0.6574238888769599,
+        "Macro-F1 per fold": "0.694 ± 0.102",
+        "Normal R": 0.8572828282828283,
+        "AFIB P": 0.8899547379179442,
+        "AFIB R": 0.9259715006228542,
+        "AFL P": 0.089062669707831,
+        "AFL R": 0.7118055555555556,
+        "AFL F1": 0.15831643981079255,
+        "AFL R per pasien (min–maks)": "0.00–1.00"
+      },
+      "dengan_bias_crossfit": {
+        "Macro-F1 (pooled)": 0.7918049070047756,
+        "Macro-F1 per fold": "0.726 ± 0.126",
+        "Normal R": 0.8628484848484849,
+        "AFIB P": 0.8274494248314161,
+        "AFIB R": 0.982377783854404,
+        "AFL P": 0.5079022988505747,
+        "AFL R": 0.6137152777777778,
+        "AFL F1": 0.5558176100628931,
+        "AFL R per pasien (min–maks)": "0.00–1.00"
+      }
+    },
+    "versions": {
+      "python": "3.13.5",
+      "torch": "2.11.0+cu128",
+      "numpy": "2.5.3"
+    },
+    "created": "2026-10-12 16:38:07"
+  },
+  "calibration": {
+    "method": "sihedaf_cv.fit_class_bias pada OOF MicroTransformer gabungan 5 ulangan × 5 fold pasien (v3)",
+    "grid": [
+      -7.0,
+      3.0,
+      0.25
+    ],
+    "oof": "cache/oof_robust/detector_e30_r5_s2026",
+    "n_windows_x_repeats": 829890,
+    "fold_bias_afl_min_max": [
+      -5.5,
+      -4.0
+    ]
+  },
+  "cv_metrics": {
+    "protokol": "v3: pooled OOF rata-rata 5 ulangan × 5 fold pasien, bias cross-fit grid −7…+3, CI 95% bootstrap pasien 2.000×",
+    "Macro-F1": {
+      "nilai": 0.8315489481663656,
+      "ci95": [
+        0.6722144497034912,
+        0.9197444939720303
+      ]
+    },
+    "AFL F1": {
+      "nilai": 0.6471463875301922,
+      "ci95": [
+        0.168592720368402,
+        0.894323573390272
+      ]
+    },
+    "AFL P": {
+      "nilai": 0.7152259309395039,
+      "ci95": [
+        0.26003053140147864,
+        0.9462671851293136
+      ]
+    },
+    "AFL R": {
+      "nilai": 0.5918402777777778,
+      "ci95": [
+        0.13248842701936706,
+        0.9088748086448586
+      ]
+    },
+    "AFIB F1": {
+      "nilai": 0.9090126678641195,
+      "ci95": [
+        0.8648414746052524,
+        0.9408760625060812
+      ]
+    },
+    "Normal R": {
+      "nilai": 0.9238444444444445,
+      "ci95": [
+        0.8448533726707907,
+        0.9668216141246414
+      ]
+    },
+    "vs_v2_produksi_delta_macro_f1": [
+      0.052574274168053714,
+      0.014407508087083831,
+      0.12011429235744825,
+      1.0
+    ]
+  },
+  "versions": {
+    "python": "3.13.5",
+    "torch": "2.11.0+cu128",
+    "numpy": "2.5.3"
+  },
+  "git_commit": "a9fb3e47d89f67ce62db006aec05dcc37f93ca33",
+  "created": "2026-10-13 02:08:17"
+}
