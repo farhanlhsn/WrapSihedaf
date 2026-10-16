@@ -27,7 +27,7 @@ paket produksi aktif.
 | v2 produksi, bias `[0.0, 2.0, -3.0]` | 0,779 [0,63–0,82] | 0,536 | 0,598 | 0,487 | 0,847 |
 | **v3.1, bias `[0.0, -0.5, -4.5]`** (cross-fit) | **0,832** [0,67–0,92] | **0,647** | **0,715** | 0,592 | **0,924** |
 
-- v3.1 vs v2 produksi: Δ Macro-F1 +0,053 [+0,01…+0,12], P(Δ>0) = 1,00 → lebih baik secara konsisten.
+- v3.1 vs v2 produksi: Δ Macro-F1 +0,053 [+0,01…+0,12], P(Δ>0) = 1,00 → lebih baik secara konsisten. Dengan bootstrap bersarang (pemilihan bias ikut diacak, v3.2): P = 0,993, vonis tetap.
 - v2 produksi vs v1: tidak terbedakan (P = 0,90). Bias v2 (AFIB +2) membuat banyak window Normal ditebak AFIB.
 - AFL palsu pada pasien tanpa AFL: 72 → 25 window per ulangan.
 
