@@ -10,15 +10,18 @@ output dengan bentuk, protokol, dan kualitas yang sama. Ringkasan proyek & cara 
 - **v2_revisi**: `v2_revisi/AGENTS.md` — notebook adalah sumber kebenaran modul; `model_export/` dipakai backend.
 - **v3_evaluasi_robust**: `v3_evaluasi_robust/AGENTS.md` — protokol evaluasi wajib, layout cache OOF.
 - **v3.1_kalibrasi_produksi**: `v3.1_kalibrasi_produksi/README.md` + `BACKEND.md` — paket produksi aktif, panduan backend.
+- **v3.2_uji_takikardia**: `v3.2_uji_takikardia/README.md` — uji stres takikardia (wajib), bootstrap bersarang, sensitivitas tanpa 04936.
 - **v4_smoothing_ensemble**: `v4_smoothing_ensemble/README.md` — pasca-proses di atas OOF v3; pola seleksi cross-fit konfigurasi + bias.
 - **v5_training_afl**: `v5_training_afl/README.md` — pola melatih ulang varian resep pada fold resmi + uji paritas training.
 - **v6_cabang_ekg**: `v6_cabang_ekg/README.md` — potongan EKG per window (sejajar dengan RR), CNN/dua cabang, late fusion.
+- **v7_augmentasi_takikardia**: `v7_augmentasi_takikardia/README.md` — urutan detak per rekaman (terbukti identik dengan v2),
+  pembuat sinus takikardia sintetis, bobot model per fold di `cache/v7/model/`.
 - **v1_lama**: `v1_lama/README.md` — arsip beku, hanya path yang disesuaikan.
 
 ### Invariant global
 
 - Folder versi yang sudah selesai **tidak diubah logikanya**. Penyesuaian path dan dokumentasi boleh.
-  - Eksperimen atau training baru → `vN_<nama_singkat>/` (N berikutnya, sekarang v7).
+  - Eksperimen atau training baru → `vN_<nama_singkat>/` (N berikutnya, sekarang v8).
   - Tindak lanjut tanpa eksperimen baru (kalibrasi, pengemasan, perbaikan) → versi minor `vN.M_<nama>/` (contoh: v3.1).
 - Notebook dijalankan dengan **folder versinya sebagai cwd**. Data lewat `../data/afdb`, cache lewat `../cache`.
   Jangan menulis keluaran ke root repo.
@@ -30,7 +33,8 @@ output dengan bentuk, protokol, dan kualitas yang sama. Ringkasan proyek & cara 
   paket mana pun tanpa persetujuan eksplisit pemilik repo. Menjalankan notebook v2 (termasuk `SIHEDAF_QUICK=1`)
   mengekspor ulang model v2; menjalankan notebook v3.1 menulis ulang paket v3.1.
 - Arsitektur atau resep baru yang inputnya hanya interval RR **tidak** dicoba lagi (v3–v5 sudah menghabiskannya).
-  Bentuk gelombang EKG dari 23 pasien AFDB juga sudah dicoba (v6) dan overfit per pasien. Eksperimen baru harus menambah
+  Bentuk gelombang EKG dari 23 pasien AFDB juga sudah dicoba (v6) dan overfit per pasien. Sinus takikardia sintetis (v7)
+  hanya menggeser batas alarm palsu ke ±135 bpm; di atasnya interval RR tidak cukup. Eksperimen baru harus menambah
   **pasien** (data eksternal) atau informasi yang benar-benar baru. Model DL baru memakai **bobot kelas lunak** (`class_weights(y) ** 0.5`,
   lihat `v5_training_afl/latih.train_dl_weighted`) kecuali ada alasan tercatat.
 - Satuan IBI selalu **milidetik**. Label: 0 Normal, 1 AFIB, 2 AFL.
@@ -81,6 +85,16 @@ Detail dan kodenya ada di `v3_evaluasi_robust/`. Ringkasnya:
 7. Untuk ide yang mengubah perilaku antar-window, laporkan juga metrik episode (alarm AFL palsu/jam, deteksi episode).
 8. Varian training baru: pakai seed latih yang sama dengan referensi (`2026 + 100·r + k`) dan buktikan dulu bahwa fungsi
    training Anda identik dengan referensi pada pengaturan standar (uji paritas, lihat notebook v5).
+9. **Uji stres takikardia (wajib sejak v3.2).** AFDB hampir tidak punya ritme normal yang cepat (hanya 0,1% window Normal
+   di atas 120 bpm), jadi metrik 1–8 tidak menangkap alarm palsu pada sinus takikardia. Untuk setiap model kandidat:
+   - jalankan `v3.2_uji_takikardia/takikardia.stress_test` (ritme teratur sintetis 60–170 bpm, 4 jenis variasi) dan laporkan
+     ambang bpm di mana model berhenti menebak Normal. Referensi v3.1: 115 bpm;
+   - laporkan juga % window Normal asli yang ditebak AFIB/AFL per pita detak (`takikardia.by_hr_bin`, OOF).
+   Karena itu, model kandidat harus **menyimpan bobotnya** (atau fungsi prediksi). v4–v6 tidak menyimpannya, sehingga
+   tidak bisa diuji di data sintetis.
+10. Klaim "lebih baik" yang akan mengganti paket produksi: sertakan juga **bootstrap bersarang** (bias dipilih ulang di setiap
+    sampel, `takikardia.nested_bootstrap`) dan sensitivitas **tanpa pasien 04936** (58% window AFL berasal dari satu pasien).
+    Contoh: v3.1 vs v1 P = 0,98 turun menjadi 0,94 tanpa 04936.
 
 ## Definition of Done satu versi ("selesai mendapatkan hasil")
 
@@ -91,7 +105,8 @@ Detail dan kodenya ada di `v3_evaluasi_robust/`. Ringkasnya:
 3. Laporan PDF di `vN_.../laporan/` dibuat oleh `vN_.../laporan/build_report.py` (dua tahap: `--extract` menghitung
    angka & grafik dari cache, lalu tanpa argumen merakit PDF dengan ReportLab). Template: salin
    `v3_evaluasi_robust/laporan/build_report.py`; font lewat `tools/report_fonts.py`.
-4. Laporan **wajib** memuat perbandingan dengan versi sebelumnya (pada data uji & fold yang sama) dan dengan v1.
+4. Laporan **wajib** memuat perbandingan dengan versi sebelumnya (pada data uji & fold yang sama) dan dengan v1, serta
+   hasil uji stres takikardia (protokol butir 9) untuk model yang diusulkan.
 5. Angka laporan diverifikasi otomatis terhadap ringkasan notebook (`assert`, lihat `extract()` v3), lalu setiap
    halaman dirender ke PNG (`pypdfium2`) dan **dilihat** sebelum diserahkan.
 6. Baris baru di tabel "Versi dan hasil" di `README.md` root.
@@ -123,3 +138,8 @@ Detail dan kodenya ada di `v3_evaluasi_robust/`. Ringkasnya:
   dataset hasil salinan sama bit demi bit dengan cache v2 sebelum memakainya.
 - Menilai smoothing hanya dari Macro-F1 window (v4): ia terlihat "setara", padahal menghapus separuh episode AFL. Selalu
   lihat metrik episode dan recall AFL per pasien; episode pendek (1–20 window) paling mudah hilang.
+- Data uji yang tidak memuat kondisi pemakaian penting (v1–v6). AFDB hampir tidak punya sinus takikardia, sehingga semua
+  versi lolos protokol padahal menebak ritme teratur ≥ ±115 bpm sebagai AFIB/AFL. Masalah ini ditemukan reviewer eksternal
+  (v3.2). Sebelum klaim siap produksi, tanyakan kondisi nyata apa yang tidak ada di data uji, lalu buat uji stresnya.
+- CI dengan bias yang sudah dipilih dianggap tetap (v3.1 melaporkan P = 1,00). Pemilihan bias sendiri juga tidak pasti;
+  bootstrap bersarang memberi P = 0,993.

@@ -14,10 +14,13 @@ beserta laporannya.
 | [v1_lama](v1_lama/) | Pipeline awal: `ekstraksi_hrv.py`, `model.ipynb`, `final.joblib`, backend `find_peaks` | Diklaim Macro-F1 0,826. Diukur ulang: **0,744**; dengan front-end aslinya **0,418** | dibahas di laporan v3 (hal. 2–3) |
 | [v2_revisi](v2_revisi/) | Modul bersama `hrv_core.py`, detektor R-peak 50 Hz + cek kualitas, 3 arsitektur DL, bias kelas, `predictor.py` + `model_export/` | MicroTransformer, bias `[0.0, 2.0, -3.0]`: **0,779** [0,63–0,82] (notebook melaporkan 0,792, satu partisi) | [PDF](v2_revisi/laporan/laporan_hasil_sihedaf_v2.pdf) |
 | [v3_evaluasi_robust](v3_evaluasi_robust/) | Protokol evaluasi: 5×5 fold pasien, CI bootstrap pasien, perbandingan berpasangan; v1 dilatih ulang untuk dibandingkan | Kandidat model sama kuat; batasnya data AFL; bias v2 terpotong grid | [PDF](v3_evaluasi_robust/laporan/laporan_evaluasi_robust.pdf) |
-| [v3.1_kalibrasi_produksi](v3.1_kalibrasi_produksi/) | Menerapkan keputusan v3 tanpa training: bias baru, **paket produksi aktif**, panduan backend | Bias `[0.0, -0.5, -4.5]`: **0,832** [0,67–0,92], AFL F1 0,647; lebih baik dari v2 produksi (P = 1,00) | [PDF](v3.1_kalibrasi_produksi/laporan/laporan_kalibrasi_produksi.pdf) |
+| [v3.1_kalibrasi_produksi](v3.1_kalibrasi_produksi/) | Menerapkan keputusan v3 tanpa training: bias baru, **paket produksi aktif**, panduan backend | Bias `[0.0, -0.5, -4.5]`: **0,832** [0,67–0,92], AFL F1 0,647; lebih baik dari v2 produksi (P = 1,00; bersarang 0,993, lihat v3.2) | [PDF](v3.1_kalibrasi_produksi/laporan/laporan_kalibrasi_produksi.pdf) |
+| [v3.2_uji_takikardia](v3.2_uji_takikardia/) | Evaluasi saja (menindaklanjuti review eksternal): uji stres ritme teratur 60–170 bpm, bootstrap bersarang, tanpa 04936, simulasi aturan produk | **Semua versi menebak ritme teratur ≥ ±115 bpm sebagai AFIB/AFL** (95% Normal ≥120 bpm jadi alarm). v3.1 vs v2 tetap lebih baik (P = 0,993 bersarang); vs v1 tidak terbedakan tanpa 04936 (P = 0,94) | [PDF](v3.2_uji_takikardia/laporan/laporan_uji_takikardia.pdf) |
 | [v4_smoothing_ensemble](v4_smoothing_ensemble/) | Smoothing antar-window & ensemble di atas OOF v3, tanpa training | Tidak ada yang lebih baik dari v3.1. Smoothing: alarm palsu 0,51 → 0,09/jam tapi episode AFL terdeteksi 74% → 38% | [PDF](v4_smoothing_ensemble/laporan/laporan_smoothing_ensemble.pdf) |
 | [v5_training_afl](v5_training_afl/) | Dua resep training MicroTransformer: window AFL rapat, bobot kelas lunak | Keduanya setara dengan v3.1. Bobot lunak: bias AFL −2,25 (bukan −4,5), tanpa bias 0,793 vs 0,717 | [PDF](v5_training_afl/laporan/laporan_training_afl.pdf) |
 | [v6_cabang_ekg](v6_cabang_ekg/) | Cabang sinyal EKG mentah 50 Hz: CNN EKG saja, dua cabang EKG + RR, late fusion | EKG saja 0,651 (lebih buruk); dua cabang 0,747 (cenderung buruk); late fusion 0,838 (setara). 07910 & 08215 tetap 0 | [PDF](v6_cabang_ekg/laporan/laporan_cabang_ekg.pdf) |
+
+| [v7_augmentasi_takikardia](v7_augmentasi_takikardia/) | MicroTransformer + sinus takikardia sintetis (detak Normal asli pasien latih yang dipercepat): 100–130 bpm (7a), 100–160 bpm (7b) | 7a: ambang alarm 115 → **135 bpm**, Macro-F1 0,825 (setara), tetapi recall AFL 0,592 → 0,555 (08378: 0,96 → 0,71). 7b rusak (0,700). Belum dikemas | [PDF](v7_augmentasi_takikardia/laporan/laporan_augmentasi_takikardia.pdf) |
 
 \*Rata-rata out-of-fold, pasien uji tidak pernah ikut dilatih. Ini bukan uji pada perangkat asli.
 
@@ -38,6 +41,14 @@ beserta laporannya.
 - Input bentuk gelombang EKG 50 Hz (v6) juga tidak memperbaiki: CNN overfit per pasien; late fusion setara (kandidat, perlu
   konfirmasi). **Batas proyek sekarang adalah jumlah pasien AFL (7 di AFDB).** Eksperimen berikutnya (v7) butuh data dengan
   lebih banyak pasien AFL (mis. Chapman–Shaoxing di PhysioNet) — unduhan perlu persetujuan pemilik repo.
+- **Batasan produksi yang diketahui (v3.2): detak cepat yang teratur (sinus takikardia, mulai ±115 bpm) dilaporkan sebagai
+  AFIB/AFL.** Penyebabnya, AFDB hampir tidak punya ritme normal yang cepat. Peringatan untuk backend ada di BACKEND.md.
+  Aturan produk "takikardia teratur, perlu dicek" menunggu keputusan pemilik produk: aturan ini juga mengalihkan 86% AFL yang
+  terdeteksi. Data v7 harus memuat sinus takikardia, tidak hanya pasien AFL tambahan.
+- Uji stres takikardia wajib untuk setiap model kandidat (AGENTS.md, protokol butir 9).
+- Augmentasi sinus takikardia sintetis (v7) hanya memindahkan batas alarm palsu ke ±135 bpm, dengan harga sebagian deteksi
+  AFL 2:1. Varian 100–130 bpm adalah kandidat yang **menunggu keputusan pemilik produk**. Di 135–160 bpm, interval RR saja
+  tidak bisa membedakan sinus takikardia dari AFL 2:1; ini butuh data eksternal dengan bentuk gelombang EKG.
 
 ## Struktur folder
 
@@ -53,9 +64,11 @@ v1_lama/                  versi sebelum revisi (arsip, beku)
 v2_revisi/                revisi pipeline + model produksi + laporan/
 v3_evaluasi_robust/       evaluasi robust + perbandingan dengan v1 + laporan/
 v3.1_kalibrasi_produksi/  bias baru + paket produksi aktif + BACKEND.md + laporan/
+v3.2_uji_takikardia/      uji stres takikardia, bootstrap bersarang, sensitivitas 04936 (evaluasi saja) + laporan/
 v4_smoothing_ensemble/    pasca-proses (smoothing, ensemble) tanpa training + laporan/
 v5_training_afl/          dua resep training untuk AFL (window rapat, bobot lunak) + laporan/
 v6_cabang_ekg/            cabang sinyal EKG mentah 50 Hz (CNN, dua cabang, late fusion) + laporan/
+v7_augmentasi_takikardia/ sinus takikardia sintetis sebagai data latih (100–130, 100–160 bpm) + laporan/
 ```
 
 Setiap folder versi berisi `README.md` (apa, hasil, cara menjalankan) dan `laporan/`
@@ -94,9 +107,11 @@ bisa berbeda.
 | Evaluasi robust v3 | `python tools/run_notebook.py v3_evaluasi_robust/evaluasi_robust.ipynb` | ±1 jam 40 mnt (pertama kali), ±5 mnt jika OOF sudah ada |
 | Ukur ulang v1 dengan protokol v3 | `cd v3_evaluasi_robust && python eval_versi_lama.py` | ±25 mnt |
 | Kalibrasi & paket produksi v3.1 | `python tools/run_notebook.py v3.1_kalibrasi_produksi/kalibrasi_produksi.ipynb` | ±2 mnt |
+| Uji stres takikardia v3.2 | `python tools/run_notebook.py v3.2_uji_takikardia/uji_takikardia.ipynb` | ±10 mnt (CPU) pertama kali, lalu dari cache |
 | Smoothing & ensemble v4 | `python tools/run_notebook.py v4_smoothing_ensemble/smoothing_ensemble.ipynb` | ±14 mnt (CPU) |
 | Resep training v5 | `python tools/run_notebook.py v5_training_afl/training_afl.ipynb` | ±60 mnt (GPU) |
 | Cabang EKG v6 | `python tools/run_notebook.py v6_cabang_ekg/cabang_ekg.ipynb` | ±2 jam (GPU) |
+| Augmentasi takikardia v7 | `python tools/run_notebook.py v7_augmentasi_takikardia/augmentasi_takikardia.ipynb` | ±45 mnt (GPU) + ±12 mnt evaluasi |
 | Laporan versi N | `python vN_.../laporan/build_report.py --extract`, lalu `python vN_.../laporan/build_report.py` | ±3 mnt |
 
 Urutan dari nol: unduh AFDB → v2 (membuat `cache/dataset_v2_*.npz`) → v3 (+ `eval_versi_lama.py`) → v3.1 → laporan.
@@ -119,7 +134,7 @@ front-end lamanya membuat recall Normal hanya ±34%.
 
 ## Menambah eksperimen baru
 
-Eksperimen baru → `vN_<nama_singkat>/` (berikutnya v7). Tindak lanjut tanpa eksperimen/training baru (kalibrasi, pengemasan,
+Eksperimen baru → `vN_<nama_singkat>/` (berikutnya v8). Tindak lanjut tanpa eksperimen/training baru (kalibrasi, pengemasan,
 perbaikan) → versi minor `vN.M_<nama>/`, seperti v3.1. Ikuti checklist "Definition of Done" di [AGENTS.md](AGENTS.md):
 notebook ter-eksekusi, kesimpulan, `README.md` versi, laporan PDF di `v4_.../laporan/`, dan baris baru
 di tabel "Versi dan hasil" di atas.
