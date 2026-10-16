@@ -16,6 +16,8 @@ output dengan bentuk, protokol, dan kualitas yang sama. Ringkasan proyek & cara 
 - **v6_cabang_ekg**: `v6_cabang_ekg/README.md` — potongan EKG per window (sejajar dengan RR), CNN/dua cabang, late fusion.
 - **v7_augmentasi_takikardia**: `v7_augmentasi_takikardia/README.md` — urutan detak per rekaman (terbukti identik dengan v2),
   pembuat sinus takikardia sintetis, bobot model per fold di `cache/v7/model/`.
+- **v8_chapman_shaoxing**: `v8_chapman_shaoxing/README.md` — data eksternal Chapman–Shaoxing (PhysioNet `ecg-arrhythmia`),
+  notebook Kaggle-first (clone repo, sidik jari dataset & fold AFDB, hasil dibawa pulang lewat `v8_hasil.zip`).
 - **v1_lama**: `v1_lama/README.md` — arsip beku, hanya path yang disesuaikan.
 
 ### Invariant global
