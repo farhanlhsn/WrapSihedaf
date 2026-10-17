@@ -51,7 +51,9 @@ tanpa nama GPU, tanpa asumsi jumlah core.
   `$SIHEDAF_KERNEL`, lalu `sihedaf-v2` jika terpasang, selain itu `python3`.
 - **Alternatif: Kaggle / Google Colab (GPU).** Langkahnya:
   1. Clone repo, `pip install -r requirements.txt`.
-  2. Unduh AFDB dengan `python tools/download_afdb.py`, atau `wfdb.dl_database("afdb", "data/afdb")`.
+  2. Unduh AFDB dengan `python tools/download_afdb.py`, atau `wfdb.dl_database("afdb", "data/afdb")`. Data PhysioNet lain
+     diunduh dari mirror resmi S3 (`https://physionet-open.s3.amazonaws.com/<db>/<versi>/`, dicek dengan `SHA256SUMS.txt`),
+     **bukan** zip dari physionet.org: dari Kaggle kecepatannya terukur ±0,05 MB/s, sehingga notebook terlihat macet (v8).
   3. Pindah ke folder versi (`%cd vN_...`) sebelum menjalankan notebook. Path `../data` dan `../cache` harus berlaku.
   4. Sesi bisa terputus. Simpan `cache/` ke Google Drive / output Kaggle; job yang sudah ada di cache dilewati.
   5. CPU di sana sedikit (2–4 core). Di v3, set `ecfg.cpu_models = ()` agar BiGRU juga jalan di GPU.
@@ -143,5 +145,9 @@ Detail dan kodenya ada di `v3_evaluasi_robust/`. Ringkasnya:
 - Data uji yang tidak memuat kondisi pemakaian penting (v1–v6). AFDB hampir tidak punya sinus takikardia, sehingga semua
   versi lolos protokol padahal menebak ritme teratur ≥ ±115 bpm sebagai AFIB/AFL. Masalah ini ditemukan reviewer eksternal
   (v3.2). Sebelum klaim siap produksi, tanyakan kondisi nyata apa yang tidak ada di data uji, lalu buat uji stresnya.
+- Memakai label data eksternal tanpa memeriksa kewajarannya secara fisiologis (v8, run pertama). Di PhysioNet
+  `ecg-arrhythmia`, bagian Ningbo tidak punya AFIB, tetapi "AFL"-nya berdetak dan tidak teratur seperti AFIB. Model yang
+  dilatih dengan label itu kehilangan deteksi AFL di AFDB (08378: 0,98 → 0,00). Sebelum melatih, bandingkan detak & CV IBI
+  per label dan per sumber dengan AFDB (`v8_chapman_shaoxing/chapman.afl_label_check`).
 - CI dengan bias yang sudah dipilih dianggap tetap (v3.1 melaporkan P = 1,00). Pemilihan bias sendiri juga tidak pasti;
   bootstrap bersarang memberi P = 0,993.

@@ -17,7 +17,6 @@ Varian (semua MicroTransformer, fold AFDB resmi 5×5, seed latih 2026 + 100·r +
   chapman      : 8b (eksploratif) = bobot lunak, Chapman saja; AFDB menjadi data uji eksternal murni.
 """
 import hashlib
-import io
 import json
 import multiprocessing as mp
 import os
@@ -48,9 +47,9 @@ FOLDS = OOF_DIR / "folds.npz"
 CACHE_OUT = REPO / "cache/v8"
 OOF_V8 = CACHE_OUT / "oof"
 MODELS = CACHE_OUT / "model"
-CH_ZIP = REPO / "data/chapman/ecg-arrhythmia-1.0.0.zip"
+CH_DIR = Path(os.environ.get("SIHEDAF_CHAPMAN_DIR", REPO / "data/chapman/ecg-arrhythmia-1.0.0"))   # bisa diarahkan ke unduhan yang sudah ada
 CH_WIN = CACHE_OUT / "chapman_windows.npz"
-ZIP_URL = "https://physionet.org/content/ecg-arrhythmia/get-zip/1.0.0/"
+S3_BASE = "https://physionet-open.s3.amazonaws.com/ecg-arrhythmia/1.0.0/"     # mirror resmi PhysioNet (AWS Open Data)
 N_REPEATS, SEED, N_BOOT = 5, 2026, 2000
 LEAD = "II"
 
@@ -66,8 +65,14 @@ VARIANTS = {
     "afdb": dict(label="ablasi: bobot lunak, AFDB saja (= v5b)", power=0.5, afdb=True, chapman=False),
     "afdb_chapman": dict(label="8a: bobot lunak, AFDB + Chapman", power=0.5, afdb=True, chapman=True),
     "chapman": dict(label="8b: bobot lunak, Chapman saja", power=0.5, afdb=False, chapman=True),
+    # Ditambahkan setelah run pertama: label AFL bagian Ningbo terbukti tidak andal (afl_label_check). Hipotesis ditulis
+    # sebelum hasilnya ada: alarm palsu ST turun seperti 8a, AFL di AFDB tidak lebih buruk dari v31.
+    "afdb_chapman_bersih": dict(label="8c: bobot lunak, AFDB + Chapman tanpa label AFL", power=0.5, afdb=True,
+                                chapman=True, chapman_classes=(0, 1)),
 }
 PRIMARY = "afdb_chapman"                 # ditetapkan sebelum melihat hasil
+SHAOXING_MAX = 10646                     # JS00001–JS10646 = Chapman–Shaoxing; sisanya Ningbo (tanpa satu pun AFIB, "AFL"-nya
+                                         # berperilaku seperti AFIB: detak ±88 bpm, 86% tidak teratur → label AFL tidak andal)
 
 # Sidik jari dataset AFDB detektor & fold resmi dari PC tim (16 Oktober 2026). Dataset yang diekstrak ulang di mesin lain
 # harus sama strukturnya (y, records, t_start); X boleh berbeda sedikit bila versi pustaka berbeda (dilaporkan).
@@ -90,10 +95,23 @@ def ensure_afdb(log=print):
     """Pakai cache/dataset_v2_detector.npz bila ada; jika tidak, unduh AFDB dan ekstrak ulang (ekstraktor v5 = v2)."""
     if not DATA_STD.exists():
         if not (L5.DATA_DIR / "RECORDS").exists():
+            t0 = time.perf_counter()
             log("unduh AFDB (±600 MB) ...")
             subprocess.run([sys.executable, str(REPO / "tools/download_afdb.py")], check=True)
-        log("ekstrak window detektor 50 Hz dari AFDB ...")
-        ds = L5.build_dataset({0: 5.0, 1: 5.0, 2: 5.0})
+            log(f"AFDB terunduh ({(time.perf_counter() - t0) / 60:.1f} mnt)")
+        log("ekstrak window detektor 50 Hz dari 23 rekaman AFDB ...")
+        orig = L5._process_record                            # dibungkus hanya untuk log progres; logika v5 tidak diubah
+
+        def logged(rec, stride):
+            t = time.perf_counter()
+            rows = orig(rec, stride)
+            log(f"  {rec}: {len(rows)} window ({time.perf_counter() - t:.0f}s)")
+            return rows
+        L5._process_record = logged
+        try:
+            ds = L5.build_dataset({0: 5.0, 1: 5.0, 2: 5.0})
+        finally:
+            L5._process_record = orig
         DATA_STD.parent.mkdir(parents=True, exist_ok=True)
         tmp = DATA_STD.with_name(DATA_STD.stem + ".tmp.npz")
         np.savez_compressed(tmp, **ds)
@@ -123,50 +141,71 @@ def ensure_folds():
 
 
 # ── 2. Chapman: unduh & ekstrak window ─────────────────────────────────
-def _zip_ok(path):
-    try:
-        with zipfile.ZipFile(path) as zf:
-            return sum(n.endswith(".hea") for n in zf.namelist()) > 40000
-    except (zipfile.BadZipFile, OSError):
-        return False
+def _sha_list(session):
+    """Daftar (path, sha256) resmi dari SHA256SUMS.txt PhysioNet."""
+    r = session.get(S3_BASE + "SHA256SUMS.txt", timeout=60)
+    r.raise_for_status()
+    return [(q[1].strip(), q[0]) for q in (l.split(maxsplit=1) for l in r.text.splitlines()) if len(q) == 2]
 
 
-def download_chapman(log=print, max_tries=30):
-    """Unduh zip PhysioNet (±2,3 GB) ke data/chapman/, bisa dilanjutkan bila terputus. Butuh Internet."""
+def download_chapman(log=print, threads=48, max_tries=8):
+    """
+    Unduh dari mirror resmi PhysioNet di AWS S3 (±5 GB, ±90 ribu file .hea/.mat) secara paralel ke data/chapman/.
+    Setiap file dicek dengan SHA256SUMS.txt resmi; file yang sudah ada dan cocok dilewati, jadi bisa dilanjutkan.
+    """
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
     import requests
-    if CH_ZIP.exists() and _zip_ok(CH_ZIP):
-        return CH_ZIP
-    CH_ZIP.parent.mkdir(parents=True, exist_ok=True)
-    part = CH_ZIP.with_name(CH_ZIP.name + ".part")
-    t0, total = time.perf_counter(), None
-    for attempt in range(max_tries):
-        offset = part.stat().st_size if part.exists() else 0
-        if total and offset >= total:
-            break
-        headers = {"Range": f"bytes={offset}-"} if offset else {}
-        try:
-            with requests.get(ZIP_URL, headers=headers, stream=True, timeout=60, allow_redirects=True) as r:
-                if offset and r.status_code == 200:          # server tidak mendukung Range → mulai ulang
-                    offset = 0
+    flag = CH_DIR / ".lengkap"
+    if flag.exists():
+        return CH_DIR
+    CH_DIR.mkdir(parents=True, exist_ok=True)
+    local = threading.local()
+
+    def sess():
+        if not hasattr(local, "s"):
+            local.s = requests.Session()
+        return local.s
+
+    files = [(q, h) for q, h in _sha_list(requests.Session())
+             if q.endswith((".hea", ".mat")) or q == "ConditionNames_SNOMED-CT.csv"]
+
+    def get(item):
+        rel, sha = item
+        dest = CH_DIR / rel
+        if dest.exists():
+            data = dest.read_bytes()
+            if hashlib.sha256(data).hexdigest() == sha:
+                return len(data), 0
+        for attempt in range(max_tries):
+            try:
+                r = sess().get(S3_BASE + rel, timeout=60)
                 r.raise_for_status()
-                total = offset + int(r.headers.get("Content-Length", 0)) or None
-                mark = offset
-                with open(part, "ab" if offset else "wb") as f:
-                    for chunk in r.iter_content(8 << 20):
-                        f.write(chunk)
-                        mark += len(chunk)
-                        if mark - offset >= 256 << 20:
-                            log(f"  {mark / 1e9:.2f} GB ({(time.perf_counter() - t0) / 60:.1f} mnt)")
-                            offset = mark
-            if total is None or part.stat().st_size >= total:
-                break
-        except (requests.RequestException, OSError) as e:
-            log(f"  unduhan terputus ({type(e).__name__}); lanjut dari {part.stat().st_size / 1e9:.2f} GB")
-            time.sleep(min(60, 5 * (attempt + 1)))
-    part.replace(CH_ZIP)
-    assert _zip_ok(CH_ZIP), "zip Chapman rusak atau tidak lengkap; hapus data/chapman/ lalu jalankan ulang"
-    log(f"zip Chapman {CH_ZIP.stat().st_size / 1e9:.2f} GB ({(time.perf_counter() - t0) / 60:.1f} mnt)")
-    return CH_ZIP
+                data = r.content
+                if hashlib.sha256(data).hexdigest() != sha:
+                    raise OSError("checksum tidak cocok")
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                tmp = dest.with_name(dest.name + ".part")
+                tmp.write_bytes(data)
+                tmp.replace(dest)
+                return len(data), 1
+            except (requests.RequestException, OSError) as e:
+                if attempt == max_tries - 1:
+                    raise RuntimeError(f"gagal mengunduh {rel}: {e}") from e
+                time.sleep(2 * (attempt + 1))
+
+    t0, nbytes, nnew = time.perf_counter(), 0, 0
+    log(f"{len(files)} file dari {S3_BASE} ({threads} thread) ...")
+    with ThreadPoolExecutor(threads) as ex:
+        for i, (n, new) in enumerate(ex.map(get, files)):
+            nbytes += n; nnew += new
+            if (i + 1) % 10000 == 0 or i + 1 == len(files):
+                dt = time.perf_counter() - t0
+                log(f"  {i + 1}/{len(files)} file, {nbytes / 1e9:.2f} GB, {nbytes / 1e6 / max(dt, 1e-9):.0f} MB/s, "
+                    f"{dt / 60:.1f} mnt")
+    flag.write_text(json.dumps({"files": len(files), "bytes": nbytes, "baru": nnew}))
+    log(f"Chapman siap: {nbytes / 1e9:.2f} GB, {nnew} file baru, {(time.perf_counter() - t0) / 60:.1f} mnt")
+    return CH_DIR
 
 
 def parse_header(text):
@@ -194,27 +233,19 @@ def parse_header(text):
             "age": meta.get("Age", ""), "sex": meta.get("Sex", "")}
 
 
-_ZF = None
-
-
-def _init_worker(zip_path):
-    global _ZF
-    _ZF = zipfile.ZipFile(zip_path)
-
-
 def _process_record(hea_name):
     """Satu pasien → dict (ritme, alasan, IBI window 10 s dari lead II lewat front-end produksi)."""
     from scipy.io import loadmat
     rec = Path(hea_name).stem
     out = {"record": rec, "rhythm": "", "codes": "", "age": "", "sex": "", "ok": False, "reason": "", "ibi": None}
     try:
-        h = parse_header(_ZF.read(hea_name).decode("utf-8", "replace"))
+        h = parse_header((CH_DIR / hea_name).read_text(encoding="utf-8", errors="replace"))
         rh = sorted({RHYTHM[c] for c in h["dx"] if c in RHYTHM})
         out.update(rhythm="+".join(rh), codes=",".join(h["dx"]), age=h["age"], sex=h["sex"])
         if len(rh) != 1:
             out["reason"] = "tanpa kode ritme" if not rh else "lebih dari satu kode ritme"
             return out
-        val = loadmat(io.BytesIO(_ZF.read(hea_name[:-4] + ".mat")))["val"]
+        val = loadmat(str(CH_DIR / (hea_name[:-4] + ".mat")))["val"]
         i = h["leads"].index(LEAD)
         sig = (val[i].astype(np.float64) - h["baseline"][i]) / h["gain"][i]
         wins, _ = hrv_core.signal_to_windows(sig, h["fs"], stride_sec=5.0)
@@ -232,17 +263,21 @@ def build_chapman_windows(log=print, workers=None):
     """Ekstrak satu window per pasien (lead II) → cache/v8/chapman_windows.npz. Dilewati bila sudah ada."""
     if CH_WIN.exists():
         return chapman_summary()
-    with zipfile.ZipFile(CH_ZIP) as zf:
-        names = sorted(n for n in zf.namelist() if n.endswith(".hea") and "WFDBRecords/" in n)
+    names = sorted(p.relative_to(CH_DIR).as_posix() for p in (CH_DIR / "WFDBRecords").rglob("*.hea"))
+    assert len(names) > 40000, f"hanya {len(names)} header di {CH_DIR}; jalankan download_chapman() dulu"
     workers = workers or max(1, (os.cpu_count() or 2))
     log(f"{len(names)} header, {workers} proses ...")
     t0 = time.perf_counter()
     rows = []
-    with mp.get_context("spawn").Pool(workers, initializer=_init_worker, initargs=(str(CH_ZIP),)) as pool:
-        for i, r in enumerate(pool.imap(_process_record, names, chunksize=256)):
-            rows.append(r)
-            if (i + 1) % 5000 == 0:
-                log(f"  {i + 1}/{len(names)} ({(time.perf_counter() - t0) / 60:.1f} mnt)")
+    with mp.get_context("spawn").Pool(workers) as pool:
+        for b0 in range(0, len(names), 2500):                # per batch: progres teratur + gagal cepat bila pool macet
+            batch = names[b0:b0 + 2500]
+            try:
+                rows += pool.map_async(_process_record, batch, chunksize=32).get(timeout=900)
+            except mp.TimeoutError:
+                raise RuntimeError(f"pool ekstraksi macet: batch {b0}–{b0 + len(batch)} tidak selesai dalam 15 menit")
+            dt = time.perf_counter() - t0
+            log(f"  {len(rows)}/{len(names)} ({dt / 60:.1f} mnt, sisa ±{dt / len(rows) * (len(names) - len(rows)) / 60:.1f} mnt)")
     X = np.zeros((len(rows), hrv_core.MAX_BEATS, 2), np.float32)
     M = np.zeros((len(rows), hrv_core.MAX_BEATS), np.float32)
     hr, cvv, nb = np.full(len(rows), np.nan), np.full(len(rows), np.nan), np.zeros(len(rows), np.int16)
@@ -261,6 +296,34 @@ def build_chapman_windows(log=print, workers=None):
     tmp.replace(CH_WIN)
     log(f"selesai {(time.perf_counter() - t0) / 60:.1f} mnt")
     return chapman_summary()
+
+
+def is_ningbo(record):
+    return np.array([int(r[2:]) > SHAOXING_MAX for r in np.atleast_1d(record)])
+
+
+def afl_label_check():
+    """Detak & keteraturan per ritme dan sumber, dibandingkan dengan AFDB: apakah label AFL masuk akal?"""
+    ch = load_chapman()
+    nb = is_ningbo(ch["record"])
+    rows = {}
+    for src, m_src in (("Shaoxing", ~nb), ("Ningbo", nb)):
+        for g in ("SR", "ST", "AFIB", "AFL"):
+            m = m_src & (ch["rhythm"] == g)
+            rows[f"{g} ({src})"] = {"pasien": int(m.sum()),
+                                    "detak median": float(np.median(ch["hr"][m])) if m.any() else None,
+                                    "CV median": float(np.median(ch["cv"][m])) if m.any() else None,
+                                    "CV > 0,10": float(np.mean(ch["cv"][m] > 0.10)) if m.any() else None}
+    z = np.load(DATA_STD)
+    Mz, Iz = z["M"], z["X"][:, :, 0]
+    mean = (Iz * Mz).sum(1) / Mz.sum(1)
+    hr = 60000.0 / mean
+    cvv = np.sqrt((((Iz - mean[:, None]) ** 2) * Mz).sum(1) / Mz.sum(1)) / mean
+    for c, g in ((1, "AFIB (AFDB)"), (2, "AFL (AFDB)")):
+        m = z["y"] == c
+        rows[g] = {"pasien": int(len(np.unique(z["records"][m]))), "detak median": float(np.median(hr[m])),
+                   "CV median": float(np.median(cvv[m])), "CV > 0,10": float(np.mean(cvv[m] > 0.10))}
+    return rows
 
 
 def chapman_summary():
@@ -317,6 +380,15 @@ def parity_check(device, n_epochs=2):
     return float(np.abs(pa - pb).max())
 
 
+_GPU = 0
+
+
+def _init_gpu(queue):
+    """Initializer proses pekerja: ambil satu nomor GPU (mode multi-GPU, satu proses per GPU)."""
+    global _GPU
+    _GPU = queue.get()
+
+
 def run_job(job):
     """Satu (varian, ulangan): latih 5 fold, prediksi fold uji AFDB + Chapman + uji stres, simpan bobot model."""
     import torch
@@ -325,14 +397,14 @@ def run_job(job):
     if out.exists():
         return variant, r, None
     torch.set_num_threads(2)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device(f"cuda:{_GPU}" if torch.cuda.is_available() else "cpu")
     cfg = VARIANTS[variant]
     z = np.load(DATA_STD)
     X, M, y = z["X"], z["M"], z["y"]
     fa = np.load(FOLDS)["folds"][r]
     ch = load_chapman()
     fc = chapman_folds(ch["rhythm"])[r]
-    use_ch = ch["cls"] >= 0
+    use_ch = np.isin(ch["cls"], cfg.get("chapman_classes", (0, 1, 2)))
     Xs, Ms, _ = A7.stress_set()
     oof_a = np.full((len(y), 3), np.nan, np.float32)
     oof_c = np.full((len(ch["cls"]), 3), np.nan, np.float32)
@@ -368,12 +440,21 @@ def all_jobs():
     return [(v, r) for r in range(N_REPEATS) for v in VARIANTS]
 
 
-def run_all_jobs(log=print):
-    """Semua job berurutan di satu proses GPU; per ulangan supaya hasil awal cepat ada. Bisa dilanjutkan."""
+def run_all_jobs(log=print, n_gpu=None):
+    """
+    Semua job, urut per ulangan supaya hasil awal cepat ada. Satu proses per GPU (Kaggle T4 x2 → 2 job bersamaan);
+    job saling lepas dan seed-nya tetap, jadi hasilnya sama dengan menjalankan berurutan. Bisa dilanjutkan.
+    """
+    import torch
+    n_gpu = n_gpu or max(1, torch.cuda.device_count())
     jobs = [j for j in all_jobs() if not job_path(*j).exists()]
-    log(f"{len(jobs)} job tersisa dari {len(all_jobs())}")
+    log(f"{len(jobs)} job tersisa dari {len(all_jobs())}, {n_gpu} proses (satu per GPU)")
     t0 = time.perf_counter()
-    with ProcessPoolExecutor(1, mp_context=mp.get_context("spawn")) as ex:
+    ctx = mp.get_context("spawn")
+    queue = ctx.Queue()
+    for i in range(n_gpu):
+        queue.put(i)
+    with ProcessPoolExecutor(n_gpu, mp_context=ctx, initializer=_init_gpu, initargs=(queue,)) as ex:
         for v, r, t in ex.map(run_job, jobs):
             log(f"  [{(time.perf_counter() - t0) / 60:5.1f} mnt] {v:<13} ulangan {r}: {t:.0f} s/fold")
 
@@ -475,7 +556,7 @@ def evaluate():
     pairs_ablasi = {v: {m: [float(point[v][m].mean() - point["afdb"][m].mean()),
                             *map(float, np.percentile(boot[v][m] - boot["afdb"][m], [2.5, 97.5])),
                             float(np.mean(boot[v][m] - boot["afdb"][m] > 0))]
-                        for m in ("Macro-F1", "AFL F1", "AFL R", "Normal R")} for v in ("afdb_chapman", "chapman")}
+                        for m in ("Macro-F1", "AFL F1", "AFL R", "Normal R")} for v in VARIANTS if v not in ("v31", "afdb")}
     fp = {}
     for k, v in pred.items():
         c = np.stack([cv.patient_cms(y, p, rec, patients) for p in v])
@@ -507,7 +588,9 @@ def evaluate():
     for k, f in runners.items():
         contrib[k] = _onehot(np.concatenate([f(ch["X"][i:i + 4096], ch["M"][i:i + 4096])
                                              for i in range(0, len(ch["X"]), 4096)]))
-    m3 = ch["cls"] >= 0
+    ningbo = is_ningbo(ch["record"])
+    m_all = ch["cls"] >= 0
+    m3 = m_all & ~((ch["rhythm"] == "AFL") & ningbo)       # label andal: AFL Ningbo dikeluarkan dari metrik 3 kelas
     cls3 = ch["cls"][m3]
     cm_pt = {k: np.stack([v[m3][cls3 == c].sum(0) for c in range(3)]) for k, v in contrib.items()}
     cm_pt_raw = {k: np.stack([v[m3][cls3 == c].sum(0) for c in range(3)]) for k, v in contrib_raw.items()}
@@ -516,6 +599,9 @@ def evaluate():
                 for m in ("Macro-F1", "AFL F1", "AFL R", "AFL P", "AFIB F1", "AFIB R", "Normal R")} for k in contrib}
     mets_raw = {k: {m: float(_cm_metrics(cm_pt_raw[k])[m]) for m in ("Macro-F1", "AFL F1", "AFL R", "Normal R")}
                 for k in contrib_raw}
+    cls_all = ch["cls"][m_all]
+    mets_all_labels = {k: {m: float(_cm_metrics(np.stack([v[m_all][cls_all == c].sum(0) for c in range(3)]))[m])
+                           for m in ("Macro-F1", "AFL F1", "AFL R", "AFIB R")} for k, v in contrib.items()}
     ch_pairs = {}
     for ref in ("v31", "v31_paket"):
         for k in contrib:
@@ -528,9 +614,14 @@ def evaluate():
                              *map(float, np.percentile(dm, [2.5, 97.5])), float(np.mean(dm > 0))],
                 "AFL R": [float(_cm_metrics(cm_pt[k])["AFL R"] - _cm_metrics(cm_pt[ref])["AFL R"]),
                           *map(float, np.percentile(da, [2.5, 97.5])), float(np.mean(da > 0))]}
-    rhythm_tab = {g: {"n": int((ch["rhythm"] == g).sum()),
-                      **{k: v[ch["rhythm"] == g].mean(0).tolist() for k, v in contrib.items()}}
-                  for g in sorted(set(ch["rhythm"]), key=lambda g: (g not in GROUP_CLASS, g))}
+    groups = {}
+    for g in sorted(set(ch["rhythm"]), key=lambda g: (g not in GROUP_CLASS, g)):
+        if g == "AFL":
+            groups["AFL (Shaoxing)"] = (ch["rhythm"] == g) & ~ningbo
+            groups["AFL (Ningbo, label tidak andal)"] = (ch["rhythm"] == g) & ningbo
+        else:
+            groups[g] = ch["rhythm"] == g
+    rhythm_tab = {g: {"n": int(m.sum()), **{k: v[m].mean(0).tolist() for k, v in contrib.items()}} for g, m in groups.items()}
     st = ch["rhythm"] == "ST"
     alarm = {k: v[:, 1] + v[:, 2] for k, v in contrib.items()}
     st_bands = {f"{lo}–{hi if hi < 999 else '∞'}": {"n": int((st & (ch["hr"] >= lo) & (ch["hr"] < hi)).sum()),
@@ -540,7 +631,7 @@ def evaluate():
     st_all = {"n": int(st.sum()), **boot_mean({k: a[st] for k, a in alarm.items()})}
     sinus_slow = np.isin(ch["rhythm"], ["SR", "SB", "SA"])
     sinus_alarm = {"n": int(sinus_slow.sum()), **boot_mean({k: a[sinus_slow] for k, a in alarm.items()})}
-    afl = ch["rhythm"] == "AFL"
+    afl = (ch["rhythm"] == "AFL") & ~ningbo                 # hanya AFL Shaoxing (label andal)
     afl_bands = {f"{lo}–{hi if hi < 999 else '∞'}": {"n": int((afl & (ch["hr"] >= lo) & (ch["hr"] < hi)).sum()),
                                                      **{k: float(v[afl & (ch["hr"] >= lo) & (ch["hr"] < hi), 2].mean())
                                                         if (afl & (ch["hr"] >= lo) & (ch["hr"] < hi)).any() else None
@@ -569,7 +660,9 @@ def evaluate():
                  "afl_patients": ev.afl_patients, "afl_recall": ev.afl_recall, "fp": fp, "by_hr": by_hr, "sens": sens,
                  "bias": {k: {"median": np.median(np.concatenate(b), 0).tolist(), "min": np.concatenate(b).min(0).tolist(),
                               "max": np.concatenate(b).max(0).tolist()} for k, b in fold_bias.items()}},
-        "chapman": {"summary": chapman_summary(), "metrics": mets, "metrics_tanpa_bias": mets_raw, "pairs": ch_pairs,
+        "chapman": {"summary": chapman_summary(), "afl_label_check": afl_label_check(), "metrics": mets,
+                    "metrics_tanpa_bias": mets_raw, "metrics_semua_label": mets_all_labels, "pairs": ch_pairs,
+                    "n_metrik": {"Normal": int((cls3 == 0).sum()), "AFIB": int((cls3 == 1).sum()), "AFL": int((cls3 == 2).sum())},
                     "rhythm": rhythm_tab, "st_bands": st_bands, "st_all": st_all, "sinus_alarm": sinus_alarm,
                     "afl_bands": afl_bands, "paket_catatan": pk_note},
         "stress": stress, "threshold": threshold, "bpms": T.BPMS, "jitters": list(T.JITTERS),
@@ -584,6 +677,6 @@ def pack_results(dest):
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as zf:
         for p in sorted(CACHE_OUT.rglob("*")):
             if p.is_file() and not p.name.endswith((".tmp.npz", ".zip")):
-                zf.write(p, p.relative_to(REPO))
-        zf.write(FOLDS, FOLDS.relative_to(REPO))
+                zf.write(p, Path("cache/v8") / p.relative_to(CACHE_OUT))     # diekstrak di root repo → cache/v8/
+        zf.write(FOLDS, "cache/oof_robust/detector_e30_r5_s2026/folds.npz")
     return dest, dest.stat().st_size / 1e6

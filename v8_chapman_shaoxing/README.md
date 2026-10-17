@@ -23,8 +23,17 @@ People's Hospital, Ningbo First Hospital; CC BY 4.0).
 | `afdb` ablasi | AFDB, bobot lunak (= v5b) | Setara v31 | _(menunggu run Kaggle)_ |
 | **`afdb_chapman` 8a (utama)** | AFDB + Chapman, bobot lunak | AFDB tidak lebih buruk dari v31; di Chapman alarm palsu sinus takikardia jauh lebih rendah dan AFL lebih baik daripada paket v3.1 | _(menunggu run Kaggle)_ |
 | `chapman` 8b (eksploratif) | Chapman saja | Apakah model dari pasien lain menggeneralisasi ke AFDB? | _(menunggu run Kaggle)_ |
+| `afdb_chapman_bersih` 8c (ditambahkan setelah run pertama) | AFDB + Chapman tanpa label AFL (Normal + AFIB) | Alarm palsu ST turun seperti 8a, AFL di AFDB tidak lebih buruk dari v31 | _(menunggu run Kaggle)_ |
 
-**Kriteria kandidat produksi untuk 8a** (ditetapkan sebelum hasil):
+**Label AFL bagian Ningbo tidak andal** (ditemukan di run pertama, `chapman.afl_label_check`):
+- Record JS00001–JS10646 (Chapman–Shaoxing): 1.696 AFIB dan 416 AFL. AFL-nya berdetak median 113 bpm.
+- Record berikutnya (Ningbo): **0 AFIB**, tetapi 7.192 "AFL" berdetak median 88 bpm dan 86% tidak teratur (CV IBI > 0,10).
+  Itu persis AFIB (AFDB: AFIB 90 bpm, 97% tidak teratur; AFL 139 bpm, 18% tidak teratur). Kemungkinan besar "AF" (atrial
+  fibrillation) Ningbo dipetakan ke kode SNOMED atrial flutter.
+- Akibatnya 8a dilatih dengan ±7.000 AFIB berlabel AFL. Varian 8c ditambahkan dengan hanya label yang tidak diragukan, dan
+  metrik 3 kelas di Chapman memakai AFL Shaoxing saja. Hasil 8a tetap dilaporkan apa adanya.
+
+**Kriteria kandidat produksi untuk 8a** (ditetapkan sebelum hasil; berlaku juga untuk 8c):
 1. AFDB: Macro-F1 vs v31 tidak lebih buruk (P > 0,05), dan tidak ada pasien AFL yang recall-nya turun ≥ 0,20.
 2. Chapman: alarm palsu pada sinus takikardia paling banyak separuh paket v3.1, dan recall AFL tidak lebih rendah dari paket v3.1.
 3. Uji stres: ambang Normal ≥ 135 bpm.
@@ -32,7 +41,7 @@ People's Hospital, Ningbo First Hospital; CC BY 4.0).
 | File | Isi |
 |---|---|
 | `chapman_kaggle.ipynb` | Notebook untuk Kaggle (juga jalan di WSL/Colab): clone repo, unduh AFDB + Chapman, training, evaluasi, zip hasil |
-| `chapman.py` | Unduhan & ekstraksi Chapman (dibaca langsung dari zip), sidik jari AFDB & fold, training, evaluasi AFDB + Chapman + uji stres |
+| `chapman.py` | Unduhan Chapman (mirror S3 resmi, dicek SHA256) & ekstraksi, sidik jari AFDB & fold, training, evaluasi AFDB + Chapman + uji stres |
 
 ## Menjalankan di Kaggle (disarankan; PC tidak dipakai)
 
@@ -43,7 +52,7 @@ People's Hospital, Ningbo First Hospital; CC BY 4.0).
    - Accelerator **GPU T4 x2** (P100 tidak didukung PyTorch versi baru);
    - **Internet: On** (butuh akun Kaggle yang terverifikasi nomor HP).
 4. **Save Version → Save & Run All (Commit)**. Notebook berjalan di server Kaggle sekitar 3–4 jam:
-   - ±10 menit unduh;
+   - ±5–10 menit unduh (AFDB + Chapman dari mirror S3 resmi PhysioNet);
    - ±15 menit ekstraksi;
    - ±2,5–3 jam training 100 model fold;
    - ±15 menit evaluasi.
@@ -66,4 +75,4 @@ python tools/run_notebook.py v8_chapman_shaoxing/chapman_kaggle.ipynb
 ```
 
 Di mesin lokal, notebook memakai `../cache/dataset_v2_detector.npz` dan `folds.npz` yang sudah ada (diverifikasi dengan sidik
-jari), lalu mengunduh zip Chapman ±2,3 GB ke `../data/chapman/`. Unduhan butuh persetujuan pemilik repo.
+jari), lalu mengunduh Chapman ±5 GB ke `../data/chapman/`. Unduhan butuh persetujuan pemilik repo.
