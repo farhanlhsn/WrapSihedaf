@@ -22,6 +22,8 @@ beserta laporannya.
 
 | [v7_augmentasi_takikardia](v7_augmentasi_takikardia/) | MicroTransformer + sinus takikardia sintetis (detak Normal asli pasien latih yang dipercepat): 100–130 bpm (7a), 100–160 bpm (7b) | 7a: ambang alarm 115 → **135 bpm**, Macro-F1 0,825 (setara), tetapi recall AFL 0,592 → 0,555 (08378: 0,96 → 0,71). 7b rusak (0,700). Belum dikemas | [PDF](v7_augmentasi_takikardia/laporan/laporan_augmentasi_takikardia.pdf) |
 
+| [v8_chapman_shaoxing](v8_chapman_shaoxing/) | Data eksternal PhysioNet `ecg-arrhythmia` (Chapman–Shaoxing & Ningbo, 42 ribu pasien, lead II); dijalankan di Colab/Kaggle | **Sinus takikardia asli: paket v3.1 alarm 42% (98–100% di ≥120 bpm).** 8c (+ Chapman tanpa label AFL): alarm ST 9%, AFDB 0,799 (setara), tetapi AFL 2:1 & SVT hilang (08378: 0,98 → 0,51). Label AFL Ningbo tidak andal. Belum dikemas | [PDF](v8_chapman_shaoxing/laporan/laporan_chapman_shaoxing.pdf) |
+
 \*Rata-rata out-of-fold, pasien uji tidak pernah ikut dilatih. Ini bukan uji pada perangkat asli.
 
 ## Keputusan proyek yang berlaku
@@ -46,6 +48,9 @@ beserta laporannya.
   Aturan produk "takikardia teratur, perlu dicek" menunggu keputusan pemilik produk: aturan ini juga mengalihkan 86% AFL yang
   terdeteksi. Data v7 harus memuat sinus takikardia, tidak hanya pasien AFL tambahan.
 - Uji stres takikardia wajib untuk setiap model kandidat (AGENTS.md, protokol butir 9).
+- **Data eksternal (v8) mengonfirmasi batas interval RR.** Dengan sinus takikardia asli sebagai data latih, alarm palsu ST turun
+  42% → 9%, tetapi AFL 2:1 dan SVT ikut disebut Normal. Langkah berikutnya (v9) adalah cabang bentuk gelombang EKG yang
+  dilatih dengan AFDB + Chapman (label andal). Label AFL bagian Ningbo di `ecg-arrhythmia` tidak boleh dipakai.
 - Augmentasi sinus takikardia sintetis (v7) hanya memindahkan batas alarm palsu ke ±135 bpm, dengan harga sebagian deteksi
   AFL 2:1. Varian 100–130 bpm adalah kandidat yang **menunggu keputusan pemilik produk**. Di 135–160 bpm, interval RR saja
   tidak bisa membedakan sinus takikardia dari AFL 2:1; ini butuh data eksternal dengan bentuk gelombang EKG.
@@ -69,6 +74,7 @@ v4_smoothing_ensemble/    pasca-proses (smoothing, ensemble) tanpa training + la
 v5_training_afl/          dua resep training untuk AFL (window rapat, bobot lunak) + laporan/
 v6_cabang_ekg/            cabang sinyal EKG mentah 50 Hz (CNN, dua cabang, late fusion) + laporan/
 v7_augmentasi_takikardia/ sinus takikardia sintetis sebagai data latih (100–130, 100–160 bpm) + laporan/
+v8_chapman_shaoxing/      data eksternal Chapman–Shaoxing (notebook Kaggle/Colab-first) + laporan/
 ```
 
 Setiap folder versi berisi `README.md` (apa, hasil, cara menjalankan) dan `laporan/`
@@ -111,6 +117,7 @@ bisa berbeda.
 | Smoothing & ensemble v4 | `python tools/run_notebook.py v4_smoothing_ensemble/smoothing_ensemble.ipynb` | ±14 mnt (CPU) |
 | Resep training v5 | `python tools/run_notebook.py v5_training_afl/training_afl.ipynb` | ±60 mnt (GPU) |
 | Cabang EKG v6 | `python tools/run_notebook.py v6_cabang_ekg/cabang_ekg.ipynb` | ±2 jam (GPU) |
+| Data eksternal v8 (Kaggle/Colab, GPU) | lihat `v8_chapman_shaoxing/README.md` | ±1,5 jam (Kaggle 2× T4) / ±3 jam (Colab 1× T4) |
 | Augmentasi takikardia v7 | `python tools/run_notebook.py v7_augmentasi_takikardia/augmentasi_takikardia.ipynb` | ±45 mnt (GPU) + ±12 mnt evaluasi |
 | Laporan versi N | `python vN_.../laporan/build_report.py --extract`, lalu `python vN_.../laporan/build_report.py` | ±3 mnt |
 
@@ -134,7 +141,7 @@ front-end lamanya membuat recall Normal hanya ±34%.
 
 ## Menambah eksperimen baru
 
-Eksperimen baru → `vN_<nama_singkat>/` (berikutnya v8). Tindak lanjut tanpa eksperimen/training baru (kalibrasi, pengemasan,
+Eksperimen baru → `vN_<nama_singkat>/` (berikutnya v9). Tindak lanjut tanpa eksperimen/training baru (kalibrasi, pengemasan,
 perbaikan) → versi minor `vN.M_<nama>/`, seperti v3.1. Ikuti checklist "Definition of Done" di [AGENTS.md](AGENTS.md):
 notebook ter-eksekusi, kesimpulan, `README.md` versi, laporan PDF di `v4_.../laporan/`, dan baris baru
 di tabel "Versi dan hasil" di atas.

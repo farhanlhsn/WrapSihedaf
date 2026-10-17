@@ -23,7 +23,7 @@ output dengan bentuk, protokol, dan kualitas yang sama. Ringkasan proyek & cara 
 ### Invariant global
 
 - Folder versi yang sudah selesai **tidak diubah logikanya**. Penyesuaian path dan dokumentasi boleh.
-  - Eksperimen atau training baru → `vN_<nama_singkat>/` (N berikutnya, sekarang v8).
+  - Eksperimen atau training baru → `vN_<nama_singkat>/` (N berikutnya, sekarang v9).
   - Tindak lanjut tanpa eksperimen baru (kalibrasi, pengemasan, perbaikan) → versi minor `vN.M_<nama>/` (contoh: v3.1).
 - Notebook dijalankan dengan **folder versinya sebagai cwd**. Data lewat `../data/afdb`, cache lewat `../cache`.
   Jangan menulis keluaran ke root repo.
@@ -36,7 +36,9 @@ output dengan bentuk, protokol, dan kualitas yang sama. Ringkasan proyek & cara 
   mengekspor ulang model v2; menjalankan notebook v3.1 menulis ulang paket v3.1.
 - Arsitektur atau resep baru yang inputnya hanya interval RR **tidak** dicoba lagi (v3–v5 sudah menghabiskannya).
   Bentuk gelombang EKG dari 23 pasien AFDB juga sudah dicoba (v6) dan overfit per pasien. Sinus takikardia sintetis (v7)
-  hanya menggeser batas alarm palsu ke ±135 bpm; di atasnya interval RR tidak cukup. Eksperimen baru harus menambah
+  hanya menggeser batas alarm palsu ke ±135 bpm; di atasnya interval RR tidak cukup. Data eksternal dengan sinus takikardia
+  asli (v8) menurunkan alarm ST 42% → 9%, tetapi AFL 2:1 dan SVT ikut hilang. Batas ini hanya bisa dilewati dengan bentuk
+  gelombang EKG yang dilatih dengan banyak pasien. Eksperimen baru harus menambah
   **pasien** (data eksternal) atau informasi yang benar-benar baru. Model DL baru memakai **bobot kelas lunak** (`class_weights(y) ** 0.5`,
   lihat `v5_training_afl/latih.train_dl_weighted`) kecuali ada alasan tercatat.
 - Satuan IBI selalu **milidetik**. Label: 0 Normal, 1 AFIB, 2 AFL.
