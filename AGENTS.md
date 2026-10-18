@@ -20,12 +20,15 @@ output dengan bentuk, protokol, dan kualitas yang sama. Ringkasan proyek & cara 
   notebook Kaggle-first (clone repo, sidik jari dataset & fold AFDB, hasil dibawa pulang lewat `v8_hasil.zip`).
 - **v9_gelombang_ekg**: `v9_gelombang_ekg/README.md` — EKG Chapman sejajar dengan window RR v8, model v6 dilatih dengan
   AFDB + Chapman, pembanding dari cache v8 (dataset Kaggle `sihedaf-v8-cache`).
+- **v10_icentia_wearable**: `v10_icentia_wearable/README.md` — data wearable Icentia11k (CC BY-NC-SA, akademik saja): pemindaian
+  semua anotasi `.atr` lewat S3 (pembaca vektor, dibuktikan sama dengan wfdb), pemilihan pasien tetap, dua kernel Kaggle (CPU data →
+  GPU), pembanding dari dataset `sihedaf-v8-cache` + `sihedaf-v9-cache`, eksplorasi AUROC/kalibrasi AFDB.
 - **v1_lama**: `v1_lama/README.md` — arsip beku, hanya path yang disesuaikan.
 
 ### Invariant global
 
 - Folder versi yang sudah selesai **tidak diubah logikanya**. Penyesuaian path dan dokumentasi boleh.
-  - Eksperimen atau training baru → `vN_<nama_singkat>/` (N berikutnya, sekarang v10).
+  - Eksperimen atau training baru → `vN_<nama_singkat>/` (N berikutnya, sekarang v11).
   - Tindak lanjut tanpa eksperimen baru (kalibrasi, pengemasan, perbaikan) → versi minor `vN.M_<nama>/` (contoh: v3.1).
 - Notebook dijalankan dengan **folder versinya sebagai cwd**. Data lewat `../data/afdb`, cache lewat `../cache`.
   Jangan menulis keluaran ke root repo.
@@ -40,7 +43,9 @@ output dengan bentuk, protokol, dan kualitas yang sama. Ringkasan proyek & cara 
   Bentuk gelombang EKG dari 23 pasien AFDB juga sudah dicoba (v6) dan overfit per pasien. Sinus takikardia sintetis (v7)
   hanya menggeser batas alarm palsu ke ±135 bpm; di atasnya interval RR tidak cukup. Data eksternal dengan sinus takikardia
   asli (v8) menurunkan alarm ST 42% → 9%, tetapi AFL 2:1 dan SVT ikut hilang. Bentuk gelombang EKG dengan 34 ribu pasien
-  Chapman (v9) menurunkannya ke 2% di Chapman, tetapi gagal di AFDB: masalahnya kini pergeseran domain antar-dataset. Eksperimen baru harus menambah
+  Chapman (v9) menurunkannya ke 2% di Chapman, tetapi gagal di AFDB: masalahnya kini pergeseran domain antar-dataset. Menambah 510
+  pasien AFL wearable (v10, Icentia) memperbaiki Icentia dan Chapman tetapi memperburuk AFDB: batas AFL/AFIB tiap dataset berbeda.
+  Data publik lain dengan resep yang sama kemungkinan tidak memutuskan; yang dibutuhkan rekaman perangkat SIHEDAF berlabel. Eksperimen baru harus menambah
   **pasien** (data eksternal) atau informasi yang benar-benar baru. Model DL baru memakai **bobot kelas lunak** (`class_weights(y) ** 0.5`,
   lihat `v5_training_afl/latih.train_dl_weighted`) kecuali ada alasan tercatat.
 - Satuan IBI selalu **milidetik**. Label: 0 Normal, 1 AFIB, 2 AFL.
@@ -156,5 +161,9 @@ Detail dan kodenya ada di `v3_evaluasi_robust/`. Ringkasnya:
 - Menyimpulkan dari satu domain saja (v9). Model bentuk gelombang sangat baik di Chapman tetapi rusak di AFDB. Tanda bahayanya:
   bias cross-fit menyentuh **kedua** batas grid (−7 dan +3), dan AFL palsu menumpuk di window non-AFL milik pasien AFL. Selalu
   evaluasi di AFDB **dan** di data eksternal, dan laporkan keduanya berdampingan.
+- Menganggap kelas dengan nama sama berarti sama di setiap dataset (v10). AFL Icentia kebanyakan blok bervariasi (86 bpm, CV 0,20),
+  AFL AFDB hampir semuanya 2:1 (139 bpm, CV 0,03). Model yang belajar AFL dari Icentia menyebut AF "kasar" AFDB sebagai AFL. Selain cek
+  detak & CV (v8), bandingkan fenotipe per kelas antar dataset, dan saat AFDB memburuk, cek AUROC per kelas dan asal AFL palsu per
+  kelas asli (`v10_icentia_wearable/icentia.eksplorasi_afdb`) sebelum menyalahkan kalibrasi.
 - CI dengan bias yang sudah dipilih dianggap tetap (v3.1 melaporkan P = 1,00). Pemilihan bias sendiri juga tidak pasti;
   bootstrap bersarang memberi P = 0,993.

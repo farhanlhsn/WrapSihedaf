@@ -25,6 +25,7 @@ beserta laporannya.
 | [v8_chapman_shaoxing](v8_chapman_shaoxing/) | Data eksternal PhysioNet `ecg-arrhythmia` (Chapman–Shaoxing & Ningbo, 42 ribu pasien, lead II); dijalankan di Colab/Kaggle | **Sinus takikardia asli: paket v3.1 alarm 42% (98–100% di ≥120 bpm).** 8c (+ Chapman tanpa label AFL): alarm ST 9%, AFDB 0,799 (setara), tetapi AFL 2:1 & SVT hilang (08378: 0,98 → 0,51). Label AFL Ningbo tidak andal. Belum dikemas | [PDF](v8_chapman_shaoxing/laporan/laporan_chapman_shaoxing.pdf) |
 
 | [v9_gelombang_ekg](v9_gelombang_ekg/) | Cabang bentuk gelombang EKG (CNN v6) dilatih dengan AFDB + 34 ribu pasien Chapman berlabel andal; Kaggle 2× T4 | **Chapman: alarm sinus takikardia 42% → 2%, Macro-F1 0,520 → 0,739.** AFDB: 0,687 (P = 0,07), AFL palsu melonjak, 08378 → 0,00, bias tidak stabil. Batasnya kini pergeseran domain. Belum dikemas | [PDF](v9_gelombang_ekg/laporan/laporan_gelombang_ekg.pdf) |
+| [v10_icentia_wearable](v10_icentia_wearable/) | Data wearable Icentia11k (patch EKG satu lead, 510 pasien AFL, akademik saja) untuk cabang bentuk gelombang; Kaggle CPU + 2× T4 | **Icentia: Macro-F1 0,477 → 0,666, alarm Normal ≥ 120 bpm 83% → 13%; Chapman: lebih baik dari 9a (P = 1,00).** AFDB: 0,646, lebih buruk dari v31 (P = 0,01): AF kasar disebut AFL. Batasnya kini definisi AFL vs AFIB antar dataset. Belum dikemas | [PDF](v10_icentia_wearable/laporan/laporan_icentia_wearable.pdf) |
 
 \*Rata-rata out-of-fold, pasien uji tidak pernah ikut dilatih. Ini bukan uji pada perangkat asli.
 
@@ -56,6 +57,11 @@ beserta laporannya.
 - **Bentuk gelombang (v9) memecahkan alarm palsu takikardia di data klinis eksternal** (Chapman: 42% → 2%), tetapi model
   belum menyeberang ke AFDB (Holter): AFL palsu melonjak dan 08378 hilang. Batas proyek sekarang adalah pergeseran domain.
   Langkah berikutnya: validasi dengan rekaman perangkat SIHEDAF berlabel, lalu training yang tahan domain.
+- **Data wearable (v10, Icentia11k) membuat model bentuk gelombang jauh lebih baik di dua domain eksternal** (Icentia: AFL
+  terdeteksi untuk pertama kalinya, alarm sinus cepat 83% → 13%; Chapman lebih baik dari v9), tetapi **lebih buruk di AFDB**:
+  model menyebut banyak AF "kasar" AFDB sebagai AFL (AUROC AFL turun, kalibrasi tidak menolong). AFL Icentia kebanyakan blok
+  bervariasi (tidak teratur), berbeda dari AFL 2:1 di AFDB. Tiga domain publik memberi vonis berlawanan; **langkah berikutnya
+  adalah rekaman perangkat SIHEDAF berlabel dokter** dan keputusan produk apakah AFL perlu dibedakan dari AFIB.
 - Augmentasi sinus takikardia sintetis (v7) hanya memindahkan batas alarm palsu ke ±135 bpm, dengan harga sebagian deteksi
   AFL 2:1. Varian 100–130 bpm adalah kandidat yang **menunggu keputusan pemilik produk**. Di 135–160 bpm, interval RR saja
   tidak bisa membedakan sinus takikardia dari AFL 2:1; ini butuh data eksternal dengan bentuk gelombang EKG.
@@ -81,6 +87,7 @@ v6_cabang_ekg/            cabang sinyal EKG mentah 50 Hz (CNN, dua cabang, late 
 v7_augmentasi_takikardia/ sinus takikardia sintetis sebagai data latih (100–130, 100–160 bpm) + laporan/
 v8_chapman_shaoxing/      data eksternal Chapman–Shaoxing (notebook Kaggle/Colab-first) + laporan/
 v9_gelombang_ekg/         cabang bentuk gelombang EKG dengan AFDB + Chapman (Kaggle) + laporan/
+v10_icentia_wearable/     data wearable Icentia11k (pindai anotasi, ekstraksi, Kaggle CPU + GPU) + laporan/
 ```
 
 Setiap folder versi berisi `README.md` (apa, hasil, cara menjalankan) dan `laporan/`
@@ -125,6 +132,7 @@ bisa berbeda.
 | Cabang EKG v6 | `python tools/run_notebook.py v6_cabang_ekg/cabang_ekg.ipynb` | ±2 jam (GPU) |
 | Data eksternal v8 (Kaggle/Colab, GPU) | lihat `v8_chapman_shaoxing/README.md` | ±1,5 jam (Kaggle 2× T4) / ±3 jam (Colab 1× T4) |
 | Augmentasi takikardia v7 | `python tools/run_notebook.py v7_augmentasi_takikardia/augmentasi_takikardia.ipynb` | ±45 mnt (GPU) + ±12 mnt evaluasi |
+| Data wearable v10 (Kaggle CPU untuk data, lalu GPU) | lihat `v10_icentia_wearable/README.md` | ±35 mnt data + ±5 jam (Kaggle 2× T4) |
 | Laporan versi N | `python vN_.../laporan/build_report.py --extract`, lalu `python vN_.../laporan/build_report.py` | ±3 mnt |
 
 Urutan dari nol: unduh AFDB → v2 (membuat `cache/dataset_v2_*.npz`) → v3 (+ `eval_versi_lama.py`) → v3.1 → laporan.
@@ -147,7 +155,7 @@ front-end lamanya membuat recall Normal hanya ±34%.
 
 ## Menambah eksperimen baru
 
-Eksperimen baru → `vN_<nama_singkat>/` (berikutnya v10). Tindak lanjut tanpa eksperimen/training baru (kalibrasi, pengemasan,
+Eksperimen baru → `vN_<nama_singkat>/` (berikutnya v11). Tindak lanjut tanpa eksperimen/training baru (kalibrasi, pengemasan,
 perbaikan) → versi minor `vN.M_<nama>/`, seperti v3.1. Ikuti checklist "Definition of Done" di [AGENTS.md](AGENTS.md):
 notebook ter-eksekusi, kesimpulan, `README.md` versi, laporan PDF di `v4_.../laporan/`, dan baris baru
 di tabel "Versi dan hasil" di atas.
