@@ -33,6 +33,11 @@ beserta laporannya.
 
 - **Paket produksi aktif: `v3.1_kalibrasi_produksi/model_export/sihedaf_v3_1.{pt,json}`.** Paket v2 dipertahankan sebagai
   titik rollback (bobot sama, hanya bias berbeda).
+- **Hanya v3.1 (dan v2) yang berupa paket siap pakai.** v4–v10 tidak menghasilkan paket. v4–v6 tidak menyimpan bobot. v7–v10
+  menyimpan bobot per fold (umumnya 25 file per varian, tanpa bias final) di `cache/vN/model/`. Folder ini tidak ada di git, dan
+  `predictor.py` tidak bisa memakainya. Untuk backend dan uji di perangkat, termasuk saat ingin membandingkan dengan model lain, tetap pakai paket v3.1
+  sampai ada paket uji tersendiri (versi minor `vN.M_<nama>/`, perlu persetujuan pemilik repo). Model v10 dilatih dengan
+  Icentia11k (lisensi CC BY-NC-SA), jadi hanya boleh dipakai untuk akademik/riset.
 - Sistem lama (`final.joblib` + `find_peaks`) diganti. Panduan migrasi: [BACKEND.md](v3.1_kalibrasi_produksi/BACKEND.md).
 - Model produksi tetap MicroTransformer.
 - **Pencarian arsitektur yang inputnya hanya interval RR dihentikan.** Empat arsitektur gagal di pasien AFL yang sama.
