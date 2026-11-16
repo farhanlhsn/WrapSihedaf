@@ -23,12 +23,118 @@ output dengan bentuk, protokol, dan kualitas yang sama. Ringkasan proyek & cara 
 - **v10_icentia_wearable**: `v10_icentia_wearable/README.md` — data wearable Icentia11k (CC BY-NC-SA, akademik saja): pemindaian
   semua anotasi `.atr` lewat S3 (pembaca vektor, dibuktikan sama dengan wfdb), pemilihan pasien tetap, dua kernel Kaggle (CPU data →
   GPU), pembanding dari dataset `sihedaf-v8-cache` + `sihedaf-v9-cache`, eksplorasi AUROC/kalibrasi AFDB.
+- **v11_model_tim**: `v11_model_tim/README.md` + `RANCANGAN.md` — permintaan pembimbing: 6 model berbasis RR yang berbeda dari
+  v1, **satu folder per anggota tim** (`<model>/model.py` + `jalankan.ipynb`), kode bersama di `bersama/` (data + sidik jari,
+  loop DL identik v3, runner 5×5 yang bisa dilanjutkan, evaluasi protokol). Pengecualian dari aturan folder versi: notebook
+  berjalan dengan cwd = **folder model** (satu tingkat lebih dalam), path dicari dari `bersama/data.REPO`, bukan `../cache`.
+  Data di Kaggle/Colab dari GitHub Release `v11-data` (`cache/v11_data.zip`, dicek `sidik_jari.json`). aeon (MiniRocket)
+  sengaja di luar `requirements.txt`. Bawaan tanpa balancing data (keputusan pemilik repo; alasan di README). Opsi setelan
+  `balancing` (`under` dan `over` semua model, `smote` hanya model fitur) dijalankan runner **di dalam setiap fold, hanya pada window latih**,
+  untuk menguji arahan pembimbing secara berpasangan vs `bawaan`. Jangan me-balance data di luar fold atau memakai CSV balancing
+  turunan v1. Tes pytest dan uji alur QUICK lolos untuk keenam model (22–23 Oktober 2026). MiniRocket butuh `numpy<2.4` (numba
+  stabil; numba beta gagal di `np.trapz`). **Selesai (3 November 2026).** Keenam model sudah dilatih penuh,
+  `gabungan.ipynb` sudah dijalankan (menulis `cache/v11/gabungan.json`), dan laporan gabungan ada di
+  `laporan/laporan_v11_model_tim.pdf`. Hasilnya:
+  - tidak ada yang lebih baik dari v3.1;
+  - dengan resep yang sama BiGRU terbaik;
+  - dengan bobot kelas penuh, BiGRU dan TCN setara v3.1;
+  - balancing tidak lebih baik dari bobot kelas. SVM butuh RAM ±7–8 GB per fold (latih di Colab/Kaggle High-RAM). Regresi logistik MiniRocket belum konvergen di 11/25 fold, dan
+  `info` di `ringkasan.json` hanya memuat fold terakhir. BiGRU
+  (2 November 2026): balancing `under`/`over` lebih buruk daripada bobot kelas; bobot penuh (`weight_power` 1,0) memulihkan AFL 2:1
+  (08378) dan menghilangkan ketergantungan pada 04936; regularisasi di atasnya tidak menambah apa-apa (tuning selesai, lihat
+  `bigru/eksperimen.py` dan PDF di `bigru/laporan/`). TCN (2 November 2026, Colab): bawaan lebih buruk daripada v3.1 dan BiGRU
+  karena margin skor AFL di 08378 tipis sehingga bias cross-fit menghapusnya; bobot penuh (`wp100`) memulihkannya dan setara v3.1
+  dan BiGRU `wp100` (pelajaran sama: bobot kelas yang menentukan, bukan arsitektur). Lihat `tcn/eksperimen.py`, PDF di `tcn/laporan/`.
+  InceptionTime `wp100` (3 November 2026) adalah pengecualian: 08378 pulih, tetapi margin AFL di window non-AFL juga naik dua kali lipat.
+  Akibatnya bias AFL menempel di −7 pada 8 dari 25 fold, dan Macro-F1 tidak naik. Jadi periksa juga margin non-AFL, bukan hanya
+  08378 (`inceptiontime/eksperimen.py`).
+- **v12_shdb_atrium**: `v12_shdb_atrium/RANCANGAN.md` + `atrium.py` — cabang aktivitas atrium (pembatalan QRST + fitur
+  fisiologis) yang digabung di akhir dengan model RR resep v3.1, data Holter AFDB + SHDB-AF (PhysioNet, ODC-BY; 98 rekaman di
+  `data/shdb_af/1.0.1/`). Pembaca WFDB format 16/212 dan `.atr` tanpa pustaka wfdb (dibuktikan sama). Dasar: model RR hanya
+  mendeteksi AFL yang cepat dan teratur (recall 0,92 vs ≤ 0,21 untuk pola lain). **Berhenti di gerbang (2 November 2026)**:
+  frekuensi atrium dominan dan indeks organisasi dari EKG 50 Hz tidak memisahkan AFL dari AFIB secara konsisten antar dataset, juga
+  setelah satu revisi pembatalan QRST yang ditetapkan sebelumnya; training tidak dijalankan. `p_konsisten`/`kuantisasi` terlihat
+  memisahkan, tetapi dilihat setelah hasil (hipotesis untuk versi berikutnya). Lihat `v12_shdb_atrium/README.md`.
+- **v11.1_dua_kelas**: `v11.1_dua_kelas/README.md` + `dua_kelas.ipynb` (logika di `dua_kelas.py`) — evaluasi saja: model yang ada dinilai sebagai 2 kelas
+  (Normal vs AF/AFL) dengan protokol lengkap (butir 9–10). Macro-F1 2 kelas 0,916–0,938; BiGRU bawaan terbaik. **Ambil keputusan
+  2 kelas dengan bias 3 kelas lalu menggabungkan AFIB + AFL**, bukan satu bias AF/AFL yang dipilih ulang: yang terakhir kehilangan
+  penekan AFL dan membuat alarm pada ritme normal teratur 80–95 bpm (sampai 22%), karena AFDB punya AFL teratur ±85–92 bpm
+  (hampir semuanya 04936).
+- **v3.3_takikardia_asli**: `v3.3_takikardia_asli/README.md` — evaluasi saja: EKG latihan fisik asli (EPFL, Wrist, EPHNOGRAM)
+  lewat detektor perangkat dan R-peak manual; model fold v7/v8/v11 dengan bias fold; aturan produk; abstain conformal; **metrik
+  episode gaya EC57 (`takikardia_asli.metrik_episode`, dipakai v13–v15)**. v3.1 mengalarmkan 98,4% sinus ≥ 120 bpm; hanya model yang
+  pernah melihat sinus takikardia membaik (v8c 60%). Detektor 50 Hz saat aktivitas memicu alarm AF juga di < 100 bpm (21%).
+- **v3.4_pembersih_detak**: `v3.4_pembersih_detak/README.md` + `RANCANGAN.md` (dikunci) — front-end di atas detektor produksi: `pembersih.selaraskan` menggeser R-peak ke templat QRS median ±5 s (detektor lama memilih |sinyal| dan melompat R→S), gerbang
+  morfologi opsional. Ekstraktor AFDB tanpa wfdb (identik bit demi bit dengan dataset v2), job training resep v3.1 dengan bobot tersimpan (paritas 0,0). Jitter EPFL 10,7 → 2,8 ms dan AFDB setara, tetapi **tidak direkomendasikan**: Se AF turun tipis di
+  MIT-BIH (F1) dan 1–3 poin di 4 data eksternal (F2, gerbang). Ide berikutnya diuji di data perangkat, bukan data publik yang sudah dipakai.
+- **v13_ecgfounder**: `v13_ecgfounder/README.md` + `RANCANGAN.md` (dikunci) — ECGFounder 1-lead (PKUDigitalHealth, MIT) beku; bobot dan
+  kode di `data/ecgfounder/` (unduh dengan SHA256, muat `weights_only` + izin skalar numpy). Zero-shot menurunkan alarm sinus
+  takikardia asli 98% → 5% dan lebih baik dari v3.1 di PTB-XL dan Icentia, tetapi AFL 2:1 (08378) hilang dan AFDB 3 kelas tidak lebih
+  baik; probe yang dilatih di AFDB kehilangan keunggulan eksternal. Biaya 50 Hz tidak terlihat (kontrol 250 Hz).
+- **v14_konteks_menit**: `v14_konteks_menit/README.md` + `RANCANGAN.md` (dikunci) — tahap kedua XGBoost dengan dinamika detak 2–10
+  menit di atas OOF v3.1. **Keempat hipotesis tidak lolos** (Macro-F1 lebih buruk, P = 0,033; alarm sinus asli 98% → 96%); hanya
+  episode AFIB palsu turun ±4×. AFDB tidak punya episode sinus takikardia untuk dicontoh.
+- **v15_kuantisasi_rr**: `v15_kuantisasi_rr/README.md` + `RANCANGAN.md` (pra-registrasi; hash di `logs/`) — fitur v12 `kuantisasi`
+  dan `p_konsisten`. Hasil utama **tidak cukup data** (CPSC 2021: AFL hanya 2 subjek). Tambahan PTB-XL: AUROC AFL vs AFIB 0,92/0,86
+  (lolos ambang), tetapi tahap gabungan 3 kelas memperburuk AFDB (P = 0,037). Usulan: pakai hanya untuk AFIB vs AFL.
+- **v16_hierarki_ecgfounder**: `v16_hierarki_ecgfounder/README.md` + `RANCANGAN.md` (dikunci) — ECGFounder zero-shot **tanpa
+  penyetelan** memutuskan sinus vs AF, lalu RR v3.1 (H-0) atau fitur atrium v15 (H-A) memutuskan AFIB vs AFL; semua dari cache.
+  Alarm sinus takikardia asli 98,4% → 0,1%, episode AFIB palsu 11,9 → 1,2/jam, 2 kelas setara v3.1 (0,951 vs 0,926; Sp 0,995).
+  Tetapi ECGFounder 1-lead 50 Hz menyebut 85% window AFL AFDB (termasuk 08378) sebagai sinus, jadi 3 kelas lebih buruk (0,650) dan
+  tahap 2 tidak berpengaruh. Menyetel tahap 1 di AFDB (H-X) membuat bias menempel di batas grid (82%). Keluaran "perlu dicek"
+  (tahap 1 sinus + v3.1 AFL) menampung AFL 2:1 tetapi juga 74% sinus takikardia. `hierarki.bersarang3` = bootstrap bersarang
+  berpasangan untuk parameter apa pun (paritas dengan v3.2 di-assert).
+- **v16.1_dua_kelas**: `v16.1_dua_kelas/README.md` + `RANCANGAN.md` (dikunci) — versi minor tanpa training: tahap 1 v16 sebagai
+  detektor AF 2 kelas (D-0). Sangat spesifik (alarm sinus takikardia 0,1%, episode AF palsu 11,4 → 1,0/jam), setara v3.1 di AFDB
+  (juga tanpa 04936), lebih baik di PTB-XL, tetapi sensitivitas lebih rendah dan Icentia11k lebih buruk → belum kandidat. Kurva
+  ambang (dilihat setelah hasil) menunjukkan t = −1 lebih seimbang; harus dikunci dan diuji di data baru (CPSC 2021 belum pernah
+  dinilai). `deteksi_af.DetektorAF` = fungsi prediksi EKG 50 Hz → keputusan (paritas 100% dengan cache v13; ±29 ms/window CPU).
+- **v16.2_cpsc2021**: `v16.2_cpsc2021/README.md` + `RANCANGAN.md` (dikunci sebelum sinyal dibaca) — ambang t = −1 (D-1) diuji di
+  CPSC 2021. **Kandidat detektor AF 2 kelas untuk uji perangkat**: Macro-F1 0,953 vs v3.1 0,881, sensitivitas sama (0,955 vs 0,951),
+  spesifisitas 0,958 vs 0,853; lolos juga di analisis yang dikunci. Label CPSC 2021: `(AFIB`/`(AFL` = awal episode, `(N` = akhir,
+  rekaman non-AF tanpa label ritme (`uji_cpsc.interval_af`, sesuai `score_2021.py`); `v15.segmen_ritme` salah untuk kelas Normal.
+  Ambang lain yang diuji ulang di CPSC 2021 tidak lagi independen.
+- **v16.3_replikasi**: `v16.3_replikasi/README.md` + `RANCANGAN.md` (dikunci) — D-1 diuji ulang di CinC 2017, MIT-BIH, LTAFDB:
+  **replikasi sebagian (2/3)**. Macro-F1 dan spesifisitas lebih baik di ketujuh dataset publik; sensitivitas setara/lebih baik di
+  Holter, tetapi lebih rendah 3–5 poin di EKG genggam/wearable satu lead (CinC 2017, Icentia11k). Sinus bradikardia LTAFDB 28%
+  dialarmkan. Ketujuh dataset publik sudah terpakai untuk D-1; ambang baru hanya dari data perangkat. `tools/unduh_physionet.py`
+  memakai MD5 dari ETag S3 bila database tidak punya SHA256SUMS (mis. challenge-2017).
+- **v16.4_nsrdb_georgia**: `v16.4_nsrdb_georgia/README.md` + `RANCANGAN.md` (dikunci) — D-1 di NSRDB (orang sehat 24 jam) dan Georgia
+  (Challenge 2021, lead I, label SNOMED per rekaman). Alarm palsu orang sehat 15,0% → 5,6%, sinus takikardia klinis 50% → 2%, tetapi
+  **Se lebih rendah di EKG klinis 10 s** (0,706 vs 0,770): kekurangan Se D-1 konsisten di data non-Holter (CinC 2017, Icentia, Georgia),
+  setara di Holter. Challenge 2021 tidak ada di S3 (`unduh_physionet.py --sumber physionet`, ≤ 6 thread).
+- **v16.5_episode_30s**: `v16.5_episode_30s/README.md` + `RANCANGAN.md` (dikunci) — aturan episode AF ≥ 30 s (run window AF, rentang
+  ≥ 30 s) dan metrik episode dengan interval sebenarnya (`episode.metrik`: Se ≥ 30 s, +P, durasi, palsu/jam). D-1 + 30 s: alarm palsu
+  orang sehat 1,23/jam (target 1,0, gagal tipis), olahraga 0,13 (v3.1: 8,8), Se episode 0,91–0,98. EDB diproses dengan mesin v16.4.
+  Jangan mengubah `U164.CACHE` dari modul lain (bug yang pernah membuat NSRDB dicari di folder yang salah).
+- **v16.6_episode_celah**: `v16.6_episode_celah/README.md` + `RANCANGAN.md` (dikunci + amandemen A) — grid durasi × celah di data v16.5,
+  validasi di SHDB-AF (seluruh 98 Holter), afpdb, incartdb. Celah menaikkan alarm palsu; 45 s terpilih tapi Se SHDB-AF 0,70 (gagal).
+  **D-1 + 30 s (S1) lolos di data baru** (Se 0,942, alarm palsu 0,77–0,89/jam): sistem terbaik saat ini untuk deteksi AF 2 kelas
+  (episode). Pelajaran: jangan memilih durasi aturan dengan Se untuk episode yang lebih pendek dari aturan itu. Data publik Holter yang
+  relevan kini terpakai; titik kerja berikutnya hanya dari data perangkat. `celah.jalankan(ds, bagian, n_bagian)` membagi pemrosesan.
+- **v16.7_konfirmasi_wearable**: `v16.7_konfirmasi_wearable/README.md` + `RANCANGAN.md` (dikunci) — uji konfirmasi primer S1 (D-1 + 30 s)
+  di segmen utuh Icentia11k (600 pasien; seleksi dari `cache/v10/icentia_scan.npz`, di luar seleksi v10; unduh S3 + SHA256) dan nstdb
+  (tidak ada di S3). **S1 terkonfirmasi**: Se episode 0,940, alarm palsu 0,50/jam (v3.1 + 30 s: 0,899; 2,33). Derau SNR ≤ 6 dB tetap
+  memicu 5–8 alarm/jam (gerbang kualitas berikutnya: jangan disetel di nstdb lalu diklaim di nstdb).
+- **v16.8_gerbang_kualitas**: `v16.8_gerbang_kualitas/README.md` + `RANCANGAN.md` (dikunci + amandemen A) — gerbang SQI templat QRS
+  (`pembersih.selaraskan` v3.4) untuk S1. **Gagal**: derau otot (afpdb + `ma` nstdb, tidak dipakai memilih) tidak turun; hanya derau
+  elektroda (jenis derau tahap A). q terpilih di batas grid. afpdb berderau dibuat dengan `gerbang.bising` (SNR setelah bandpass
+  0,5–40 Hz). Gerbang derau berikutnya butuh fitur frekuensi tinggi pada sinyal asli dan data derau perangkat.
+- **v16.9_sinus_bradikardia**: `v16.9_sinus_bradikardia/README.md` + `RANCANGAN.md` (dikunci) — evaluasi saja dari cache v16.2–v16.7
+  (`bradikardia.muat` memuat 10 dataset dengan detak per window). Sinus bradikardia LTAFDB: S1 8,89 alarm palsu/jam vs v3.1 0,48, tetapi 90%
+  dari 3 subjek; detak lambat (< 50 bpm) juga menaikkan alarm S1 di dataset lain (pola U). Window yang dialarmkan teratur dan tanpa ektopik
+  (anotasi .atr), jadi penyebabnya bentuk gelombang ECGFounder, bukan RR. Aturan detak tidak bisa (11–16% window AF < 60 bpm). Uji perangkat
+  wajib memuat rekaman tidur/detak istirahat rendah.
+- **v17_fusi_wearable**: `v17_fusi_wearable/README.md` + `RANCANGAN.md` (dikunci) — regresi logistik 3 parameter pada [d1, log-odds AF
+  v3.1] dilatih di CinC 2017 (CC BY 3.0; Icentia CC BY-NC-SA hanya untuk evaluasi). Sensitivitas Icentia naik 0,843 → 0,921, tetapi alarm
+  sinus takikardia asli 57% dan Holter lebih buruk dari D-1 → **tidak menggantikan D-1**. Titik kerja wearable vs aktivitas hanya bisa
+  dipilih dari data perangkat. Data latih untuk produk harus berlisensi komersial (cek lisensi sebelum melatih).
 - **v1_lama**: `v1_lama/README.md` — arsip beku, hanya path yang disesuaikan.
 
 ### Invariant global
 
 - Folder versi yang sudah selesai **tidak diubah logikanya**. Penyesuaian path dan dokumentasi boleh.
-  - Eksperimen atau training baru → `vN_<nama_singkat>/` (N berikutnya, sekarang v11).
+  - Eksperimen atau training baru → `vN_<nama_singkat>/` (N berikutnya, sekarang v18).
   - Tindak lanjut tanpa eksperimen baru (kalibrasi, pengemasan, perbaikan) → versi minor `vN.M_<nama>/` (contoh: v3.1).
 - Notebook dijalankan dengan **folder versinya sebagai cwd**. Data lewat `../data/afdb`, cache lewat `../cache`.
   Jangan menulis keluaran ke root repo.
@@ -40,6 +146,7 @@ output dengan bentuk, protokol, dan kualitas yang sama. Ringkasan proyek & cara 
   paket mana pun tanpa persetujuan eksplisit pemilik repo. Menjalankan notebook v2 (termasuk `SIHEDAF_QUICK=1`)
   mengekspor ulang model v2; menjalankan notebook v3.1 menulis ulang paket v3.1.
 - Arsitektur atau resep baru yang inputnya hanya interval RR **tidak** dicoba lagi (v3–v5 sudah menghabiskannya).
+  Pengecualian tercatat: v11 (permintaan pembimbing, studi perbandingan antar model tim; protokol tetap sama).
   Bentuk gelombang EKG dari 23 pasien AFDB juga sudah dicoba (v6) dan overfit per pasien. Sinus takikardia sintetis (v7)
   hanya menggeser batas alarm palsu ke ±135 bpm; di atasnya interval RR tidak cukup. Data eksternal dengan sinus takikardia
   asli (v8) menurunkan alarm ST 42% → 9%, tetapi AFL 2:1 dan SVT ikut hilang. Bentuk gelombang EKG dengan 34 ribu pasien
@@ -165,5 +272,13 @@ Detail dan kodenya ada di `v3_evaluasi_robust/`. Ringkasnya:
   AFL AFDB hampir semuanya 2:1 (139 bpm, CV 0,03). Model yang belajar AFL dari Icentia menyebut AF "kasar" AFDB sebagai AFL. Selain cek
   detak & CV (v8), bandingkan fenotipe per kelas antar dataset, dan saat AFDB memburuk, cek AUROC per kelas dan asal AFL palsu per
   kelas asli (`v10_icentia_wearable/icentia.eksplorasi_afdb`) sebelum menyalahkan kalibrasi.
+- Mengandalkan abstain/conformal untuk kondisi yang tidak ada di data kalibrasi (v3.3). Jaminan cakupan hanya berlaku bila data
+  uji mirip data kalibrasi; pada sinus takikardia model yakin dalam kesalahannya, sehingga 0% window menjadi "tidak yakin".
+- Membaca label data eksternal tanpa mencocokkan dengan kode penilaian resminya (v15/v16.2). Di CPSC 2021 label ritme hanya menandai
+  awal dan akhir episode AF; aturan "segmen setelah label" membuang semua rekaman non-AF. Sebelum memakai dataset baru, baca kode
+  penilaian/pemuat label resminya dan cek jumlah rekaman per kelas header vs per label.
+- Menyetel ambang "sinus vs AF" di AFDB (v16 H-X), atau melatih fusi ECGFounder + RR di CinC 2017 (v17, 1,4% window non-AF ≥ 120 bpm). AFDB tidak punya sinus takikardia, jadi pencarian bias hanya melihat AFL yang
+  hilang dan mendorong AF ke batas grid; alarm sinus takikardia ikut naik dan hasilnya tidak berpindah ke data lain. Ambang tahap
+  sinus vs AF dari model fondasi dibiarkan bawaan, atau dipilih dengan data yang memuat sinus takikardia.
 - CI dengan bias yang sudah dipilih dianggap tetap (v3.1 melaporkan P = 1,00). Pemilihan bias sendiri juga tidak pasti;
   bootstrap bersarang memberi P = 0,993.
