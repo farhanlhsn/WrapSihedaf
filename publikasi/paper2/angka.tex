@@ -1,0 +1,152 @@
+% Dibuat otomatis oleh angka.py dari cache. Jangan diedit manual.
+\newcommand{\nCfgAfdb}{12}
+\newcommand{\nFam}{7}
+\newcommand{\thrMin}{110}
+\newcommand{\thrMax}{140}
+\newcommand{\thrPtwo}{115}
+\newcommand{\nSynth}{50}
+\newcommand{\aflRegPtwo}{100}
+\newcommand{\afGtwentyPtwo}{36}
+\newcommand{\thrVsevenA}{135}
+\newcommand{\thrVeightA}{120--140}
+\newcommand{\nNormalAfdb}{99,000}
+\newcommand{\nAfdbHi}{100}
+\newcommand{\nAfdbHiPat}{7}
+\newcommand{\pctAfdbHi}{0.1}
+\newcommand{\cvAfdbHi}{0.18}
+\newcommand{\cvAflHi}{0.03}
+\newcommand{\afdbHiPtwo}{95}
+\newcommand{\afdbHiMin}{72}
+\newcommand{\afdbHiMax}{100}
+\newcommand{\chapNhi}{1,743}
+\newcommand{\chapNall}{6,797}
+\newcommand{\chapPtwo}{99.2}
+\newcommand{\chapPtwoCI}{[98.7, 99.5]}
+\newcommand{\chapPkgMin}{98.9}
+\newcommand{\chapPkgMax}{99.9}
+\newcommand{\chapBandOne}{6}
+\newcommand{\chapBandTwo}{55}
+\newcommand{\chapVeightA}{25}
+\newcommand{\chapVeightC}{20}
+\newcommand{\nWinEx}{2,189}
+\newcommand{\nSubjEx}{41}
+\newcommand{\nSubjTotal}{52}
+\newcommand{\nWinMan}{302}
+\newcommand{\nSubjMan}{26}
+\newcommand{\nPairWin}{192}
+\newcommand{\nPairSubj}{24}
+\newcommand{\nPairAlarmDev}{192}
+\newcommand{\nPairAlarmRef}{192}
+\newcommand{\exPtwo}{98.4}
+\newcommand{\exPtwoCI}{[96.5, 99.6]}
+\newcommand{\manPtwo}{100.0}
+\newcommand{\nCfgEx}{6}
+\newcommand{\exAfdbMin}{88.9}
+\newcommand{\exAfdbMax}{99.9}
+\newcommand{\manAfdbMin}{90.5}
+\newcommand{\srcEpfl}{100}
+\newcommand{\srcWrist}{100}
+\newcommand{\srcEph}{98}
+\newcommand{\exVsevenA}{63.9}
+\newcommand{\dVsevenA}{$-$34.5}
+\newcommand{\rVsevenA}{0.71}
+\newcommand{\mfdVsevenA}{$-$0.006}
+\newcommand{\mfpVsevenA}{0.41}
+\newcommand{\exVsevenB}{70.9}
+\newcommand{\dVsevenB}{$-$27.5}
+\newcommand{\rVsevenB}{0.53}
+\newcommand{\mfdVsevenB}{$-$0.131}
+\newcommand{\mfpVsevenB}{0.00}
+\newcommand{\exVeightA}{63.8}
+\newcommand{\dVeightA}{$-$34.6}
+\newcommand{\rVeightA}{0.00}
+\newcommand{\mfdVeightA}{$-$0.115}
+\newcommand{\mfpVeightA}{0.00}
+\newcommand{\exVeightC}{60.3}
+\newcommand{\dVeightC}{$-$38.1}
+\newcommand{\rVeightC}{0.51}
+\newcommand{\mfdVeightC}{$-$0.032}
+\newcommand{\mfpVeightC}{0.23}
+\newcommand{\rPtwo}{0.96}
+\newcommand{\rPzero}{1.00}
+\newcommand{\lolosDev}{68}
+\newcommand{\lolosMan}{95}
+\newcommand{\cvDev}{0.028}
+\newcommand{\cvMan}{0.009}
+\newcommand{\ltWristDev}{29}
+\newcommand{\ltWristMan}{9}
+\newcommand{\ltEphDev}{21}
+\newcommand{\ruleMin}{61}
+\newcommand{\ruleMax}{83}
+\newcommand{\ruleManEpfl}{97}
+\newcommand{\ruleAfl}{86}
+\newcommand{\ruleAf}{0.2}
+\newcommand{\ruleNormal}{0.1}
+\newcommand{\abstRagu}{0}
+\newcommand{\abstKosong}{12.9}
+\newcommand{\abstAlarm}{86}
+\newcommand{\abstNormal}{3.9}
+\newcommand{\abstAfl}{9.7}
+\newcommand{\aflShare}{58}
+\newcommand{\tabelUtama}{
+\multicolumn{7}{@{}l}{\textit{Trained on AFDB only}} \\
+P0 MicroTransformer, original recipe & 110--115 & 94 & 98.9 & 98.0 [95.6, 99.5] & 100.0 & 1.00 \\
+P1 MicroTransformer, fixed biases & 110--115 & 100 & 99.9 & 99.9 [99.7, 100.0] & 100.0 & 0.64 \\
+P2 MicroTransformer, cross-fit biases (ref.) & 115 & 95 & 99.2 & 98.4 [96.5, 99.6] & 100.0 & 0.96 \\
+BiGRU, soft weights & 120 & 87 & -- & 91.0 [87.4, 93.9] & 94.5 & 0.74 \\
+BiGRU, full weights & 115--120 & 90 & -- & 96.0 [93.7, 97.7] & 98.4 & 1.00 \\
+TCN, soft weights & 120--130 & 72 & -- & -- & -- & 0.01 \\
+TCN, full weights & 120--125 & 84 & -- & 88.9 [85.0, 92.5] & 90.5 & 0.92 \\
+InceptionTime, soft weights & 120--130 & 72 & -- & -- & -- & 0.79 \\
+InceptionTime, full weights & 120--130 & 76 & -- & -- & -- & 0.99 \\
+MiniRocket + logistic regression & 120--135 & 92 & -- & -- & -- & 0.11 \\
+XGBoost (HRV features) & 115--125 & 85 & -- & -- & -- & 0.05 \\
+RBF SVM (HRV features) & 120--140 & 78 & -- & -- & -- & 0.98 \\
+\multicolumn{7}{@{}l}{\textit{Trained with sinus-tachycardia examples (MicroTransformer, soft weights)}} \\
++ synthetic ST, 100--130 bpm & 135 & 69 & -- & 63.9 [57.8, 70.0] & 65.1 & 0.71 \\
++ synthetic ST, 100--160 bpm & 85$^{a}$ & 86 & -- & 70.9 [66.5, 75.2] & 41.8 & 0.53 \\
++ Chapman (incl.\ clinical ST) & 120--140 & 81 & 25.5$^{b}$ & 63.8 [57.2, 71.1] & 32.4 & 0.00 \\
++ Chapman, AFL labels removed & 120--135 & 78 & 20.5$^{b}$ & 60.3 [53.3, 67.6] & 30.1 & 0.51 \\
+}
+\newcommand{\tabelMitigasi}{
+Exercise $\geq$120\,bpm: alarm (\%) & 98.4 [96.5, 99.6] & 0.1 [0.0, 0.3] \\
+Exercise $<$100\,bpm: alarm (\%) & 21.8 & 1.0 \\
+Exercise: false alarms/h & 40.0 & 2.5 \\
+\quad with 30\,s rule & 8.8 & 0.0 \\
+PTB-XL sinus tach.\ ($n$=811): alarm (\%) & 29.7 & 1.6 \\
+AFDB Normal 110--120\,bpm: alarm (\%) & 59.0 & 12.0 \\
+AFDB sensitivity (window) & 0.934 & 0.893 \\
+AFDB specificity (window) & 0.924 & 0.995 \\
+AFDB episodes $\geq$30\,s found (30\,s rule) & 0.947 & 0.866 \\
+AFDB false alarms/h (30\,s rule) & 1.59 & 0.08 \\
+AFDB AFL windows ($n$=1,152): alarmed & 0.85 & 0.15 \\
+\quad 08378, 2:1 flutter ($n$=306) & 1.00 & 0.00 \\
+Icentia11k sensitivity (window) & 0.871 & 0.767 \\
+}
+\newcommand{\gateExHi}{0.1}
+\newcommand{\gateExHiCiHi}{0.3}
+\newcommand{\gateStach}{1.6}
+\newcommand{\ptwoStach}{29.7}
+\newcommand{\nStach}{811}
+\newcommand{\ptwoExFa}{40.0}
+\newcommand{\ptwoExFaRule}{8.8}
+\newcommand{\gateExFaRule}{0.0}
+\newcommand{\exHours}{30}
+\newcommand{\exUnits}{52}
+\newcommand{\gateSeDiff}{$-$0.040}
+\newcommand{\gateSeDiffLo}{$-$0.086}
+\newcommand{\gateSeDiffHi}{$-$0.002}
+\newcommand{\gateSeDiffP}{0.02}
+\newcommand{\gateIcentiaSe}{0.767}
+\newcommand{\ptwoIcentiaSe}{0.871}
+\newcommand{\nEightThreeAfl}{306}
+\newcommand{\nAflAfdb}{1,152}
+\newcommand{\gateEightThreeHit}{0}
+\newcommand{\gateAflAll}{15}
+\newcommand{\ptwoAflAll}{85}
+\newcommand{\gateAfdbSe}{0.893}
+\newcommand{\ptwoAfdbSe}{0.934}
+\newcommand{\gateAfdbSp}{0.995}
+\newcommand{\ptwoAfdbSp}{0.924}
+\newcommand{\gateEpSe}{0.866}
+\newcommand{\ptwoEpSe}{0.947}

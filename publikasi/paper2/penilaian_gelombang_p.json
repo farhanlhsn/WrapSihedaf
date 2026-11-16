@@ -1,0 +1,26 @@
+{
+ "catatan": "Penilaian visual awal strip dari cek_gelombang_p.py (seed 2026), 6 November 2026, oleh asisten AI. Belum dikonfirmasi klinisi/pembimbing; ubah berkas ini bila penilaian manusia berbeda. Kategori: jelas = gelombang P terlihat di depan setiap QRS dengan PR tetap; mungkin = defleksi kecil di depan QRS yang sebagian menyatu dengan T; tidak_dinilai = noise gerak atau fusi P-T pada detak tinggi. flutter_atau_ireguler = gelombang gigi gergaji atau RR tidak teratur pada R-peak referensi. detektor_salah = R-peak detektor 50 Hz jatuh di luar QRS (mis. di gelombang T) pada sebagian detak.",
+ "strip": {
+  "1": {"kategori": "mungkin"},
+  "2": {"kategori": "tidak_dinilai", "alasan": "noise/artefak otot"},
+  "3": {"kategori": "tidak_dinilai", "alasan": "noise/artefak otot"},
+  "4": {"kategori": "jelas"},
+  "5": {"kategori": "tidak_dinilai", "alasan": "fusi P-T"},
+  "6": {"kategori": "tidak_dinilai", "alasan": "noise/artefak otot"},
+  "7": {"kategori": "mungkin"},
+  "8": {"kategori": "tidak_dinilai", "alasan": "fusi P-T"},
+  "9": {"kategori": "jelas"},
+  "10": {"kategori": "jelas"},
+  "11": {"kategori": "tidak_dinilai", "alasan": "noise/baseline"},
+  "12": {"kategori": "tidak_dinilai", "alasan": "noise/baseline"},
+  "13": {"kategori": "jelas"},
+  "14": {"kategori": "mungkin", "detektor_salah": true},
+  "15": {"kategori": "mungkin", "detektor_salah": true},
+  "16": {"kategori": "tidak_dinilai", "alasan": "fusi P-T", "detektor_salah": true},
+  "17": {"kategori": "tidak_dinilai", "alasan": "noise/baseline", "detektor_salah": true},
+  "18": {"kategori": "jelas"},
+  "19": {"kategori": "mungkin", "detektor_salah": true},
+  "20": {"kategori": "tidak_dinilai", "alasan": "fusi P-T", "detektor_salah": true}
+ },
+ "flutter_atau_ireguler": 0
+}

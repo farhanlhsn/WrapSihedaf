@@ -1,0 +1,670 @@
+% Referensi paper 2: isi refs_kandidat.bib (diverifikasi subagen 6 Nov 2026, lihat catatan_literatur.md) + domazetoski2022
+% (dari paper 1, sudah diverifikasi Crossref) + anon_paper1. BibTeX hanya mencetak entri yang disitasi.
+
+% Kandidat referensi paper 2 (uji stres sinus takikardia).
+% Diverifikasi 6 November 2026 lewat Crossref API (DOI), PubMed E-utilities, arXiv API, DataCite API, Zenodo API,
+% openFDA + PDF ringkasan 510(k)/De Novo di accessdata.fda.gov, halaman PhysioNet, dan IFU resmi produsen.
+% Catatan klaim per entri: catatan_literatur.md (folder yang sama).
+% Daftar penulis lengkap. IEEEtran memotongnya menjadi "et al." bila > 6 penulis (entri BSTcontrol, panggil \bstctlcite).
+% Kunci yang sudah dipakai main.tex sengaja dipertahankan: genzoni2020, apple_ecg, kardia, zheng2020chapman,
+% zheng2022ecgarrhythmia, epfl_hi, jarchi2016wrist, kazemnejad2021ephnogram, angelopoulos2023, tibshirani2019, barber2023.
+
+@IEEEtranBSTCTL{IEEEexample:BSTcontrol,
+  CTLuse_forced_etal       = {yes},
+  CTLmax_names_forced_etal = {6},
+  CTLnames_show_etal       = {1}
+}
+
+% ---------------------------------------------------------------------------------------------------------------------
+% Preseden langsung dan detektor klasik
+% ---------------------------------------------------------------------------------------------------------------------
+
+% Crossref + PubMed 33019109. "Arrythmias" memang salah eja di judul aslinya (Crossref, IEEE, PubMed, Infoscience sama).
+% Nama "Van Zaen" mengikuti Infoscience EPFL; Crossref menulis family="Zaen", given="Jerome Van".
+@inproceedings{genzoni2020,
+  author    = {Genzoni, Elsa and Braun, Fabian and Van Zaen, Jerome and Renevey, Philippe and Lemay, Mathieu and
+               Pruvot, Etienne and Vesin, Jean-Marc},
+  title     = {Challenging the limitations of atrial fibrillation detection in the presence of other cardiac arrythmias},
+  booktitle = {2020 42nd Annual International Conference of the IEEE Engineering in Medicine \& Biology Society (EMBC)},
+  address   = {Montreal, QC, Canada},
+  pages     = {5000--5003},
+  year      = {2020},
+  doi       = {10.1109/EMBC44109.2020.9176418}
+}
+
+% Crossref + PubMed 21037227.
+@article{lake2011,
+  author  = {Lake, Douglas E. and Moorman, J. Randall},
+  title   = {Accurate estimation of entropy in very short physiological time series: The problem of atrial fibrillation
+             detection in implanted ventricular devices},
+  journal = {American Journal of Physiology-Heart and Circulatory Physiology},
+  volume  = {300},
+  number  = {1},
+  pages   = {H319--H325},
+  year    = {2011},
+  doi     = {10.1152/ajpheart.00561.2010}
+}
+
+% Crossref + PubMed 25666902.
+@article{petrenas2015,
+  author  = {Petr{\.e}nas, Andrius and Marozas, Vaidotas and S{\"o}rnmo, Leif},
+  title   = {Low-complexity detection of atrial fibrillation in continuous long-term monitoring},
+  journal = {Computers in Biology and Medicine},
+  volume  = {65},
+  pages   = {184--191},
+  year    = {2015},
+  doi     = {10.1016/j.compbiomed.2015.01.019}
+}
+
+% Crossref + PubMed 9990640 (detektor AF implan, latihan treadmill).
+@article{tse1999,
+  author  = {Tse, Hung-Fat and Lau, Chu-Pak and Ayers, Gregory M.},
+  title   = {Detection of atrial fibrillation during sinus tachycardia induced by exercise in patients with implantable
+             atrial defibrillators},
+  journal = {Pacing and Clinical Electrophysiology},
+  volume  = {22},
+  number  = {1},
+  pages   = {247--252},
+  year    = {1999},
+  doi     = {10.1111/j.1540-8159.1999.tb00342.x}
+}
+
+% Crossref + Europe PMC (PMC7787999). Urutan nama mengikuti PMC: nama diri Sanjana, Sowmya, Gopalakrishnan, Soman.
+@article{sanjana2020,
+  author  = {Sanjana, K. and Sowmya, V. and Gopalakrishnan, E. A. and Soman, K. P.},
+  title   = {Explainable artificial intelligence for heart rate variability in {ECG} signal},
+  journal = {Healthcare Technology Letters},
+  volume  = {7},
+  number  = {6},
+  pages   = {146--154},
+  year    = {2020},
+  doi     = {10.1049/htl.2020.0033}
+}
+
+% Sama dengan paper1/refs.bib (sudah terverifikasi Crossref + PubMed 33750686).
+@article{butkuviene2021,
+  author  = {Butkuvien{\.e}, Monika and Petr{\.e}nas, Andrius and Solo{\v{s}}enko, Andrius and Mart{\'i}n-Yebra, Alba and
+             Marozas, Vaidotas and S{\"o}rnmo, Leif},
+  title   = {Considerations on performance evaluation of atrial fibrillation detectors},
+  journal = {IEEE Transactions on Biomedical Engineering},
+  volume  = {68},
+  number  = {11},
+  pages   = {3250--3260},
+  year    = {2021},
+  doi     = {10.1109/TBME.2021.3067698}
+}
+
+% ---------------------------------------------------------------------------------------------------------------------
+% Interpretasi EKG komputer untuk AF/AFL
+% ---------------------------------------------------------------------------------------------------------------------
+
+% Crossref + PubMed 37633808. Teks lengkap tertutup; klaim "AFL 2:1 dibaca sinus takikardia" BELUM terverifikasi.
+@article{littmann2023,
+  author  = {Littmann, Laszlo},
+  title   = {Common {ECG} interpretation software mistakes {Part II}: Computer errors that hide diagnostic clues},
+  journal = {Journal of Electrocardiology},
+  volume  = {81},
+  pages   = {277--280},
+  year    = {2023},
+  doi     = {10.1016/j.jelectrocard.2023.08.003}
+}
+
+% Crossref + PubMed 37599144. Bagian III seri yang sama; klaim AFL juga belum terverifikasi.
+@article{littmann2023iii,
+  author  = {Littmann, Laszlo},
+  title   = {Common {ECG} interpretation software mistakes {Part III}: Computer errors that should never be missed},
+  journal = {Journal of Electrocardiology},
+  volume  = {81},
+  pages   = {281--284},
+  year    = {2023},
+  doi     = {10.1016/j.jelectrocard.2023.08.004}
+}
+
+% Crossref + PubMed 31684791 + teks lengkap PMC6883419.
+@article{lindow2019,
+  author  = {Lindow, Thomas and Kron, Josefine and Thulesius, Hans and Ljungstr{\"o}m, Erik and Pahlm, Olle},
+  title   = {Erroneous computer-based interpretations of atrial fibrillation and atrial flutter in a {Swedish} primary
+             health care setting},
+  journal = {Scandinavian Journal of Primary Health Care},
+  volume  = {37},
+  number  = {4},
+  pages   = {426--433},
+  year    = {2019},
+  doi     = {10.1080/02813432.2019.1684429}
+}
+
+% ---------------------------------------------------------------------------------------------------------------------
+% Alarm AF palsu di luar klinik (noise, aktivitas, AFL)
+% ---------------------------------------------------------------------------------------------------------------------
+
+% Crossref + PubMed 34149452.
+@article{halvaei2021,
+  author  = {Halvaei, Hesam and Svennberg, Emma and S{\"o}rnmo, Leif and Stridh, Martin},
+  title   = {Identification of transient noise to reduce false detections in screening for atrial fibrillation},
+  journal = {Frontiers in Physiology},
+  volume  = {12},
+  pages   = {672875},
+  year    = {2021},
+  doi     = {10.3389/fphys.2021.672875}
+}
+
+% Crossref; abstrak dari OpenAlex (open access CC BY).
+@article{kumar2023,
+  author  = {Kumar, Devender and Puthusserypady, Sadasivan and Dominguez, Helena and Sharma, Kamal and
+             Bardram, Jakob E.},
+  title   = {An investigation of the contextual distribution of false positives in a deep learning-based atrial
+             fibrillation detection algorithm},
+  journal = {Expert Systems with Applications},
+  volume  = {211},
+  pages   = {118540},
+  year    = {2023},
+  doi     = {10.1016/j.eswa.2022.118540}
+}
+
+% Crossref + PubMed 31689222. Terbit online 4 Nov 2019, nomor jurnal Juni 2020 (kunci mengikuti permintaan: 2019).
+@article{eerikainen2019,
+  author  = {Eerik{\"a}inen, Linda M. and Bonomi, Alberto G. and Schipper, Fons and Dekker, Lukas R. C. and
+             de Morree, Helma M. and Vullings, Rik and Aarts, Ronald M.},
+  title   = {Detecting atrial fibrillation and atrial flutter in daily life using photoplethysmography data},
+  journal = {IEEE Journal of Biomedical and Health Informatics},
+  volume  = {24},
+  number  = {6},
+  pages   = {1610--1618},
+  year    = {2020},
+  doi     = {10.1109/JBHI.2019.2950574}
+}
+
+% Crossref + PubMed 35265873.
+@article{eerikainen2020,
+  author  = {Eerik{\"a}inen, Linda M. and Bonomi, Alberto G. and Dekker, Lukas R. C. and Vullings, Rik and
+             Aarts, Ronald M.},
+  title   = {Atrial fibrillation monitoring with wrist-worn photoplethysmography-based wearables: State-of-the-art review},
+  journal = {Cardiovascular Digital Health Journal},
+  volume  = {1},
+  number  = {1},
+  pages   = {45--51},
+  year    = {2020},
+  doi     = {10.1016/j.cvdhj.2020.03.001}
+}
+
+% Opsional (artefak gerak, PPG vs EKG, kondisi sehari-hari). Crossref + PubMed 29995641.
+@article{eerikainen2018,
+  author  = {Eerik{\"a}inen, Linda M. and Bonomi, Alberto G. and Schipper, Fons and Dekker, Lukas R. C. and
+             Vullings, Rik and de Morree, Helma M. and Aarts, Ronald M.},
+  title   = {Comparison between electrocardiogram- and photoplethysmogram-derived features for atrial fibrillation
+             detection in free-living conditions},
+  journal = {Physiological Measurement},
+  volume  = {39},
+  number  = {8},
+  pages   = {084001},
+  year    = {2018},
+  doi     = {10.1088/1361-6579/aad2c0}
+}
+
+% Opsional (data latih PPG memuat kohort uji latih jantung). Crossref + PubMed 32964139.
+@article{torressoto2020,
+  author  = {Torres-Soto, Jessica and Ashley, Euan A.},
+  title   = {Multi-task deep learning for cardiac rhythm detection in wearable devices},
+  journal = {npj Digital Medicine},
+  volume  = {3},
+  pages   = {116},
+  year    = {2020},
+  doi     = {10.1038/s41746-020-00320-4}
+}
+
+% ---------------------------------------------------------------------------------------------------------------------
+% Studi wearable skala besar dan validasi perangkat
+% ---------------------------------------------------------------------------------------------------------------------
+
+% Crossref + PubMed 31722151 (22 penulis, ditambah "Apple Heart Study Investigators").
+@article{perez2019,
+  author  = {Perez, Marco V. and Mahaffey, Kenneth W. and Hedlin, Haley and Rumsfeld, John S. and Garcia, Ariadna and
+             Ferris, Todd and Balasubramanian, Vidhya and Russo, Andrea M. and Rajmane, Amol and Cheung, Lauren and
+             Hung, Grace and Lee, Justin and Kowey, Peter and Talati, Nisha and Nag, Divya and Gummidipundi, Santosh E.
+             and Beatty, Alexis and Hills, Mellanie True and Desai, Sumbul and Granger, Christopher B. and
+             Desai, Manisha and Turakhia, Mintu P.},
+  title   = {Large-scale assessment of a smartwatch to identify atrial fibrillation},
+  journal = {New England Journal of Medicine},
+  volume  = {381},
+  number  = {20},
+  pages   = {1909--1917},
+  year    = {2019},
+  doi     = {10.1056/NEJMoa1901183}
+}
+
+% Crossref + PubMed 36148649 (10 penulis).
+@article{lubitz2022,
+  author  = {Lubitz, Steven A. and Faranesh, Anthony Z. and Selvaggi, Caitlin and Atlas, Steven J. and
+             McManus, David D. and Singer, Daniel E. and Pagoto, Sherry and McConnell, Michael V. and
+             Pantelopoulos, Alexandros and Foulkes, Andrea S.},
+  title   = {Detection of atrial fibrillation in a large population using wearable devices: The {Fitbit Heart Study}},
+  journal = {Circulation},
+  volume  = {146},
+  number  = {19},
+  pages   = {1415--1424},
+  year    = {2022},
+  doi     = {10.1161/CIRCULATIONAHA.122.060291}
+}
+
+% Crossref + PubMed 35187135 + teks lengkap PMC8854369.
+@article{abualrub2022,
+  author  = {Abu-Alrub, Saer and Strik, Marc and Ramirez, F. Daniel and Moussaoui, Nadir and Racine, Hugo Pierre and
+             Marchand, Hugo and Buliard, Samuel and Ha{\"i}ssaguerre, Michel and Ploux, Sylvain and Bordachar, Pierre},
+  title   = {Smartwatch electrocardiograms for automated and manual diagnosis of atrial fibrillation: A comparative
+             analysis of three models},
+  journal = {Frontiers in Cardiovascular Medicine},
+  volume  = {9},
+  pages   = {836375},
+  year    = {2022},
+  doi     = {10.3389/fcvm.2022.836375}
+}
+
+% Crossref (judul tanpa subjudul) + PubMed 36858690 (judul lengkap dengan subjudul).
+@article{mannhart2023,
+  author  = {Mannhart, Diego and Lischer, Mirko and Knecht, Sven and du Fay de Lavallaz, Jeanne and Strebel, Ivo and
+             Serban, Teodor and V{\"o}geli, David and Schaer, Beat and Osswald, Stefan and Mueller, Christian and
+             K{\"u}hne, Michael and Sticherling, Christian and Badertscher, Patrick},
+  title   = {Clinical validation of 5 direct-to-consumer wearable smart devices to detect atrial fibrillation:
+             {BASEL Wearable Study}},
+  journal = {JACC: Clinical Electrophysiology},
+  volume  = {9},
+  number  = {2},
+  pages   = {232--242},
+  year    = {2023},
+  doi     = {10.1016/j.jacep.2022.09.011}
+}
+
+% Opsional (EKG wearable + AI setelah latihan 60 s, spesifisitas tetap tinggi). Crossref + PubMed 34800984.
+@article{fu2021,
+  author  = {Fu, Wenxia and Li, Ruogu},
+  title   = {Diagnostic performance of a wearing dynamic {ECG} recorder for atrial fibrillation screening: The {HUAMI}
+             heart study},
+  journal = {BMC Cardiovascular Disorders},
+  volume  = {21},
+  pages   = {558},
+  year    = {2021},
+  doi     = {10.1186/s12872-021-02363-1}
+}
+
+% ---------------------------------------------------------------------------------------------------------------------
+% Perangkat komersial: ringkasan FDA dan IFU resmi (diakses 6 November 2026)
+% ---------------------------------------------------------------------------------------------------------------------
+
+% Apple ECG 2.0, 510(k) K201525, keputusan 8 Okt 2020. High Heart Rate (tanpa AF) 100-150 bpm; > 150 bpm tidak diklasifikasi.
+@misc{apple_ecg,
+  author       = {{U.S. Food and Drug Administration}},
+  title        = {510(k) summary {K201525}: {ECG 2.0 App} ({Apple Inc.})},
+  howpublished = {FDA CDRH 510(k) database},
+  year         = {2020},
+  note         = {Decision date Oct. 8, 2020. Accessed: Nov. 6, 2026},
+  url          = {https://www.accessdata.fda.gov/cdrh_docs/pdf20/K201525.pdf}
+}
+
+% Apple ECG app versi pertama (De Novo DEN180044, 2018): tidak diklasifikasi > 120 bpm.
+@misc{fda_den180044,
+  author       = {{U.S. Food and Drug Administration}},
+  title        = {{De Novo} classification request {DEN180044}: {ECG App} ({Apple Inc.}), decision summary},
+  howpublished = {FDA CDRH De Novo database},
+  year         = {2018},
+  note         = {Accessed: Nov. 6, 2026},
+  url          = {https://www.accessdata.fda.gov/cdrh_docs/reviews/DEN180044.pdf}
+}
+
+% Apple Irregular Rhythm Notification Feature (De Novo DEN180042, 2018): data hanya diambil saat pengguna diam.
+@misc{fda_den180042,
+  author       = {{U.S. Food and Drug Administration}},
+  title        = {{De Novo} classification request {DEN180042}: {Irregular Rhythm Notification Feature}
+                  ({Apple Inc.}), decision summary},
+  howpublished = {FDA CDRH De Novo database},
+  year         = {2018},
+  note         = {Accessed: Nov. 6, 2026},
+  url          = {https://www.accessdata.fda.gov/cdrh_docs/reviews/DEN180042.pdf}
+}
+
+% Samsung ECG Monitor v1, 510(k) K201168 (4 Agu 2020): sinus > 100 bpm dan AF > 120 bpm = Inconclusive.
+@misc{fda_k201168,
+  author       = {{U.S. Food and Drug Administration}},
+  title        = {510(k) summary {K201168}: {ECG Monitor App} ({Samsung Electronics Co., Ltd.})},
+  howpublished = {FDA CDRH 510(k) database},
+  year         = {2020},
+  note         = {Decision date Aug. 4, 2020. Accessed: Nov. 6, 2026},
+  url          = {https://www.accessdata.fda.gov/cdrh_docs/pdf20/K201168.pdf}
+}
+
+% Samsung ECG App v1.3, 510(k) K240909 (2 Agu 2024): menambah kelas detak tinggi 100-150 bpm.
+@misc{fda_k240909,
+  author       = {{U.S. Food and Drug Administration}},
+  title        = {510(k) summary {K240909}: {Samsung ECG App v1.3} ({Samsung Electronics Co., Ltd.})},
+  howpublished = {FDA CDRH 510(k) database},
+  year         = {2024},
+  note         = {Decision date Aug. 2, 2024. Accessed: Nov. 6, 2026},
+  url          = {https://www.accessdata.fda.gov/cdrh_docs/pdf24/K240909.pdf}
+}
+
+% Fitbit ECG App, 510(k) K200948 (11 Sep 2020). Ringkasan FDA tidak menyebut ambang bpm; ambang 120 bpm dari google_ecg_help.
+@misc{fda_k200948,
+  author       = {{U.S. Food and Drug Administration}},
+  title        = {510(k) summary {K200948}: {Fitbit ECG App} ({Fitbit, Inc.})},
+  howpublished = {FDA CDRH 510(k) database},
+  year         = {2020},
+  note         = {Decision date Sep. 11, 2020. Accessed: Nov. 6, 2026},
+  url          = {https://www.accessdata.fda.gov/cdrh_docs/pdf20/K200948.pdf}
+}
+
+% Halaman bantuan resmi Google/Fitbit: > 120 bpm tidak dinilai; notifikasi ritme tidak teratur saat diam/istirahat.
+@misc{google_ecg_help,
+  author       = {{Google}},
+  title        = {What is the {Google} {ECG} app?},
+  howpublished = {Google Fitbit Help Center},
+  year         = {2026},
+  note         = {Accessed: Nov. 6, 2026},
+  url          = {https://support.google.com/fitbit/answer/14236718}
+}
+
+% Fitbit Irregular Rhythm Notifications, 510(k) K212372 (8 Apr 2022): data hanya diambil saat diam/tidur.
+@misc{fda_k212372,
+  author       = {{U.S. Food and Drug Administration}},
+  title        = {510(k) summary {K212372}: {Fitbit Irregular Rhythm Notifications} ({Fitbit, Inc.})},
+  howpublished = {FDA CDRH 510(k) database},
+  year         = {2022},
+  note         = {Decision date Apr. 8, 2022. Accessed: Nov. 6, 2026},
+  url          = {https://www.accessdata.fda.gov/cdrh_docs/pdf21/K212372.pdf}
+}
+
+% Withings ECG App (ScanWatch), 510(k) K240795 (15 Jun 2025): High Heart Rate (tanpa AF) 100-150 bpm.
+@misc{fda_k240795,
+  author       = {{U.S. Food and Drug Administration}},
+  title        = {510(k) summary {K240795}: {Withings ECG App} ({Withings})},
+  howpublished = {FDA CDRH 510(k) database},
+  year         = {2025},
+  note         = {Decision date Jun. 15, 2025. Accessed: Nov. 6, 2026},
+  url          = {https://www.accessdata.fda.gov/cdrh_docs/pdf24/K240795.pdf}
+}
+
+% Kardia App User Manual (Amerika Utara) 00LB17.16, Agustus 2022: Tachycardia = ritme normal 100-140 bpm; > 140 bpm Unclassified.
+% Tautan dari halaman resmi AliveCor Support "User Manuals" (alivecor.zendesk.com/hc/en-us/articles/1500000462022).
+@manual{kardia,
+  organization = {{AliveCor, Inc.}},
+  title        = {Kardia App User Manual},
+  note         = {Document 00LB17.16, Aug. 2022. Accessed: Nov. 6, 2026},
+  year         = {2022},
+  url          = {https://www.kardia.com/ifus/app-us/00LB17.16.pdf}
+}
+
+% Standar pengujian algoritme ritme (dirujuk di ringkasan FDA Apple). Judul dari katalog ANSI/BSI; teks lengkap tidak dibaca.
+@manual{aami_ec57,
+  organization = {{Association for the Advancement of Medical Instrumentation}},
+  title        = {{ANSI/AAMI EC57:2012/(R)2020} Testing and reporting performance results of cardiac rhythm and {ST} segment
+                  measurement algorithms},
+  address      = {Arlington, VA, USA},
+  year         = {2012},
+  note         = {Reaffirmed 2020}
+}
+
+% ---------------------------------------------------------------------------------------------------------------------
+% Conformal prediction dan pergeseran distribusi
+% ---------------------------------------------------------------------------------------------------------------------
+
+% NeurIPS 2019 (tanpa DOI). Metadata dari proceedings.neurips.cc (BibTeX + Metadata.json: hlm. 2530-2540) dan arXiv 1904.06019.
+@inproceedings{tibshirani2019,
+  author    = {Tibshirani, Ryan J. and Foygel Barber, Rina and Cand{\`e}s, Emmanuel and Ramdas, Aaditya},
+  title     = {Conformal prediction under covariate shift},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {32},
+  pages     = {2530--2540},
+  year      = {2019},
+  url       = {https://proceedings.neurips.cc/paper_files/paper/2019/hash/8fb21ee7a2207526da55a679f0332de2-Abstract.html}
+}
+
+% Crossref + arXiv 2202.13415.
+@article{barber2023,
+  author  = {Barber, Rina Foygel and Cand{\`e}s, Emmanuel J. and Ramdas, Aaditya and Tibshirani, Ryan J.},
+  title   = {Conformal prediction beyond exchangeability},
+  journal = {The Annals of Statistics},
+  volume  = {51},
+  number  = {2},
+  pages   = {816--845},
+  year    = {2023},
+  doi     = {10.1214/23-AOS2276}
+}
+
+% Crossref.
+@article{angelopoulos2023,
+  author  = {Angelopoulos, Anastasios N. and Bates, Stephen},
+  title   = {Conformal prediction: A gentle introduction},
+  journal = {Foundations and Trends in Machine Learning},
+  volume  = {16},
+  number  = {4},
+  pages   = {494--591},
+  year    = {2023},
+  doi     = {10.1561/2200000101}
+}
+
+% Crossref + PubMed 42982386: ada, terbit online 4 Nov 2026 (online ahead of print), belum punya volume/halaman.
+@article{abbasi2026,
+  author  = {Abbasi, Talha and Abbas, Ali and Mehmood, Umair Hamid},
+  title   = {Local conformal auditing exposes and restores reliability of {AI-ECG} atrial fibrillation detection under
+             external deployment shift},
+  journal = {Heart Rhythm},
+  year    = {2026},
+  note    = {Online ahead of print, Nov. 4, 2026},
+  doi     = {10.1016/j.hrthm.2026.10.064}
+}
+
+% ---------------------------------------------------------------------------------------------------------------------
+% Dataset
+% ---------------------------------------------------------------------------------------------------------------------
+
+% Sama dengan paper1/refs.bib. Tanpa DOI; dirujuk halaman PhysioNet AFDB sebagai "original publication".
+@inproceedings{moody1983afdb,
+  author    = {Moody, George B. and Mark, Roger G.},
+  title     = {A new method for detecting atrial fibrillation using {R-R} intervals},
+  booktitle = {Computers in Cardiology},
+  volume    = {10},
+  pages     = {227--230},
+  year      = {1983}
+}
+
+% DataCite 10.13026/C2MW2D (DataCite: publicationYear 1992; halaman PhysioNet: "Published Nov. 4, 2000").
+@misc{physionet_afdb,
+  author       = {Moody, George B. and Mark, Roger G.},
+  title        = {{MIT-BIH Atrial Fibrillation Database}},
+  howpublished = {PhysioNet},
+  year         = {2000},
+  doi          = {10.13026/C2MW2D},
+  url          = {https://doi.org/10.13026/C2MW2D}
+}
+
+% Sama dengan paper1/refs.bib.
+@article{goldberger2000physionet,
+  author  = {Goldberger, Ary L. and Amaral, Luis A. N. and Glass, Leon and Hausdorff, Jeffrey M. and Ivanov, Plamen Ch. and
+             Mark, Roger G. and Mietus, Joseph E. and Moody, George B. and Peng, Chung-Kang and Stanley, H. Eugene},
+  title   = {{PhysioBank}, {PhysioToolkit}, and {PhysioNet}: Components of a new research resource for complex physiologic
+             signals},
+  journal = {Circulation},
+  volume  = {101},
+  number  = {23},
+  pages   = {e215--e220},
+  year    = {2000},
+  doi     = {10.1161/01.CIR.101.23.e215}
+}
+
+% Sitasi standar PhysioNet yang kini diminta di setiap halaman database (dilihat 6 Nov 2026). Crossref.
+@article{pollard2026physionet,
+  author  = {Pollard, Tom and Moody, Benjamin E. and Lehman, Li-wei H. and Gow, Brian J. and Fernandes, Chrystinne and
+             Xie, Chen and Johnson, Alistair and Mark, Roger G. and Heldt, Thomas},
+  title   = {{PhysioNet} as a global platform for biomedical research},
+  journal = {Nature Health},
+  volume  = {1},
+  number  = {8},
+  pages   = {792--795},
+  year    = {2026},
+  doi     = {10.1038/s44360-026-00096-z}
+}
+
+% Zenodo API + DataCite. Nama "David Meier" tercatat utuh (tidak dipisah) di Zenodo.
+@misc{epfl_hi,
+  author       = {De Giovanni, Elisabetta and Teijeiro, Tomas and Meier, David and Millet, Gr{\'e}goire and
+                  Atienza, David},
+  title        = {{ECG in High Intensity Exercise Dataset}},
+  howpublished = {Zenodo},
+  year         = {2021},
+  doi          = {10.5281/zenodo.5727800},
+  url          = {https://doi.org/10.5281/zenodo.5727800}
+}
+
+% Makalah yang memakai dan merilis dataset epfl_hi (referensi [30] di versi arXiv 2112.04369). Crossref + PubMed 36083965.
+@article{degiovanni2023,
+  author  = {De Giovanni, Elisabetta and Teijeiro, Tomas and Millet, Gr{\'e}goire P. and Atienza, David},
+  title   = {Adaptive {R}-peak detection on wearable {ECG} sensors for high-intensity exercise},
+  journal = {IEEE Transactions on Biomedical Engineering},
+  volume  = {70},
+  number  = {3},
+  pages   = {941--953},
+  year    = {2023},
+  doi     = {10.1109/TBME.2022.3205304}
+}
+
+% Crossref (terbit online 24 Des 2016; MDPI menulis "Data 2017, 2(1), 1"). Halaman PhysioNet wrist meminta sitasi ini.
+@article{jarchi2016wrist,
+  author  = {Jarchi, Delaram and Casson, Alexander J.},
+  title   = {Description of a database containing wrist {PPG} signals recorded during physical exercise with both
+             accelerometer and gyroscope measures of motion},
+  journal = {Data},
+  volume  = {2},
+  number  = {1},
+  pages   = {1},
+  year    = {2017},
+  doi     = {10.3390/data2010001}
+}
+
+% DataCite 10.13026/C2PQ1X; versi 1.0.0, 20 Okt 2017.
+@misc{physionet_wrist,
+  author       = {Jarchi, Delaram and Casson, Alexander J.},
+  title        = {{Wrist PPG During Exercise} (version 1.0.0)},
+  howpublished = {PhysioNet},
+  year         = {2017},
+  doi          = {10.13026/C2PQ1X},
+  url          = {https://doi.org/10.13026/C2PQ1X}
+}
+
+% Sitasi dataset yang diminta halaman PhysioNet EPHNOGRAM. DataCite.
+@misc{kazemnejad2021ephnogram,
+  author       = {Kazemnejad, Arsalan and Gordany, Peiman and Sameni, Reza},
+  title        = {{EPHNOGRAM: A Simultaneous Electrocardiogram and Phonocardiogram Database} (version 1.0.0)},
+  howpublished = {PhysioNet},
+  year         = {2021},
+  doi          = {10.13026/tjtq-5911},
+  url          = {https://doi.org/10.13026/tjtq-5911}
+}
+
+% Makalah EPHNOGRAM (versi jurnal dari preprint bioRxiv 10.1101/2021.05.17.444563). Crossref + PubMed 38663430.
+@article{kazemnejad2024,
+  author  = {Kazemnejad, Arsalan and Karimi, Sajjad and Gordany, Peiman and Clifford, Gari D. and Sameni, Reza},
+  title   = {An open-access simultaneous electrocardiogram and phonocardiogram database},
+  journal = {Physiological Measurement},
+  volume  = {45},
+  number  = {5},
+  pages   = {055005},
+  year    = {2024},
+  doi     = {10.1088/1361-6579/ad43af}
+}
+
+% Crossref.
+@article{zheng2020chapman,
+  author  = {Zheng, Jianwei and Zhang, Jianming and Danioko, Sidy and Yao, Hai and Guo, Hangyuan and Rakovski, Cyril},
+  title   = {A 12-lead electrocardiogram database for arrhythmia research covering more than 10,000 patients},
+  journal = {Scientific Data},
+  volume  = {7},
+  pages   = {48},
+  year    = {2020},
+  doi     = {10.1038/s41597-020-0386-x}
+}
+
+% DataCite 10.13026/wgex-er52 (versi 1.0.0, 24 Agu 2022).
+@misc{zheng2022ecgarrhythmia,
+  author       = {Zheng, Jianwei and Guo, Hangyuan and Chu, Huimin},
+  title        = {A large scale 12-lead electrocardiogram database for arrhythmia study (version 1.0.0)},
+  howpublished = {PhysioNet},
+  year         = {2022},
+  doi          = {10.13026/wgex-er52},
+  url          = {https://doi.org/10.13026/wgex-er52}
+}
+
+% "Original publication" yang diminta halaman PhysioNet ecg-arrhythmia. Crossref (15 penulis).
+% Crossref menulis given name "Sir Magdi"; gelar "Sir" dihapus di sini.
+@article{zheng2020scirep,
+  author  = {Zheng, Jianwei and Chu, Huimin and Struppa, Daniele and Zhang, Jianming and Yacoub, Magdi and
+             El-Askary, Hesham and Chang, Anthony and Ehwerhemuepha, Louis and Abudayyeh, Islam and Barrett, Alexander and
+             Fu, Guohua and Yao, Hai and Li, Dongbo and Guo, Hangyuan and Rakovski, Cyril},
+  title   = {Optimal multi-stage arrhythmia classification approach},
+  journal = {Scientific Reports},
+  volume  = {10},
+  pages   = {2898},
+  year    = {2020},
+  doi     = {10.1038/s41598-020-59821-7}
+}
+
+@article{domazetoski2022,
+  author  = {Domazetoski, Viktor and Gligoric, Goran and Marinkovic, Milan and Shvilkin, Alexei and Krsic, Jelena and
+             Kocarev, Ljupco and Ivanovic, Marija D.},
+  title   = {The influence of atrial flutter in automated detection of atrial arrhythmias -- are we ready to go into clinical
+             practice?},
+  journal = {Computer Methods and Programs in Biomedicine},
+  volume  = {221},
+  pages   = {106901},
+  year    = {2022},
+  doi     = {10.1016/j.cmpb.2022.106901}
+}
+
+@misc{anon_paper1,
+  author       = {{Anonymous}},
+  title        = {Where did the {F1} go? {A} fixed-model decomposition of performance inflation in {RR}-interval atrial
+                  fibrillation and flutter classification},
+  howpublished = {Under review},
+  year         = {2026}
+}
+
+% Mitigasi eksploratif (ditambahkan 14 November 2026; DOI/arXiv dicek lewat CrossRef dan API arXiv)
+@article{li2025ecgfounder,
+  author  = {Li, Jun and Aguirre, Aaron D. and Moura Junior, Valdery and Jin, Jiarui and Liu, Che and Zhong, Lanhai and Sun, Chenxi
+             and Clifford, Gari and Westover, M. Brandon and Hong, Shenda},
+  title   = {An Electrocardiogram Foundation Model Built on over 10 Million Recordings},
+  journal = {NEJM AI},
+  volume  = {2},
+  number  = {7},
+  year    = {2025},
+  doi     = {10.1056/AIoa2401033}
+}
+
+@article{wagner2020ptbxl,
+  author  = {Wagner, Patrick and Strodthoff, Nils and Bousseljot, Ralf-Dieter and Kreiseler, Dieter and Lunze, Fatima I. and
+             Samek, Wojciech and Schaeffter, Tobias},
+  title   = {{PTB-XL}, a large publicly available electrocardiography dataset},
+  journal = {Scientific Data},
+  volume  = {7},
+  number  = {1},
+  pages   = {154},
+  year    = {2020},
+  doi     = {10.1038/s41597-020-0495-6}
+}
+
+@article{vangelder2024esc,
+  author  = {Van Gelder, Isabelle C. and Rienstra, Michiel and Bunting, Karina V. and Casado-Arroyo, Ruben and others},
+  title   = {2024 {ESC} Guidelines for the management of atrial fibrillation developed in collaboration with the {European}
+             {Association} for {Cardio-Thoracic} {Surgery} ({EACTS})},
+  journal = {European Heart Journal},
+  volume  = {45},
+  number  = {36},
+  pages   = {3314--3414},
+  year    = {2024},
+  doi     = {10.1093/eurheartj/ehae176}
+}
+
+@misc{tan2019icentia,
+  author       = {Tan, Shawn and Androz, Guillaume and Chamseddine, Ahmad and Fecteau, Pierre and Courville, Aaron and
+                  Bengio, Yoshua and Cohen, Joseph Paul},
+  title        = {{Icentia11K}: An Unsupervised Representation Learning Dataset for Arrhythmia Subtype Discovery},
+  howpublished = {arXiv:1910.09570},
+  year         = {2019}
+}
