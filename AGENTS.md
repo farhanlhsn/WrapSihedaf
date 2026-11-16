@@ -27,7 +27,8 @@ output dengan bentuk, protokol, dan kualitas yang sama. Ringkasan proyek & cara 
   v1, **satu folder per anggota tim** (`<model>/model.py` + `jalankan.ipynb`), kode bersama di `bersama/` (data + sidik jari,
   loop DL identik v3, runner 5×5 yang bisa dilanjutkan, evaluasi protokol). Pengecualian dari aturan folder versi: notebook
   berjalan dengan cwd = **folder model** (satu tingkat lebih dalam), path dicari dari `bersama/data.REPO`, bukan `../cache`.
-  Data di Kaggle/Colab dari GitHub Release `v11-data` (`cache/v11_data.zip`, dicek `sidik_jari.json`). aeon (MiniRocket)
+  Data di Kaggle/Colab dari GitHub Release `v11-data` (`cache/v11_data.zip`, dicek `sidik_jari.json`). OOF semua run penuh
+  (31 setelan v11 + seluruh `oof_robust` v3, tanpa bobot) di Release `v11-oof` (cara unduh di README v11). aeon (MiniRocket)
   sengaja di luar `requirements.txt`. Bawaan tanpa balancing data (keputusan pemilik repo; alasan di README). Opsi setelan
   `balancing` (`under` dan `over` semua model, `smote` hanya model fitur) dijalankan runner **di dalam setiap fold, hanya pada window latih**,
   untuk menguji arahan pembimbing secara berpasangan vs `bawaan`. Jangan me-balance data di luar fold atau memakai CSV balancing
@@ -183,8 +184,10 @@ tanpa nama GPU, tanpa asumsi jumlah core.
 - Model DL di sini kecil, jadi bottleneck-nya overhead Python per batch, bukan GPU. Satu proses GPU paling
   efisien; menambah worker paralel tidak menambah kecepatan secara linear.
 - **Hasil antar mesin bisa sedikit berbeda** (GPU non-deterministik, versi pustaka). Perbandingan berpasangan hanya
-  sah jika model baru dan referensi memakai OOF dari cache yang sama. Untuk itu, bagikan
-  `cache/oof_robust/` (±90 MB) dan `cache/dataset_v2_*.npz` (±30 MB) antar anggota tim (Drive / Kaggle Dataset),
+  sah jika model baru dan referensi memakai OOF dari cache yang sama. Untuk itu, unduh OOF bersama dari GitHub Release:
+  `v11-oof` (`cache/oof_robust/` lengkap, `cache/dataset_v2_detector.npz`, dan OOF 31 setelan v11; cara unduh dan cek
+  di `v11_model_tim/README.md`) atau `v11-data` (lebih kecil: data uji, fold, OOF v3.1, v1, kontrol v7). Cache versi lain
+  (v8 dan v9 di dataset Kaggle `sihedaf-v8-cache`/`sihedaf-v9-cache`; v10, v12–v17) belum ada di release; minta ke pemilik repo
   atau hitung ulang referensi di lingkungan Anda dengan notebook v3.
 
 ## Protokol evaluasi (wajib untuk semua klaim "lebih baik")

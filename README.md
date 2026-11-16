@@ -163,8 +163,16 @@ Unduh AFDB (±600 MB) ke `data/afdb/`. Skrip ini bisa dilanjutkan jika koneksi t
 python tools/download_afdb.py
 ```
 
-Hasil yang sudah ada di `cache/` (±120 MB, tidak ada di git) bisa disalin dari anggota tim lain supaya tidak
-perlu training ulang, dan supaya perbandingan memakai OOF referensi yang sama.
+Hasil di `cache/` tidak ada di git. OOF referensi bisa diunduh dari GitHub Release supaya tidak perlu training ulang,
+dan supaya perbandingan memakai OOF yang sama:
+
+| Release | Isi | Ukuran |
+|---|---|---|
+| [`v11-data`](https://github.com/farhanlhsn/WrapSihedaf/releases/tag/v11-data) | data uji (`dataset_v2_detector.npz`), `folds.npz`, OOF v3.1, v1, kontrol v7 | 53 MB |
+| [`v11-oof`](https://github.com/farhanlhsn/WrapSihedaf/releases/tag/v11-oof) | data uji + seluruh `oof_robust/` v3–v7 + OOF 31 setelan enam model v11 (tanpa bobot) | 494 MB |
+
+Cara unduh dan cek sidik jari: [v11_model_tim/README.md](v11_model_tim/README.md#oof-hasil-v11-dan-v3-github-release-v11-oof).
+Cache versi lain (bobot model, v8–v10, v12–v17) belum ada di release; minta salinannya ke pemilik repo.
 
 ## Menjalankan
 

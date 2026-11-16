@@ -16,6 +16,8 @@ produksi.
 - OOF disimpan di `../cache/oof_robust/detector_e30_r5_s2026/{Model}_r{ulangan}.npz` (`oof` (N,3), `times`)
   dan `versi_lama/oof_r{ulangan}.npz` (`lab`, `det`, `fe`). Nama tag = `{sumber}_e{epoch}_r{ulangan}_s{seed}`;
   konfigurasi lain menghasilkan folder lain, jadi hasil tidak tercampur.
+- Salinan lengkap `oof_robust/` (termasuk `folds.npz` dan `versi_lama/`) ada di GitHub Release `v11-oof`
+  (cara unduh di `v11_model_tim/README.md`). Jangan menulis ulang file di sana; varian baru memakai nama model baru.
 - `folds.npz` adalah pembagian pasien resmi. Eksperimen versi berikutnya **memakai file ini**, tidak membuat ulang.
 - Seed latih fold *k* ulangan *r* = `2026 + 100·r + k`. Hiperparameter DL sama dengan v2.
 - Referensi perbandingan = `MicroTransformer +bias` (= prosedur paket produksi v3.1). Bootstrap pakai `seed=2026`, `n_boot=2000`,

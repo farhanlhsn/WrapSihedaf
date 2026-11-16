@@ -197,6 +197,49 @@ Kalau cache berubah, buat ulang sidik jari dan zip:
 python -c "import sys; sys.path.insert(0, 'v11_model_tim'); from bersama import data; data.buat_sidik_jari(); print(data.buat_zip(data.REPO / 'cache/v11_data.zip'))"
 ```
 
+## OOF hasil v11 dan v3 (GitHub Release `v11-oof`)
+
+Prediksi out-of-fold (OOF) semua run penuh tersedia di Release
+[`v11-oof`](https://github.com/farhanlhsn/WrapSihedaf/releases/tag/v11-oof) (16 November 2026). Dengan zip ini, perbandingan
+berpasangan, `gabungan.ipynb`, dan v11.1 bisa diulang tanpa melatih ulang, dan semua orang memakai OOF referensi yang sama.
+
+| Berkas | Ukuran | SHA256 |
+|---|---|---|
+| `v11_oof.zip` | 493,5 MB (724 MB setelah diekstrak, 910 berkas) | `2077002fb837e613627facd474b7f4b3b20407698fdd539d9bf2df4e976f4a39` |
+| `v11_oof_sidik_jari.json` | 130 KB, SHA256 dan ukuran setiap berkas | `7213f8d2dd6255e200c0e2292bd1ef83a0cf1d52a38a368076e39c2bbc2d6017` |
+
+Isi zip (path relatif terhadap `cache/`):
+
+- `dataset_v2_detector.npz`: label dan pasien window uji (sama dengan yang di `v11-data`), supaya zip bisa dipakai sendiri.
+- `oof_robust/detector_e30_r5_s2026/`: seluruh OOF v3, termasuk `folds.npz`, v3.1 (`MicroTransformer_r*.npz`), varian v5 dan
+  v7, BiGRUAttention, LightGBM, MaskedResNet1D, EKG_CNN, EKG_RR_DualBranch, `ringkasan.csv`, `banding_vs_referensi.csv`,
+  serta OOF v1 di `versi_lama/`.
+- `v11/<model>/<setelan>/`: 31 setelan (BiGRU 16, TCN 7, XGBoost 4, InceptionTime 2, MiniRocket 1, SVM 1). Setiap setelan
+  berisi 25 `r{r}_k{k}.npz` (`oof`, `idx`, `stres` = prediksi uji stres takikardia, `waktu`, `info`), `setelan.json`, dan
+  `ringkasan.json`.
+- `v11/gabungan.json` dan `v11/<model>/banding_*.json`.
+
+**Tidak** ikut: bobot model (`.pt`, `.joblib`, dump XGBoost `r*_k*.json`), zip hasil per anggota, dan cache versi lain
+(v13–v17; sebagian berasal dari Icentia11k yang berlisensi CC BY-NC-SA). Isi zip hanya turunan MIT-BIH AFDB (ODC-BY 1.0).
+Karena bobot tidak ikut, uji stres takikardia baru dan uji di data eksternal (v3.3) tetap butuh bobot dari pemilik repo.
+
+Unduh dan ekstrak dari root repo, lalu cek setiap berkas dengan sidik jarinya:
+
+```bash
+gh release download v11-oof --repo farhanlhsn/WrapSihedaf --dir cache
+```
+
+```bash
+python -c "import zipfile; zipfile.ZipFile('cache/v11_oof.zip').extractall('cache')"
+```
+
+```bash
+python -c "import hashlib, json, pathlib; s = json.load(open('cache/v11_oof_sidik_jari.json'))['berkas']; bad = [r for r, v in s.items() if hashlib.sha256(pathlib.Path('cache', r).read_bytes()).hexdigest() != v['sha256']]; print('cocok semua' if not bad else bad)"
+```
+
+Tanpa `gh`: unduh kedua berkas dari halaman release dengan browser. Ekstraksi menimpa berkas dengan nama sama di `cache/`.
+Kalau Anda punya hasil run sendiri yang belum dibagikan, ekstrak dulu ke folder lain.
+
 ## Berkas
 
 | Berkas | Isi |
