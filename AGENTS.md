@@ -186,9 +186,10 @@ tanpa nama GPU, tanpa asumsi jumlah core.
 - **Hasil antar mesin bisa sedikit berbeda** (GPU non-deterministik, versi pustaka). Perbandingan berpasangan hanya
   sah jika model baru dan referensi memakai OOF dari cache yang sama. Untuk itu, unduh OOF bersama dari GitHub Release:
   `v11-oof` (`cache/oof_robust/` lengkap, `cache/dataset_v2_detector.npz`, dan OOF 31 setelan v11; cara unduh dan cek
-  di `v11_model_tim/README.md`) atau `v11-data` (lebih kecil: data uji, fold, OOF v3.1, v1, kontrol v7). Cache versi lain
-  (v8 dan v9 di dataset Kaggle `sihedaf-v8-cache`/`sihedaf-v9-cache`; v10, v12–v17) belum ada di release; minta ke pemilik repo
-  atau hitung ulang referensi di lingkungan Anda dengan notebook v3.
+  di `v11_model_tim/README.md`) atau `v11-data` (lebih kecil: data uji, fold, OOF v3.1, v1, kontrol v7). Cache v12–v17 ada
+  di Release `cache-v12-v17` (satu zip per versi, cara unduh di README root bagian Setup), **tanpa** turunan Icentia11k
+  (CC BY-NC-SA; jangan dirilis publik). Cache lain (v8 dan v9 di dataset Kaggle `sihedaf-v8-cache`/`sihedaf-v9-cache`;
+  v3.3, v3.4, v10, bobot model) belum ada di release; minta ke pemilik repo atau hitung ulang referensi dengan notebook v3.
 
 ## Protokol evaluasi (wajib untuk semua klaim "lebih baik")
 

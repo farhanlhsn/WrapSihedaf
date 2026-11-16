@@ -170,9 +170,26 @@ dan supaya perbandingan memakai OOF yang sama:
 |---|---|---|
 | [`v11-data`](https://github.com/farhanlhsn/WrapSihedaf/releases/tag/v11-data) | data uji (`dataset_v2_detector.npz`), `folds.npz`, OOF v3.1, v1, kontrol v7 | 53 MB |
 | [`v11-oof`](https://github.com/farhanlhsn/WrapSihedaf/releases/tag/v11-oof) | data uji + seluruh `oof_robust/` v3–v7 + OOF 31 setelan enam model v11 (tanpa bobot) | 494 MB |
+| [`cache-v12-v17`](https://github.com/farhanlhsn/WrapSihedaf/releases/tag/cache-v12-v17) | `cache/v12` … `cache/v17`, satu zip per versi (`cache_v13.zip`, `cache_v16.2.zip`, …): prediksi, fitur dan skor ECGFounder, ringkasan; tanpa turunan Icentia11k | 1,3 GB |
 
-Cara unduh dan cek sidik jari: [v11_model_tim/README.md](v11_model_tim/README.md#oof-hasil-v11-dan-v3-github-release-v11-oof).
-Cache versi lain (bobot model, v8–v10, v12–v17) belum ada di release; minta salinannya ke pemilik repo.
+Cara unduh dan cek sidik jari `v11-oof`: [v11_model_tim/README.md](v11_model_tim/README.md#oof-hasil-v11-dan-v3-github-release-v11-oof).
+Untuk `cache-v12-v17`, unduh hanya versi yang dibutuhkan (contoh v16.2), ekstrak ke `cache/`, lalu cek:
+
+```bash
+gh release download cache-v12-v17 --repo farhanlhsn/WrapSihedaf --dir cache --pattern 'cache_v16.2.zip' --pattern 'cache_v12_v17_sidik_jari.json'
+```
+
+```bash
+python -c "import zipfile; zipfile.ZipFile('cache/cache_v16.2.zip').extractall('cache')"
+```
+
+```bash
+python -c "import hashlib, json, pathlib; s = json.load(open('cache/cache_v12_v17_sidik_jari.json'))['berkas']; ada = {r: v for r, v in s.items() if pathlib.Path('cache', r).exists()}; bad = [r for r, v in ada.items() if hashlib.sha256(pathlib.Path('cache', r).read_bytes()).hexdigest() != v['sha256']]; print(len(ada), 'berkas dicek,', 'cocok semua' if not bad else bad)"
+```
+
+Turunan Icentia11k (CC BY-NC-SA: `v13/icentia_50hz.npz`, `v16/icentia_p31.npy`, `v16.7/Icentia/`, `v16.8/sqi/Icentia/`) sengaja
+tidak dirilis; evaluasi Icentia di v13, v16, v16.7, v16.8 butuh salinan dari pemilik repo. Bobot model, cache v3.3, v3.4 dan v8–v10
+juga belum ada di release (v8 dan v9 ada di dataset Kaggle `sihedaf-v8-cache`/`sihedaf-v9-cache`).
 
 ## Menjalankan
 
