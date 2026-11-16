@@ -74,3 +74,7 @@ penjelasan.md
 
 # Yang TETAP di-commit walau berekstensi json: metadata model (wajib untuk predictor)
 # dan notebook. Aturan lama "*.json" membuat model_export/sihedaf_v2.json tidak pernah ter-commit.
+# build LaTeX paper (PDF draf disalin manual ke publikasi/paperN/)
+publikasi/**/_build/
+# hasil Kaggle v8 (±70 MB, isinya cache/v8; diekstrak di root, lihat v8_chapman_shaoxing/README.md)
+v8_chapman_shaoxing/kaggle_run_*/v8_hasil.zip

@@ -20,6 +20,7 @@ _DIRS = [
     "/usr/share/fonts/truetype/msttcorefonts",
     "/usr/share/fonts/truetype/liberation", "/usr/share/fonts/truetype/liberation2",
     "/usr/share/fonts/liberation-sans",
+    "/usr/share/fonts/liberation",                       # Arch / CachyOS (ttf-liberation)
 ]
 _DEJAVU = {"regular": "DejaVuSans.ttf", "bold": "DejaVuSans-Bold.ttf", "italic": "DejaVuSans-Oblique.ttf"}
 
