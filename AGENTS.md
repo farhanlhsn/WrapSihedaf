@@ -188,8 +188,9 @@ tanpa nama GPU, tanpa asumsi jumlah core.
   `v11-oof` (`cache/oof_robust/` lengkap, `cache/dataset_v2_detector.npz`, dan OOF 31 setelan v11; cara unduh dan cek
   di `v11_model_tim/README.md`) atau `v11-data` (lebih kecil: data uji, fold, OOF v3.1, v1, kontrol v7). Cache v12–v17 ada
   di Release `cache-v12-v17` (satu zip per versi, cara unduh di README root bagian Setup), **tanpa** turunan Icentia11k
-  (CC BY-NC-SA; jangan dirilis publik). Cache lain (v8 dan v9 di dataset Kaggle `sihedaf-v8-cache`/`sihedaf-v9-cache`;
-  v3.3, v3.4, v10, bobot model) belum ada di release; minta ke pemilik repo atau hitung ulang referensi dengan notebook v3.
+  (CC BY-NC-SA; jangan dirilis publik). Cache v3.3 dan v3.4 (termasuk bobot fold v3.4) ada di Release `cache-v3.3-v3.4`.
+  Cache lain (v8 dan v9 di dataset Kaggle `sihedaf-v8-cache`/`sihedaf-v9-cache`; v10 seluruhnya turunan Icentia, tidak
+  dirilis; bobot model selain v3.4) belum ada di release; minta ke pemilik repo atau hitung ulang referensi dengan notebook v3.
 
 ## Protokol evaluasi (wajib untuk semua klaim "lebih baik")
 
