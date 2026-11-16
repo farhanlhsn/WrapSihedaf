@@ -6,6 +6,7 @@ pandas>=2.0
 scikit-learn>=1.4
 imbalanced-learn>=0.12
 lightgbm>=4.0
+xgboost>=2.0            # v11_model_tim/xgboost
 torch>=2.1
 wfdb>=4.1
 matplotlib>=3.8
@@ -20,3 +21,6 @@ reportlab>=4.0
 pillow>=10.0
 beautifulsoup4>=4.12    # hanya v2_revisi/laporan/build_report.py --extract
 pypdfium2>=4.30         # render halaman PDF untuk cek visual
+# ── tes (v11_model_tim/tests, jalankan: python -m pytest v11_model_tim/tests -q) ──
+pytest>=8.0
+# MiniRocket (aeon) TIDAK di sini: lihat v11_model_tim/minirocket/requirements-minirocket.txt

@@ -1,0 +1,34 @@
+{
+  "berkas": {
+    "dataset_v2_detector.npz": "03f0e2dfa2e2dc5cc572862d233cf06adb3f413212e53a01bb537e84655a9abd",
+    "oof_robust/detector_e30_r5_s2026/folds.npz": "be3ee5baf3dafdce601e8fbbc61365a2c9cc833319d68af6294ddd9614c04959",
+    "oof_robust/detector_e30_r5_s2026/MicroTransformer_r0.npz": "db54e1051bfe1290234df0a569c488769d0f1f7d4caf5bcc8e9fbbb9d68b4697",
+    "oof_robust/detector_e30_r5_s2026/MicroTransformer_r1.npz": "88a2303f3b51c0bc6375504cac2c24dad40025aa0ecff4a66796a412cff2d4a1",
+    "oof_robust/detector_e30_r5_s2026/MicroTransformer_r2.npz": "1c42bebd9d914503ef7132a94167761622144bea9474399333821d3ceb1d962b",
+    "oof_robust/detector_e30_r5_s2026/MicroTransformer_r3.npz": "0a3564d812a99822bdfb0c6918b4ebb2c0a41aa4786cca3b0e2a828aa292c97e",
+    "oof_robust/detector_e30_r5_s2026/MicroTransformer_r4.npz": "ae634e0622704c8e6b34eb04884fa238af192ccf5416d7467f8748bbb141e43e",
+    "oof_robust/detector_e30_r5_s2026/versi_lama/oof_r0.npz": "6b896d20e93b8b3bc3b496de609a4106c186cb8394f4e7cf1bf7e7615dac18a7",
+    "oof_robust/detector_e30_r5_s2026/versi_lama/oof_r1.npz": "6717d5bbb8e4c06526ab96698a771eeebe8bda3704408c920a7adfdbbb53f687",
+    "oof_robust/detector_e30_r5_s2026/versi_lama/oof_r2.npz": "165cada36ba355048437b7ef9f76560467ea9eb38214079176000d8331efd4d2",
+    "oof_robust/detector_e30_r5_s2026/versi_lama/oof_r3.npz": "4ffd0b3e4644400ae9b821ddb2fc30b11ac70a8a3659791f0538cbba84c29da7",
+    "oof_robust/detector_e30_r5_s2026/versi_lama/oof_r4.npz": "728a60f17fd9c24817c984146c6864add7b2e5ba687c8becb678be4db0a19950",
+    "v7/MicroTransformer_kontrol_r0.npz": "8c704dac42f2cfdaaabd6b6706da2aea21f94fb809418c481e4cdf2235e61720",
+    "v7/uji_kontrol_r0.npz": "515d28d203b592d359ff07ed0ef95c503e1e5c93f914eaf04a8959394a374435"
+  },
+  "ukuran": {
+    "dataset_v2_detector.npz": 17199123,
+    "oof_robust/detector_e30_r5_s2026/folds.npz": 830154,
+    "oof_robust/detector_e30_r5_s2026/MicroTransformer_r0.npz": 1992278,
+    "oof_robust/detector_e30_r5_s2026/MicroTransformer_r1.npz": 1992278,
+    "oof_robust/detector_e30_r5_s2026/MicroTransformer_r2.npz": 1992278,
+    "oof_robust/detector_e30_r5_s2026/MicroTransformer_r3.npz": 1992278,
+    "oof_robust/detector_e30_r5_s2026/MicroTransformer_r4.npz": 1992278,
+    "oof_robust/detector_e30_r5_s2026/versi_lama/oof_r0.npz": 5621264,
+    "oof_robust/detector_e30_r5_s2026/versi_lama/oof_r1.npz": 5621264,
+    "oof_robust/detector_e30_r5_s2026/versi_lama/oof_r2.npz": 5621264,
+    "oof_robust/detector_e30_r5_s2026/versi_lama/oof_r3.npz": 5621264,
+    "oof_robust/detector_e30_r5_s2026/versi_lama/oof_r4.npz": 5621264,
+    "v7/MicroTransformer_kontrol_r0.npz": 1992278,
+    "v7/uji_kontrol_r0.npz": 477274
+  }
+}

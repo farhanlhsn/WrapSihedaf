@@ -1,0 +1,7 @@
+# MiniRocket (v11). Sengaja tidak di requirements.txt utama: aeon membatasi versi numpy/scipy.
+# Di Kaggle/Colab dipasang otomatis oleh sel pertama notebook. Di PC, pasang di venv terpisah bila numpy/scipy
+# lingkungan utama lebih baru daripada yang didukung aeon.
+aeon>=1.0
+# aeon 1.6.0 mengizinkan numpy<2.5 dan numba<0.64, tetapi numba stabil di bawah 0.64 (0.62.x, 0.63.1) butuh numpy<2.4. Tanpa
+# batas ini resolver memilih numpy 2.4 + numba 0.63.0b1 (beta), yang gagal: "module 'numpy' has no attribute 'trapz'" (23 Okt 2026).
+numpy<2.4

@@ -1,0 +1,60 @@
+CSV hasil sampling BiGRU — SIHEDAF v11
+=======================================
+
+Sumber: MIT-BIH Atrial Fibrillation Database (AFDB, PhysioNet, 23 pasien), lisensi ODC Attribution 1.0. Cantumkan
+sitasi AFDB/PhysioNet bila dipakai. Dibuat oleh v11_model_tim/bigru/ekspor_sampling.py dari cache tim; isinya sama
+dengan data latih yang dipakai training BiGRU (diverifikasi otomatis saat ekspor).
+
+Format: koma sebagai pemisah kolom, titik sebagai desimal (bukan format Excel Indonesia). Kolom pasien dibaca sebagai
+teks (contoh "04015", nol di depan jangan hilang). Label: 0 Normal, 1 AFIB, 2 AFL. Satuan IBI milidetik.
+
+
+Isi
+---
+
+window.csv              Semua 165.978 window (10 detik, digeser 5 detik, R-peak dari detektor 50 Hz seperti perangkat).
+                        window_id   nomor window (0 ... 165.977), dipakai file lain
+                        pasien      kode rekaman AFDB
+                        t_mulai_s   detik mulai window di rekaman
+                        label/kelas 0/1/2 dan namanya
+                        n_detak     jumlah IBI di window (maksimal 30)
+                        16 fitur HRV mean_ibi ... beat_count (input model fitur, mis. XGBoost)
+                        fold_u0 ... fold_u4   fold uji (0–4) window ini di ulangan 0–4 (pembagian per pasien)
+                        ibi_ms      urutan IBI dipisah ";" (input model urutan, mis. BiGRU)
+
+sampling_under.csv      Undersampling acak tanpa pengembalian: setiap kelas dipotong sama dengan jumlah AFL.
+                        Satu baris = satu window yang DIPAKAI di data latih (ulangan, fold).
+
+sampling_over.csv       Oversampling acak dengan pengembalian: AFIB dan AFL disalin sampai sama dengan jumlah Normal.
+                        Satu baris = window latih yang muncul LEBIH DARI SEKALI; kolom muncul = berapa kali total.
+                        Window latih lain di fold itu muncul 1 kali. Urutan salinan tidak disimpan.
+
+jumlah_per_fold.csv     Jumlah window latih per kelas tiap (ulangan, fold) untuk bawaan / under / over, + pasien uji.
+
+hasil_bigru_sampling.csv  Hasil BiGRU per setelan, dibanding tanpa balancing (bawaan) dan dengan v3.1 (model produksi):
+                        Macro-F1, recall AFL, F1 AFL + CI 95% bootstrap pasien; delta, P(delta > 0), vonis
+                        (P >= 0,95 lebih baik; <= 0,05 lebih buruk; selebihnya tidak terbedakan).
+                        bawaan = tanpa balancing, bobot kelas lunak; wp100 = tanpa balancing, bobot kelas penuh.
+
+contoh_pakai.py         Fungsi data_latih / data_uji / urutan_ibi untuk membangun data satu (ulangan, fold).
+
+
+Cara pakai yang benar
+---------------------
+
+Ada 5 ulangan x 5 fold = 25 pasangan latih/uji. Untuk ulangan r dan fold k:
+
+  data uji   = window dengan fold_u{r} == k             (JANGAN di-balance; distribusi asli = kondisi nyata)
+  data latih = window dengan fold_u{r} != k             (bawaan), atau
+               baris sampling_under.csv (r, k)         (under), atau
+               semua window latih, diulang sesuai muncul di sampling_over.csv (r, k)   (over)
+
+Latih 25 model, prediksi setiap fold uji, lalu hitung metrik dari gabungan prediksi semua fold (pooled OOF).
+Jangan membuat satu dataset seimbang lalu membaginya lagi, dan jangan memakai sampling_* untuk data uji.
+
+Contoh:
+  from contoh_pakai import muat, data_latih, data_uji, FITUR
+  win, under, over = muat("sampling_csv")
+  latih = data_latih(win, under, over, r=0, k=0, metode="under")
+  uji = data_uji(win, r=0, k=0)
+  X_latih, y_latih = latih[FITUR].to_numpy(), latih["label"].to_numpy()

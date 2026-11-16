@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BiGRU SIHEDAF v11</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,600..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: satu kolom baca ±70 karakter; grafik & tabel boleh lebih lebar dan bergulir di wadahnya sendiri.
+   Hero memakai kisi kertas EKG (1 mm / 5 mm) sebagai satu-satunya ornamen. */
+:root {
+  --bg: #f3f7f7; --surface: #fbfcfc; --ink: #172b43; --ink-2: #3f5165; --muted: #5a6977;
+  --line: #d6e0e2; --grid: #e4ebec; --accent: #008b83; --accent-ink: #00706a; --wash: rgba(0, 139, 131, .07);
+  --ekg-1: rgba(0, 139, 131, .07); --ekg-5: rgba(0, 139, 131, .14);
+  --s0: #7d8a96; --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --seq: #1c5cab; --on-seq: #ffffff; --code: #e6eeef;
+  --f-display: "Archivo", "Arial Narrow", "Liberation Sans Narrow", Arial, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Liberation Sans", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1823; --surface: #13202f; --ink: #e5edf2; --ink-2: #b6c4cf; --muted: #8e9eac;
+  --line: #273a4e; --grid: #1e2e3f; --accent: #2fb3a9; --accent-ink: #5fcbc2; --wash: rgba(47, 179, 169, .10);
+  --ekg-1: rgba(47, 179, 169, .06); --ekg-5: rgba(47, 179, 169, .12);
+  --s0: #8e9eac; --s1: #3987e5; --s2: #d95926; --s3: #199e70; --seq: #2f72c8; --on-seq: #ffffff; --code: #1b2b3c; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0e1823; --surface: #13202f; --ink: #e5edf2; --ink-2: #b6c4cf; --muted: #8e9eac;
+  --line: #273a4e; --grid: #1e2e3f; --accent: #2fb3a9; --accent-ink: #5fcbc2; --wash: rgba(47, 179, 169, .10);
+  --ekg-1: rgba(47, 179, 169, .06); --ekg-5: rgba(47, 179, 169, .12);
+  --s0: #8e9eac; --s1: #3987e5; --s2: #d95926; --s3: #199e70; --seq: #2f72c8; --on-seq: #ffffff; --code: #1b2b3c; color-scheme: dark }
+
+* { box-sizing: border-box }
+html { scroll-behavior: smooth; scroll-padding-top: 64px }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--f-body);
+  -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg) }
+.wrap { max-width: 1000px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+h1, h2, h3 { font-family: var(--f-display); font-stretch: 87.5%; line-height: 1.12; text-wrap: balance; margin: 0 }
+h1 { font-size: clamp(2.1rem, 5.4vw, 3.4rem); font-weight: 800; letter-spacing: -.01em }
+h2 { font-size: clamp(1.55rem, 3.4vw, 2.1rem); font-weight: 750 }
+h3 { font-size: 1.15rem; font-weight: 700 }
+p { margin: 0; max-width: 68ch }
+a { color: var(--accent-ink) }
+code { font-family: var(--f-mono); font-size: .86em; background: var(--code); padding: .08em .35em; border-radius: 4px; white-space: nowrap }
+strong { font-weight: 700 }
+.eyebrow { font: 600 .78rem/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink) }
+.muted { color: var(--muted) }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px }
+
+/* navigasi */
+nav.atas { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  border-bottom: 1px solid var(--line) }
+nav.atas .wrap { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-block: 8px }
+nav.atas .wrap::-webkit-scrollbar { display: none }
+nav.atas a { flex: none; text-decoration: none; color: var(--ink-2); font-size: .86rem; padding: 6px 10px; border-radius: 999px }
+nav.atas a:hover { background: var(--wash); color: var(--ink) }
+
+/* hero: kisi kertas EKG */
+header.hero { background-color: var(--bg);
+  background-image: linear-gradient(var(--ekg-5) 1px, transparent 1px), linear-gradient(90deg, var(--ekg-5) 1px, transparent 1px),
+    linear-gradient(var(--ekg-1) 1px, transparent 1px), linear-gradient(90deg, var(--ekg-1) 1px, transparent 1px);
+  background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px; border-bottom: 1px solid var(--line) }
+header.hero .wrap { display: grid; gap: 22px; padding-block: 56px 40px }
+.lead { font-size: 1.16rem; color: var(--ink-2); max-width: 64ch }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+  display: grid; gap: 4px; align-content: start }
+.tile .lbl { font-size: .84rem; color: var(--muted) }
+.tile .val { font: 750 1.9rem/1.1 var(--f-display); font-stretch: 87.5% }
+.tile .sub { font-size: .88rem; color: var(--ink-2) }
+.tile.utama { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent) }
+@media (max-width: 820px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 440px) { .tiles { grid-template-columns: minmax(0, 1fr) } }
+
+/* section */
+main section { padding-block: 52px 8px; display: grid; gap: 18px }
+main section > * { min-width: 0 }
+.jawab { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; max-width: 76ch }
+.jawab li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; align-items: start }
+.jawab li::before { content: ""; width: 12px; height: 12px; margin-top: .45em; border-radius: 3px; background: var(--accent) }
+.istilah { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; margin: 0 }
+.istilah div { border-top: 1px solid var(--line); padding-top: 10px }
+.istilah dt { font-weight: 700 }
+.istilah dd { margin: 4px 0 0; color: var(--ink-2) }
+@media (max-width: 720px) { .istilah { grid-template-columns: minmax(0, 1fr) } }
+
+/* perjalanan: urutan nyata, jadi bernomor */
+ol.jalan { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: j }
+ol.jalan > li { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 18px; padding-block: 18px;
+  border-top: 1px solid var(--line) }
+ol.jalan .tgl { font: 600 .82rem/1.3 var(--f-mono); color: var(--muted) }
+ol.jalan .tgl b { display: block; font: 750 1.5rem/1.1 var(--f-display); font-stretch: 87.5%; color: var(--accent-ink) }
+ol.jalan .isi { display: grid; gap: 8px }
+ol.jalan .qa { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 4px 12px }
+ol.jalan .qa dt { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding-top: .2em }
+ol.jalan .qa dd { margin: 0 }
+ol.jalan .isi ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; max-width: 68ch; list-style: disc }
+@media (max-width: 600px) { ol.jalan > li, ol.jalan .qa { grid-template-columns: minmax(0, 1fr); gap: 6px } }
+
+/* grafik */
+figure { margin: 0; display: grid; gap: 10px }
+figcaption { font-size: .92rem; color: var(--muted); max-width: 76ch }
+.kanvas { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; padding: 8px 4px }
+.kanvas svg { display: block; width: 100%; min-width: 720px; height: auto }
+svg text { font-family: var(--f-body); fill: var(--ink) }
+svg .t-nama { font: 600 14px var(--f-mono); fill: var(--ink) }
+svg .t-ket { font-size: 12px; fill: var(--muted) }
+svg .t-grup { font: 700 13px var(--f-display); letter-spacing: .06em; text-transform: uppercase; fill: var(--accent-ink) }
+svg .t-badge { font: 700 10px var(--f-mono); letter-spacing: .08em; fill: var(--accent-ink) }
+svg .t-nilai { font: 600 14px var(--f-mono); fill: var(--ink); font-variant-numeric: tabular-nums }
+svg .t-vonis, svg .t-luar { font-size: 12px; fill: var(--muted) }
+svg .t-tick { font-size: 12px; fill: var(--muted); font-variant-numeric: tabular-nums }
+svg .t-ax { font-size: 12.5px; fill: var(--muted) }
+svg .t-ibi { font: 500 11.5px var(--f-mono); fill: var(--ink-2) }
+svg .legend text { font-size: 13px; fill: var(--ink-2) }
+svg .grid { stroke: var(--grid); stroke-width: 1 }
+svg .nol { stroke: var(--ink-2); stroke-width: 1.5 }
+svg .sep { stroke: var(--line); stroke-width: 1 }
+svg .hit { fill: transparent }
+svg .hl { fill: var(--wash) }
+svg .baris:hover .hit, svg .baris:focus .hit { fill: var(--wash) }
+svg .baris:focus { outline: none }
+svg .baris:focus-visible .hit, svg .baris:focus-visible .hl { stroke: var(--accent); stroke-width: 2 }
+svg .ci { stroke-width: 2.5; stroke-linecap: round }
+svg .s0-stroke { stroke: var(--s0) } svg .s1-stroke { stroke: var(--s1) } svg .s2-stroke { stroke: var(--s2) }
+svg .s0 { fill: var(--s0) } svg .s1 { fill: var(--s1) } svg .s2 { fill: var(--s2) } svg .s3 { fill: var(--s3) }
+svg .ring { stroke: var(--surface); stroke-width: 2 }
+svg .conn { stroke: var(--line); stroke-width: 3; stroke-linecap: round }
+svg .base { stroke: var(--grid); stroke-width: 1 }
+svg .ekg { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round }
+svg .rr-mirip .ekg { stroke: var(--s2) }
+svg .brk { fill: none; stroke: var(--muted); stroke-width: 1 }
+/* diagram alur: kotak netral, satu kotak sorot (tempat data latih diubah), panah berlabel */
+svg .d-kotak { fill: var(--surface); stroke: var(--line); stroke-width: 1.5 }
+svg .d-sorot { fill: var(--wash); stroke: var(--accent); stroke-width: 1.5 }
+svg .d-judul { font: 700 13.5px var(--f-body); fill: var(--ink) }
+svg .d-isi { font-size: 12.5px; fill: var(--ink-2) }
+svg .d-isi.angka { font-family: var(--f-mono); font-variant-numeric: tabular-nums }
+svg .d-label { font-size: 12px; fill: var(--ink-2) }
+svg .d-panah { fill: none; stroke: var(--ink-2); stroke-width: 1.5; stroke-linejoin: round }
+svg .d-kepala { fill: var(--ink-2) }
+
+/* tabel */
+.gulir { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface) }
+.tabel { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums }
+.tabel th, .tabel td { padding: 9px 10px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--grid) }
+.tabel thead th { font-size: .78rem; font-weight: 700; color: var(--ink-2); background: var(--bg); position: sticky; top: 0 }
+.tabel th span, .tabel td span { display: block; font-size: .78rem; font-weight: 400; color: var(--muted); white-space: nowrap }
+.tabel .num { text-align: right; white-space: nowrap }
+.tabel tbody th { font-weight: 400 }
+.tabel tbody th span { white-space: normal; min-width: 150px }
+.tabel tr.hl { background: var(--wash) }
+.tabel tr.grup th { background: var(--bg); font-family: var(--f-display); font-weight: 700; color: var(--accent-ink); font-size: .85rem }
+.tabel th.sorot { color: var(--ink) }
+.heat-tabel td.heat { text-align: center; font-weight: 600; min-width: 64px;
+  background: color-mix(in oklab, var(--seq) var(--p), var(--surface)) }
+.heat-tabel td.heat.terang { color: var(--on-seq) }
+.tabel .nw { white-space: nowrap }
+.lampiran td.ubah code { display: inline-block; margin-block: 1px }
+
+.catatan { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; color: var(--ink-2); max-width: 74ch }
+.dua { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 28px }
+@media (max-width: 760px) { .dua { grid-template-columns: minmax(0, 1fr) } }
+.kartu { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid;
+  gap: 8px; align-content: start }
+.kartu ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; align-content: start }
+footer { padding-block: 48px 64px; color: var(--muted); font-size: .88rem }
+
+.tip { position: fixed; z-index: 20; pointer-events: none; max-width: 340px; background: var(--ink); color: var(--bg);
+  font-size: .84rem; line-height: 1.4; padding: 7px 10px; border-radius: 6px }
+</style>
+</head>
+<body>
+
+<nav class="atas" aria-label="Bagian halaman"><div class="wrap">
+  <a href="#ringkasan">Ringkasan</a><a href="#latar">Latar</a><a href="#cara-menilai">Metode</a><a href="#sampling">Sampling</a>
+  <a href="#v1-ke-v31">v1 → v3.1</a><a href="#perjalanan">Langkah</a><a href="#hasil">Hasil</a><a href="#balancing">Balancing</a>
+  <a href="#pasien">Pasien</a><a href="#tanpa-04936">Tanpa 04936</a><a href="#detak-cepat">Detak cepat</a>
+  <a href="#kesimpulan">Kesimpulan</a><a href="#batasan">Batasan</a><a href="#lampiran">Lampiran</a>
+</div></nav>
+
+<header class="hero" id="ringkasan"><div class="wrap">
+  <span class="eyebrow">SIHEDAF v11 · model tim · BiGRU + attention</span>
+  <h1>Apa saja yang sudah dicoba pada BiGRU</h1>
+  <p class="lead">Ringkasan tiga eksperimen (23 Oktober 2026 – 2 November 2026) untuk diskusi dengan pembimbing.
+    Model membaca jarak antar detak jantung dan memilih satu dari tiga kelas: Normal, AFIB, atau AFL.</p>
+  
+<div class="tiles">
+  <div class="tile"><span class="lbl">Setelan yang dicoba</span><span class="val">16</span>
+    <span class="sub">400 model dilatih (16 × 25 fold pasien)</span></div>
+  <div class="tile utama"><span class="lbl">Kandidat akhir</span><span class="val">bobot penuh</span>
+    <span class="sub"><code>weight_power</code> 1,0 · Macro-F1 0,830, setara v3.1 (0,832)</span></div>
+  <div class="tile"><span class="lbl">Tanpa pasien 04936</span><span class="val">0,852</span>
+    <span class="sub">bawaan turun ke 0,721</span></div>
+  <div class="tile"><span class="lbl">Balancing data untuk BiGRU</span><span class="val">lebih buruk</span>
+    <span class="sub">under −0,223, over −0,045 vs bawaan</span></div>
+</div>
+  
+<ul class="jawab">
+  <li><span><strong>BiGRU setara dengan paket produksi v3.1, tetapi tidak lebih baik.</strong> Dari 16 setelan, tidak ada
+    yang lebih baik dari v3.1. Dengan 23 pasien (7 di antaranya punya AFL), selisih kecil tidak bisa
+    dibedakan dari kebetulan.</span></li>
+  <li><span><strong>Balancing data (arahan pembimbing) membuat BiGRU lebih buruk daripada pembobotan kelas.</strong>
+    Undersampling −0,223 dan oversampling −0,045 Macro-F1 (P = 0,00 dan 0,00). Di XGBoost
+    justru undersampling membantu (+0,063, P = 0,98), jadi efek balancing bergantung pada model.</span></li>
+  <li><span><strong>Bobot kelas penuh paling tahan uji.</strong> AFL 2:1 di pasien 08378 kembali terdeteksi
+    (0,74 → 1,00), dan hasilnya tidak lagi bergantung pada pasien 04936.</span></li>
+  <li><span><strong>Tuning sudah jenuh.</strong> Regularisasi dan pemilihan setelan otomatis tidak menambah apa-apa.
+    Perbaikan berikutnya butuh data baru (pasien lain, rekaman perangkat SIHEDAF berlabel), bukan hiperparameter.</span></li>
+</ul>
+</div></header>
+
+<main class="wrap">
+<section id="latar">
+  <span class="eyebrow">Latar</span>
+  <h2>Yang dibaca model hanya jarak antar detak</h2>
+  <p>BiGRU membaca urutan jarak antar detak (IBI, dalam milidetik) dari dua arah, lalu lapisan <em>attention</em> memilih detak
+    yang paling penting. Modelnya kecil: 7.172 parameter. Karena hanya melihat jarak antar detak, beberapa ritme
+    tampak sangat mirip.</p>
+  <figure><div class="kanvas"><svg viewBox="0 0 880 330" role="img" aria-label="Ilustrasi jarak antar detak untuk empat ritme"><text class="t-ax" x="210" y="14">satu window = 10 detik (maks. 30 detak) · ilustrasi, bukan data pasien</text><g><text class="t-nama" x="16" y="60">Normal</text><text class="t-ket" x="16" y="76">teratur · ±75 bpm</text><line class="base" x1="210" x2="864" y1="70" y2="70"/><path class="ekg" d="M215.5 70L218.5 74L220.5 42L223.0 77L225.5 70M268.6 70L271.6 74L273.6 42L276.1 77L278.6 70M320.1 70L323.1 74L325.1 42L327.6 77L330.1 70M372.7 70L375.7 74L377.7 42L380.2 77L382.7 70M424.7 70L427.7 74L429.7 42L432.2 77L434.7 70M478.4 70L481.4 74L483.4 42L485.9 77L488.4 70M530.0 70L533.0 74L535.0 42L537.5 77L540.0 70M582.8 70L585.8 74L587.8 42L590.3 77L592.8 70M634.9 70L637.9 74L639.9 42L642.4 77L644.9 70M688.2 70L691.2 74L693.2 42L695.7 77L698.2 70M740.0 70L743.0 74L745.0 42L747.5 77L750.0 70M792.4 70L795.4 74L797.4 42L799.9 77L802.4 70M845.2 70L848.2 74L850.2 42L852.7 77L855.2 70"/><path class="brk" d="M273.6 36v-5H325.1v5"/><text class="t-ibi" x="299.3" y="27" text-anchor="middle">788 ms</text></g><g><text class="t-nama" x="16" y="134">AFIB</text><text class="t-ket" x="16" y="150">tidak teratur · ±90 bpm</text><line class="base" x1="210" x2="864" y1="144" y2="144"/><path class="ekg" d="M215.5 144L218.5 148L220.5 116L223.0 151L225.5 144M249.5 144L252.5 148L254.5 116L257.0 151L259.5 144M307.0 144L310.0 148L312.0 116L314.5 151L317.0 144M346.9 144L349.9 148L351.9 116L354.4 151L356.9 144M395.0 144L398.0 148L400.0 116L402.5 151L405.0 144M424.7 144L427.7 148L429.7 116L432.2 151L434.7 144M487.5 144L490.5 148L492.5 116L495.0 151L497.5 144M525.5 144L528.5 148L530.5 116L533.0 151L535.5 144M571.2 144L574.2 148L576.2 116L578.7 151L581.2 144M603.6 144L606.6 148L608.6 116L611.1 151L613.6 144M658.9 144L661.9 148L663.9 116L666.4 151L668.9 144M700.7 144L703.7 148L705.7 116L708.2 151L710.7 144M751.1 144L754.1 148L756.1 116L758.6 151L761.1 144M785.8 144L788.8 148L790.8 116L793.3 151L795.8 144M844.6 144L847.6 148L849.6 116L852.1 151L854.6 144"/><path class="brk" d="M254.5 110v-5H312.0v5"/><text class="t-ibi" x="283.2" y="101" text-anchor="middle">880 ms</text></g><g class="rr-mirip"><text class="t-nama" x="16" y="208">AFL 2:1</text><text class="t-ket" x="16" y="224">teratur, cepat · ±140 bpm</text><line class="base" x1="210" x2="864" y1="218" y2="218"/><path class="ekg" d="M215.5 218L218.5 222L220.5 190L223.0 225L225.5 218M243.6 218L246.6 222L248.6 190L251.1 225L253.6 218M271.8 218L274.8 222L276.8 190L279.3 225L281.8 218M299.8 218L302.8 222L304.8 190L307.3 225L309.8 218M328.1 218L331.1 222L333.1 190L335.6 225L338.1 218M356.2 218L359.2 222L361.2 190L363.7 225L366.2 218M384.4 218L387.4 222L389.4 190L391.9 225L394.4 218M412.4 218L415.4 222L417.4 190L419.9 225L422.4 218M440.6 218L443.6 222L445.6 190L448.1 225L450.6 218M468.8 218L471.8 222L473.8 190L476.3 225L478.8 218M497.0 218L500.0 222L502.0 190L504.5 225L507.0 218M525.1 218L528.1 222L530.1 190L532.6 225L535.1 218M553.2 218L556.2 222L558.2 190L560.7 225L563.2 218M581.4 218L584.4 222L586.4 190L588.9 225L591.4 218M609.6 218L612.6 222L614.6 190L617.1 225L619.6 218M637.8 218L640.8 222L642.8 190L645.3 225L647.8 218M665.8 218L668.8 222L670.8 190L673.3 225L675.8 218M694.0 218L697.0 222L699.0 190L701.5 225L704.0 218M722.1 218L725.1 222L727.1 190L729.6 225L732.1 218M750.4 218L753.4 222L755.4 190L757.9 225L760.4 218M778.6 218L781.6 222L783.6 190L786.1 225L788.6 218M806.6 218L809.6 222L811.6 190L814.1 225L816.6 218M834.7 218L837.7 222L839.7 190L842.2 225L844.7 218"/><path class="brk" d="M248.6 184v-5H276.8v5"/><text class="t-ibi" x="262.7" y="175" text-anchor="middle">431 ms</text></g><g class="rr-mirip"><text class="t-nama" x="16" y="282">Normal cepat</text><text class="t-ket" x="16" y="298">sinus takikardia · ±135 bpm</text><line class="base" x1="210" x2="864" y1="292" y2="292"/><path class="ekg" d="M215.5 292L218.5 296L220.5 264L223.0 299L225.5 292M244.2 292L247.2 296L249.2 264L251.7 299L254.2 292M273.8 292L276.8 296L278.8 264L281.3 299L283.8 292M303.0 292L306.0 296L308.0 264L310.5 299L313.0 292M331.6 292L334.6 296L336.6 264L339.1 299L341.6 292M361.0 292L364.0 296L366.0 264L368.5 299L371.0 292M390.1 292L393.1 296L395.1 264L397.6 299L400.1 292M419.8 292L422.8 296L424.8 264L427.3 299L429.8 292M448.7 292L451.7 296L453.7 264L456.2 299L458.7 292M478.0 292L481.0 296L483.0 264L485.5 299L488.0 292M507.0 292L510.0 296L512.0 264L514.5 299L517.0 292M536.4 292L539.4 296L541.4 264L543.9 299L546.4 292M565.2 292L568.2 296L570.2 264L572.7 299L575.2 292M594.4 292L597.4 296L599.4 264L601.9 299L604.4 292M623.5 292L626.5 296L628.5 264L631.0 299L633.5 292M653.1 292L656.1 296L658.1 264L660.6 299L663.1 292M682.0 292L685.0 296L687.0 264L689.5 299L692.0 292M711.4 292L714.4 296L716.4 264L718.9 299L721.4 292M740.4 292L743.4 296L745.4 264L747.9 299L750.4 292M769.9 292L772.9 296L774.9 264L777.4 299L779.9 292M799.0 292L802.0 296L804.0 264L806.5 299L809.0 292M827.9 292L830.9 296L832.9 264L835.4 299L837.9 292"/><path class="brk" d="M249.2 258v-5H278.8v5"/><text class="t-ibi" x="264.0" y="249" text-anchor="middle">452 ms</text></g></svg></div>
+    <figcaption>AFL 2:1 dan ritme normal yang cepat (sinus takikardia) sama-sama teratur dan cepat. Dari jarak antar detak saja,
+      keduanya hampir tidak bisa dibedakan. Inilah sumber alarm palsu pada detak cepat (lihat bagian "Detak cepat").</figcaption></figure>
+  <div class="dua">
+    <div class="kartu"><h3>Datanya</h3><ul>
+      <li>MIT-BIH AFDB: 23 pasien, 165.978 window uji.</li>
+      <li>AFL hanya 0,7% window (1.152), dari 7 pasien.</li>
+      <li>58% window AFL berasal dari satu pasien (04936).</li></ul></div>
+    <div class="kartu"><h3>Pembandingnya</h3><ul>
+      <li><strong>v3.1</strong>: paket produksi aktif (MicroTransformer), Macro-F1 0,832.</li>
+      <li><strong>v1</strong>: sistem awal tim, Macro-F1 0,744 bila diukur dengan cara yang sama.</li>
+      <li>Penjelasan keduanya ada di bagian <a href="#v1-ke-v31">Dari v1 ke v3.1</a>.</li></ul></div>
+  </div>
+</section>
+
+<section id="cara-menilai">
+  <span class="eyebrow">Cara menilai</span>
+  <h2>Satu protokol untuk semua setelan</h2>
+  <p>Protokolnya sama dengan v3 dan dipakai semua anggota tim. Istilah yang muncul di halaman ini:</p>
+  <dl class="istilah"><div><dt>Fold pasien (5 ulangan × 5 fold)</dt><dd>23 pasien dibagi lima kelompok. Model dilatih dengan empat kelompok dan diuji pada kelompok sisanya, bergiliran. Pembagian diacak ulang lima kali, jadi satu setelan = 25 model. Pasien uji tidak pernah dilihat saat latihan.</dd></div><div><dt>Window</dt><dd>Potongan rekaman 10 detik (maks. 30 detak). Data uji berisi 165.978 window dari detektor 50 Hz, sama dengan kondisi di perangkat.</dd></div><div><dt>Macro-F1</dt><dd>Rata-rata skor F1 tiga kelas (Normal, AFIB, AFL). AFL yang langka dihitung sama penting dengan Normal.</dd></div><div><dt>CI 95%</dt><dd>Rentang ketidakpastian dari mengambil ulang pasien 2.000 kali. Lebar karena pasiennya hanya 23.</dd></div><div><dt>Perbandingan berpasangan dan P</dt><dd>Dua setelan dinilai pada sampel ulang pasien yang sama. P = peluang setelan baru lebih baik. P ≥ 0,95 lebih baik, P ≤ 0,05 lebih buruk, selain itu tidak terbedakan.</dd></div><div><dt>Bias kelas</dt><dd>Geseran skor tiap kelas sebelum memilih tebakan, untuk menyeimbangkan alarm. Nilainya dipelajari dari fold lain (cross-fit), jadi pasien uji tidak ikut menentukan.</dd></div><div><dt>Uji stres takikardia</dt><dd>Ritme teratur buatan 60–170 bpm. Dicari detak di mana model berhenti menyebut Normal. Penting karena data latih hampir tidak punya ritme normal yang cepat.</dd></div><div><dt>Tanpa 04936</dt><dd>58% window AFL berasal dari satu pasien (04936). Hasil dihitung ulang tanpa pasien ini untuk melihat apakah model hanya pandai di pasien itu.</dd></div></dl>
+</section>
+
+<section id="sampling">
+  <span class="eyebrow">Cara sampling</span>
+  <h2>Pasien dibagi dulu, baru data latih boleh diubah</h2>
+  <p>Sampling di sini terdiri dari empat tahap. Urutannya yang paling penting: data dibagi per pasien lebih dulu, lalu
+    balancing (kalau dipakai) hanya mengubah data latih. Data uji selalu dibiarkan seperti aslinya, karena itulah kondisi
+    yang akan dihadapi perangkat.</p>
+  <figure><div class="kanvas"><svg viewBox="0 0 880 396" role="img" aria-label="Alur satu fold: pasien dibagi dulu, balancing hanya pada data latih, data uji tetap asli, lalu pasien diambil ulang untuk CI dan P"><rect class="d-kotak" x="16" y="104" width="136" height="84" rx="8"/><text class="d-judul" x="28" y="126">Data AFDB</text><text class="d-isi" x="28" y="144">23 pasien</text><text class="d-isi" x="28" y="160">165.978 window</text><text class="d-isi" x="28" y="176">10 dtk, geser 5</text><path class="d-panah" d="M152 146 L166 146 L166 64 L232 64"/><polygon class="d-kepala" points="240,64 232.0,68.5 232.0,59.5"/><path class="d-panah" d="M152 146 L166 146 L166 228 L232 228"/><polygon class="d-kepala" points="240,228 232.0,232.5 232.0,223.5"/><text class="d-label" x="172" y="140" text-anchor="start">dibagi</text><text class="d-label" x="172" y="154" text-anchor="start">per pasien</text><rect class="d-kotak" x="240" y="30" width="160" height="68" rx="8"/><text class="d-judul" x="252" y="52">Pasien latih</text><text class="d-isi" x="252" y="70">4 dari 5 kelompok</text><text class="d-isi" x="252" y="86">129.920 window</text><rect class="d-kotak" x="240" y="194" width="160" height="68" rx="8"/><text class="d-judul" x="252" y="216">Pasien uji</text><text class="d-isi" x="252" y="234">1 kelompok</text><text class="d-isi" x="252" y="250">36.058 window</text><path class="d-panah" d="M400 64 L438 64"/><polygon class="d-kepala" points="446,64 438.0,68.5 438.0,59.5"/><rect class="d-sorot" x="446" y="8" width="204" height="114" rx="8"/><text class="d-judul" x="458" y="28">Bantu AFL · pilih satu</text><text class="d-isi" x="458" y="50">bobot lunak (bawaan)</text><text class="d-isi angka" x="638" y="50" text-anchor="end">129.920</text><text class="d-isi" x="458" y="70">bobot penuh (wp100)</text><text class="d-isi angka" x="638" y="70" text-anchor="end">129.920</text><text class="d-isi" x="458" y="90">undersampling</text><text class="d-isi angka" x="638" y="90" text-anchor="end">3.429</text><text class="d-isi" x="458" y="110">oversampling</text><text class="d-isi angka" x="638" y="110" text-anchor="end">246.036</text><path class="d-panah" d="M650 64 L682 64"/><polygon class="d-kepala" points="690,64 682.0,68.5 682.0,59.5"/><text class="d-label" x="670" y="56" text-anchor="middle">latih</text><rect class="d-kotak" x="690" y="30" width="174" height="68" rx="8"/><text class="d-judul" x="702" y="52">BiGRU</text><text class="d-isi" x="702" y="70">satu model per fold</text><text class="d-isi" x="702" y="86">25 model per setelan</text><path class="d-panah" d="M777 98 L777 186"/><polygon class="d-kepala" points="777,194 772.5,186.0 781.5,186.0"/><text class="d-label" x="785" y="150" text-anchor="start">memprediksi</text><path class="d-panah" d="M400 228 L682 228"/><polygon class="d-kepala" points="690,228 682.0,232.5 682.0,223.5"/><text class="d-label" x="545" y="220" text-anchor="middle">tidak diubah, distribusi asli</text><rect class="d-kotak" x="690" y="194" width="174" height="68" rx="8"/><text class="d-judul" x="702" y="216">Prediksi</text><text class="d-isi" x="702" y="234">window uji</text><text class="d-isi" x="702" y="250">pasien tak pernah dilihat</text><path class="d-panah" d="M777 262 L777 308"/><polygon class="d-kepala" points="777,316 772.5,308.0 781.5,308.0"/><text class="d-label" x="769" y="284" text-anchor="end">diulang 25×</text><text class="d-label" x="769" y="298" text-anchor="end">5 fold × 5 ulangan</text><rect class="d-kotak" x="690" y="316" width="174" height="68" rx="8"/><text class="d-judul" x="702" y="338">OOF gabungan</text><text class="d-isi" x="702" y="356">tiap window diuji</text><text class="d-isi" x="702" y="372">sekali per ulangan</text><path class="d-panah" d="M690 350 L658 350"/><polygon class="d-kepala" points="650,350 658.0,345.5 658.0,354.5"/><rect class="d-kotak" x="446" y="316" width="204" height="68" rx="8"/><text class="d-judul" x="458" y="338">Bootstrap pasien</text><text class="d-isi" x="458" y="356">2.000× ambil ulang pasien</text><text class="d-isi" x="458" y="372">7 AFL · 7 AFIB · 9 lain</text><path class="d-panah" d="M446 350 L408 350"/><polygon class="d-kepala" points="400,350 408.0,345.5 408.0,354.5"/><rect class="d-kotak" x="240" y="316" width="160" height="68" rx="8"/><text class="d-judul" x="252" y="338">CI 95% dan P</text><text class="d-isi" x="252" y="356">sampel sama untuk</text><text class="d-isi" x="252" y="372">semua setelan</text></svg></div>
+    <figcaption>Alur satu fold. Kotak berwarna adalah satu-satunya tempat data diubah. Angka window adalah contoh ulangan 0,
+      fold 0; susunan pasien berubah di setiap fold. Kelompok bootstrap: pasien yang punya AFL, pasien dominan AFIB, dan
+      lainnya.</figcaption></figure>
+  <ol class="jalan"><li><div class="tgl"><b>1</b>Window</div><div class="isi"><h3>Memotong rekaman menjadi window</h3><p>Sinyal EKG 23 pasien diturunkan ke 50 Hz, lalu detaknya dicari dengan detektor yang sama dengan perangkat. Rekaman dipotong menjadi window 10 detik yang digeser 5 detik, jadi dua window berurutan tumpang tindih 50%. Satu window berisi maksimal 30 detak (median 13). Hasilnya 165.978 window: Normal 99.000, AFIB 65.826, AFL 1.152.</p><p>Window tidak dibuat ulang. Datanya sama persis dengan v3 (dicek SHA-256), supaya hasil BiGRU bisa dibandingkan dengan v1 dan v3.1 pada window yang sama.</p></div></li><li><div class="tgl"><b>2</b>Fold</div><div class="isi"><h3>Membagi pasien, bukan window</h3><p>Pasien dibagi lima kelompok: empat untuk latihan, satu untuk uji, bergiliran. Pembagiannya diulang 5 kali dengan susunan berbeda, jadi ada 25 pasangan latih–uji. Satu pasien tidak pernah ada di data latih dan data uji sekaligus, sehingga model selalu diuji pada pasien yang belum pernah dilihatnya.</p><p>Karena AFL menumpuk di 7 pasien, isi data latih sangat berubah antar fold: AFL 173–1.151 window, dengan perbandingan Normal : AFL dari 67 : 1 sampai 433 : 1.</p></div></li><li><div class="tgl"><b>3</b>Balancing</div><div class="isi"><h3>Membantu AFL, hanya di data latih</h3><p>Empat cara dibandingkan. Semuanya dijalankan setelah pembagian, pada window latih fold itu saja, dengan seed yang sama dengan seed latihan (2026 + 100 × ulangan + fold). Jadi setiap cara bisa dibandingkan berpasangan dengan bawaan. Data uji tidak pernah diubah.</p><ul><li><strong>Bobot kelas lunak</strong> (<code>bawaan</code>): data tidak diubah. Kesalahan tiap kelas diberi bobot saat latihan: AFL 6,2, AFIB 0,96, Normal 0,73.</li><li><strong>Bobot kelas penuh</strong> (<code>wp100</code>): sama, tetapi bobotnya AFL 37,9, AFIB 0,93, Normal 0,53.</li><li><strong>Undersampling</strong>: setiap kelas dipilih acak, tanpa pengembalian, sampai sama dengan jumlah AFL.</li><li><strong>Oversampling</strong>: window AFIB dan AFL disalin acak, dengan pengembalian, sampai sama dengan jumlah Normal.</li></ul><p>Setelah undersampling atau oversampling, bobot kelas otomatis bernilai 1, jadi AFL tidak dibantu dua kali. SMOTE tidak dipakai untuk BiGRU (alasannya di bagian Balancing).</p></div></li><li><div class="tgl"><b>4</b>Bootstrap</div><div class="isi"><h3>Mengukur ketidakpastian dengan mengambil ulang pasien</h3><p>Untuk CI dan P, yang diambil ulang adalah pasien, bukan window, sebanyak 2.000 kali. Window dari pasien yang sama saling mirip, jadi mengambil ulang window membuat CI terlalu sempit.</p><p>Pengambilannya per kelompok: 7 pasien punya AFL, 7 pasien dominan AFIB, dan 9 lainnya. Setiap sampel tetap berisi 7 pasien AFL. Semua setelan dinilai pada 2.000 sampel yang sama (seed 2026), lalu P = bagian sampel di mana setelan baru menang.</p></div></li></ol>
+  <figure><div class="kanvas"><svg viewBox="0 0 880 254" role="img" aria-label="Komposisi kelas dan jumlah window latih: tanpa balancing, undersampling, oversampling"><rect class="s1" x="230" y="9" width="11" height="11" rx="2"/><text class="t-ax" x="247" y="19">Normal</text><rect class="s2" x="322" y="9" width="11" height="11" rx="2"/><text class="t-ax" x="339" y="19">AFIB</text><rect class="s3" x="414" y="9" width="11" height="11" rx="2"/><text class="t-ax" x="431" y="19">AFL</text><text class="t-ax" x="600" y="19">jumlah window latih</text><g class="baris" tabindex="0" data-tip="Tanpa balancing: Normal 82.012 · AFIB 46.765 · AFL 1.143 = 129.920 window"><rect class="hit" x="8" y="36" width="864" height="64" rx="6"/><text class="d-judul" x="16" y="57">Tanpa balancing</text><text class="t-ket" x="16" y="74">bawaan dan wp100: data sama</text><text class="t-ket" x="16" y="89">AFL dibantu lewat bobot loss</text><rect class="s1" x="230.0" y="44" width="206.3" height="16" rx="2"/><rect class="s2" x="438.3" y="44" width="116.8" height="16" rx="2"/><rect class="s3" x="557.1" y="44" width="2.0" height="16" rx="2"/><text class="t-ket" x="230" y="78">Normal 63,1% · AFIB 36,0% · AFL 0,9%</text><rect class="s0" x="600" y="44" width="100.3" height="16" rx="2"/><text class="t-nilai" x="708.3" y="57">129.920</text><text class="t-ket" x="600" y="78">data latih asli</text></g><g class="baris" tabindex="0" data-tip="Undersampling: Normal 1.143 · AFIB 1.143 · AFL 1.143 = 3.429 window"><rect class="hit" x="8" y="110" width="864" height="64" rx="6"/><text class="d-judul" x="16" y="131">Undersampling</text><text class="t-ket" x="16" y="148">acak tanpa pengembalian</text><text class="t-ket" x="16" y="163">sampai = jumlah AFL</text><rect class="s1" x="230.0" y="118" width="108.0" height="16" rx="2"/><rect class="s2" x="340.0" y="118" width="108.0" height="16" rx="2"/><rect class="s3" x="450.0" y="118" width="108.0" height="16" rx="2"/><text class="t-ket" x="230" y="152">Normal 33,3% · AFIB 33,3% · AFL 33,3%</text><rect class="s0" x="600" y="118" width="2.6" height="16" rx="2"/><text class="t-nilai" x="610.6" y="131">3.429</text><text class="t-ket" x="600" y="152">2,6% dari data asli</text></g><g class="baris" tabindex="0" data-tip="Oversampling: Normal 82.012 · AFIB 82.012 · AFL 82.012 = 246.036 window"><rect class="hit" x="8" y="184" width="864" height="64" rx="6"/><text class="d-judul" x="16" y="205">Oversampling</text><text class="t-ket" x="16" y="222">acak dengan pengembalian</text><text class="t-ket" x="16" y="237">AFIB dan AFL sampai = Normal</text><rect class="s1" x="230.0" y="192" width="108.0" height="16" rx="2"/><rect class="s2" x="340.0" y="192" width="108.0" height="16" rx="2"/><rect class="s3" x="450.0" y="192" width="108.0" height="16" rx="2"/><text class="t-ket" x="230" y="226">Normal 33,3% · AFIB 33,3% · AFL 33,3%</text><rect class="s0" x="600" y="192" width="190.0" height="16" rx="2"/><text class="t-nilai" x="798.0" y="205">246.036</text><text class="t-ket" x="600" y="226">tiap window AFL muncul ±72×</text></g></svg></div>
+    <figcaption>Data latih ulangan 0, fold 0. Undersampling hanya menyisakan 2,6% window
+      latih. Oversampling membuat setiap window AFL muncul rata-rata ±72 kali. Bobot kelas tidak mengubah
+      data, jadi <code>bawaan</code> dan <code>wp100</code> memakai data latih yang sama. Arahkan kursor ke baris untuk jumlah per
+      kelas. Hasil ketiganya ada di bagian <a href="#balancing">Balancing</a>.</figcaption></figure>
+  <p class="catatan">Yang sengaja tidak dilakukan: balancing sebelum data dibagi, termasuk memakai CSV balancing turunan v1
+    di Drive. Kalau di-balance lebih dulu, data uji ikut seimbang, sehingga skornya tidak lagi menggambarkan kondisi nyata.
+    Data latih setiap fold tersedia sebagai CSV di <code>cache/v11/bigru/sampling_csv.zip</code> (dibuat
+    <code>ekspor_sampling.py</code>, isinya dicek sama dengan data latih saat training).</p>
+</section>
+
+<section id="v1-ke-v31">
+  <span class="eyebrow">Pembanding</span>
+  <h2>Dari v1 ke v3.1: apa yang diubah</h2>
+  <p><strong>v3.1 adalah paket model yang sekarang dipakai backend</strong>
+    (<code>v3.1_kalibrasi_produksi/model_export/</code>). Modelnya MicroTransformer, arsitektur yang sama dengan model akhir v1.
+    Yang berubah adalah semua yang ada di sekeliling model: cara mencari detak, data latih, cara menilai, dan bias kelas.
+    v3.1 sendiri tidak melatih apa pun. Bobotnya identik dengan v2 (checksum sama). Yang dihitung ulang hanya bias kelasnya:
+    [0,0; 2,0; −3,0] menjadi [0,0; −0,5; −4,5] (Normal; AFIB; AFL).</p>
+  <div class="gulir"><table class="tabel ubah-tabel"><thead><tr><th>Masalah di v1</th><th>Perbaikan</th><th>Versi</th></tr></thead><tbody><tr><td>Detak dicari dengan cara berbeda saat latihan dan saat dipakai. Latihan memakai anotasi dokter (250 Hz, rapi), backend memakai <code>find_peaks</code> tanpa filter pada sinyal 50 Hz, maksimal 150 bpm, hanya 10 detik pertama.</td><td>Satu modul <code>hrv_core</code> untuk latihan dan perangkat: detektor R-peak Pan-Tompkins 50 Hz (sampai 240 bpm), seluruh sinyal dibagi window 10 detik. Model dilatih dengan detak dari detektor ini.</td><td class="nw"><strong>v2</strong></td></tr><tr><td>Tidak ada cek kualitas sinyal.</td><td>Window ditolak bila jarak antar detak tidak fisiologis atau detaknya terlalu sedikit.</td><td class="nw"><strong>v2</strong></td></tr><tr><td>Window AFL digeser 1 detik (tumpang tindih 90%), Normal 5 detik, AFIB 10 detik. AFL di data uji jadi terhitung berlipat, sehingga skor terlihat tinggi.</td><td>Semua kelas digeser sama, 5 detik. Window rapat hanya boleh untuk menambah data latih.</td><td class="nw"><strong>v2</strong></td></tr><tr><td>Bila file model hilang, predictor diam-diam memakai bobot acak. Model disimpan sebagai pickle tanpa asal-usul.</td><td>Model + metadata JSON dengan checksum SHA-256. File hilang atau tidak cocok = error, server tidak jalan.</td><td class="nw"><strong>v2</strong></td></tr><tr><td>Dinilai dari satu pembagian pasien dan rata-rata per fold. Selisih antar model ternyata noise.</td><td>5 ulangan × 5 fold pasien, OOF gabungan, CI bootstrap pasien, perbandingan berpasangan.</td><td class="nw"><strong>v3</strong></td></tr><tr><td>Tanpa bias kelas (v1), lalu bias v2 dari grid sempit −3…+3 yang memotong optimum.</td><td>Bias [0,0; −0,5; −4,5] dipilih cross-fit dengan grid −7…+3.</td><td class="nw"><strong>v3.1</strong></td></tr><tr><td>Belum pernah diuji pada ritme normal yang cepat.</td><td>Uji stres takikardia wajib untuk setiap kandidat (ritme teratur buatan 60–170 bpm).</td><td class="nw"><strong>v3.2</strong></td></tr></tbody></table></div>
+  <figure><div class="kanvas"><svg viewBox="0 0 880 266" role="img" aria-label="Macro-F1 dari v1 sampai v3.1"><line class="grid" x1="300.0" x2="300.0" y1="10" y2="220"/><text class="t-tick" x="300.0" y="238" text-anchor="middle">0,3</text><line class="grid" x1="355.7" x2="355.7" y1="10" y2="220"/><text class="t-tick" x="355.7" y="238" text-anchor="middle">0,4</text><line class="grid" x1="411.4" x2="411.4" y1="10" y2="220"/><text class="t-tick" x="411.4" y="238" text-anchor="middle">0,5</text><line class="grid" x1="467.1" x2="467.1" y1="10" y2="220"/><text class="t-tick" x="467.1" y="238" text-anchor="middle">0,6</text><line class="grid" x1="522.9" x2="522.9" y1="10" y2="220"/><text class="t-tick" x="522.9" y="238" text-anchor="middle">0,7</text><line class="grid" x1="578.6" x2="578.6" y1="10" y2="220"/><text class="t-tick" x="578.6" y="238" text-anchor="middle">0,8</text><line class="grid" x1="634.3" x2="634.3" y1="10" y2="220"/><text class="t-tick" x="634.3" y="238" text-anchor="middle">0,9</text><line class="grid" x1="690.0" x2="690.0" y1="10" y2="220"/><text class="t-tick" x="690.0" y="238" text-anchor="middle">1,0</text><text class="t-ax" x="495.0" y="256" text-anchor="middle">Macro-F1 di data uji perangkat (detektor 50 Hz) · garis = CI 95%</text><g class="baris" tabindex="0" data-tip="v1 sistem utuh: Macro-F1 0,418 [0,36–0,48]"><rect class="hit" x="8" y="17" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="33">v1 sistem utuh</text><text class="t-ket" x="16" y="48">front-end find_peaks lama di backend</text><line class="ci s1-stroke" x1="331.0" x2="400.8" y1="36" y2="36"/><circle class="s1 ring" cx="365.9" cy="36.0" r="5.5"/><text class="t-nilai" x="712" y="33">0,418</text><text class="t-vonis" x="712" y="48">[0,36–0,48]</text></g><g class="baris" tabindex="0" data-tip="v1 model: Macro-F1 0,744 [0,64–0,81]"><rect class="hit" x="8" y="57" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="73">v1 model</text><text class="t-ket" x="16" y="88">detak dari detektor baru, tanpa bias</text><line class="ci s1-stroke" x1="488.5" x2="586.2" y1="76" y2="76"/><circle class="s1 ring" cx="547.1" cy="76.0" r="5.5"/><text class="t-nilai" x="712" y="73">0,744</text><text class="t-vonis" x="712" y="88">[0,64–0,81]</text></g><g class="baris" tabindex="0" data-tip="v2 produksi: Macro-F1 0,779 [0,63–0,82]"><rect class="hit" x="8" y="97" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="113">v2 produksi</text><text class="t-ket" x="16" y="128">bobot v2, bias [0,0; 2,0; −3,0]</text><line class="ci s1-stroke" x1="481.7" x2="589.6" y1="116" y2="116"/><circle class="s1 ring" cx="566.9" cy="116.0" r="5.5"/><text class="t-nilai" x="712" y="113">0,779</text><text class="t-vonis" x="712" y="128">[0,63–0,82]</text></g><g class="baris" tabindex="0" data-tip="v3.1: Macro-F1 0,832 [0,67–0,92]"><rect class="hl" x="8" y="137" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="153">v3.1</text><text class="t-ket" x="16" y="168">bobot v2, bias [0,0; −0,5; −4,5] · paket aktif</text><line class="ci s1-stroke" x1="507.4" x2="645.3" y1="156" y2="156"/><circle class="s1 ring" cx="596.1" cy="156.0" r="5.5"/><text class="t-nilai" x="712" y="153">0,832</text><text class="t-vonis" x="712" y="168">[0,67–0,92]</text></g><g class="baris" tabindex="0" data-tip="BiGRU wp100: Macro-F1 0,830 [0,69–0,93]"><rect class="hit" x="8" y="177" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="193">BiGRU wp100</text><text class="t-ket" x="16" y="208">kandidat v11 (halaman ini)</text><line class="ci s1-stroke" x1="516.4" x2="651.4" y1="196" y2="196"/><circle class="s1 ring" cx="595.1" cy="196.0" r="5.5"/><text class="t-nilai" x="712" y="193">0,830</text><text class="t-vonis" x="712" y="208">[0,69–0,93]</text></g></svg></div>
+    <figcaption>Notebook v1 melaporkan Macro-F1 0,826 ± 0,084. Angka itu rata-rata per fold dari satu
+      pembagian pasien, dengan detak dari anotasi dokter dan window AFL yang tumpang tindih. Diukur dengan data uji perangkat dan
+      protokol v3, model v1 mendapat 0,744. Bersama front-end <code>find_peaks</code> yang dulu dipakai
+      backend, sistem utuhnya hanya 0,418.</figcaption></figure>
+  <div class="gulir"><table class="tabel"><thead><tr><th>Data uji perangkat, OOF</th><th class="num">v1</th><th class="num">v3.1</th><th class="num">BiGRU wp100</th></tr></thead><tbody><tr><th scope="row">Macro-F1</th><td class="num">0,744<span>[0,64–0,81]</span></td><td class="num">0,832<span>[0,67–0,92]</span></td><td class="num">0,830<span>[0,69–0,93]</span></td></tr><tr><th scope="row">AFL F1</th><td class="num">0,399<span>[0,09–0,59]</span></td><td class="num">0,647<span>[0,17–0,89]</span></td><td class="num">0,625<span>[0,21–0,92]</span></td></tr><tr><th scope="row">AFL presisi</th><td class="num">0,275</td><td class="num">0,715</td><td class="num">0,691</td></tr><tr><th scope="row">AFL recall</th><td class="num">0,728<span>[0,37–0,98]</span></td><td class="num">0,592<span>[0,13–0,91]</span></td><td class="num">0,572<span>[0,18–0,96]</span></td></tr><tr><th scope="row">Normal recall</th><td class="num">0,903</td><td class="num">0,924</td><td class="num">0,935</td></tr><tr><th scope="row">AFL palsu di pasien tanpa AFL<span>window per ulangan</span></th><td class="num">1.059</td><td class="num">25</td><td class="num">32</td></tr><tr><th scope="row">Ambang takikardia (bpm)<span>4 jenis variasi detak</span></th><td class="num">115 / 110 / 110 / 110</td><td class="num">115 / 115 / 115 / 115</td><td class="num">120 / 120 / 120 / 115</td></tr></tbody></table></div>
+  <ul class="jawab">
+    <li><span><strong>v3.1 lebih baik dari v1.</strong> Selisih Macro-F1 +0,088 [+0,02…+0,16], P = 0,98.
+      Bila pemilihan bias ikut diacak (bootstrap bersarang), P = 0,978, vonisnya tetap.</span></li>
+    <li><span><strong>Tetapi tanpa pasien 04936, keduanya tidak terbedakan</strong> (+0,139 [−0,01…+0,18],
+      P = 0,94). Satu pasien masih sangat menentukan.</span></li>
+    <li><span><strong>Trade-off:</strong> recall AFL turun (0,728 → 0,592). v1 jauh lebih
+      sering menebak AFL, sehingga AFL palsunya di pasien tanpa AFL 1.059 window per
+      ulangan, sedangkan v3.1 hanya 25.</span></li>
+    <li><span><strong>Posisi BiGRU:</strong> kandidat <code>wp100</code> tidak terbedakan dari v3.1 pada Macro-F1 dan ketiga metrik
+      AFL (P = 0,47, 0,34, 0,14, 0,35). Recall Normal-nya
+      sedikit lebih tinggi (+0,011, P = 1,00). Karena Macro-F1
+      tidak lebih baik, BiGRU tidak diusulkan menggantikan v3.1.</span></li>
+  </ul>
+</section>
+
+<section id="perjalanan">
+  <span class="eyebrow">Perjalanan</span>
+  <h2>Empat langkah, berurutan</h2>
+  <ol class="jalan"><li><div class="tgl"><b>22 Okt</b>Langkah 0</div><div class="isi"><h3>Memeriksa dataset balancing tim di Drive</h3><dl class="qa"><dt>Pertanyaan</dt><dd>Bisakah CSV over/undersampling dari Drive dipakai langsung?</dd><dt>Jawaban</dt><dd>Tidak langsung. Isinya turunan dataset v1: 6 fitur, satu pembagian pasien saja, dan kolom pasien sudah hilang, sehingga tidak bisa disejajarkan dengan fold v11. Caranya diulang sebagai opsi <code>balancing</code> yang dijalankan di dalam setiap fold, hanya pada data latih.</dd></dl></div></li><li><div class="tgl"><b>23 Okt</b>Eksperimen 1</div><div class="isi"><h3>Bobot kelas lunak vs undersampling</h3><dl class="qa"><dt>Pertanyaan</dt><dd>Seberapa baik BiGRU dengan bobot kelas lunak (aturan proyek), dan apakah undersampling membantu?</dd><dt>Jawaban</dt><dd>Bawaan: Macro-F1 0,821, setara v3.1 (P = 0,34). Undersampling −0,223, lebih buruk (P = 0,00), karena hanya 3.429 dari 129.920 window latih yang tersisa. Kelemahan bawaan: AFL 2:1 di pasien 08378 hanya 0,74 (v3.1 0,96).</dd></dl></div></li><li><div class="tgl"><b>2 Nov</b>Eksperimen 2</div><div class="isi"><h3>Bobot kelas, kapasitas, resep, dan oversampling</h3><dl class="qa"><dt>Pertanyaan</dt><dd>Apakah setelan lain memperbaiki kelemahan itu, dan apakah oversampling membantu?</dd><dt>Jawaban</dt><dd>Tidak ada yang lebih baik dari bawaan pada Macro-F1. Bobot penuh (<code>wp100</code>) memulihkan 08378 (0,74 → 1,00) dan tetap 0,852 tanpa 04936. Oversampling −0,045 dan latih lebih lama −0,025, keduanya lebih buruk. Ulangan bawaan identik bit demi bit, jadi training-nya deterministik. Dijalankan paralel: 5 setelan di PC, 3 di Kaggle.</dd></dl></div></li><li><div class="tgl"><b>2 Nov</b>Eksperimen 3</div><div class="isi"><h3>Regularisasi di atas bobot kelas penuh</h3><dl class="qa"><dt>Pertanyaan</dt><dd>Apakah regularisasi di atas bobot penuh menambah sesuatu?</dd><dt>Jawaban</dt><dd>Tidak. Lima setelan berada dalam −0,006 … +0,003 dari <code>wp100</code>, semuanya tidak terbedakan. Bobot penuh dengan model kecil lebih buruk (−0,048). Pemilihan setelan otomatis per fold (cross-fit) memberi 0,830, sama dengan <code>wp100</code>.</dd></dl></div></li></ol>
+</section>
+
+<section id="hasil">
+  <span class="eyebrow">Semua hasil</span>
+  <h2>Tidak ada setelan yang mengalahkan v3.1</h2>
+  <p>Setiap baris adalah satu setelan (25 model). Titik = selisih Macro-F1 terhadap v3.1, garis = rentang ketidakpastiannya.
+    Kalau garis memotong garis tegak v3.1, selisihnya belum bisa dibedakan dari kebetulan.</p>
+  <figure><div class="kanvas"><svg viewBox="0 0 880 876" role="img" aria-label="Selisih Macro-F1 setiap setelan BiGRU terhadap v3.1"><line class="grid" x1="330.0" x2="330.0" y1="56" y2="834"/><text class="t-tick" x="330.0" y="852" text-anchor="middle">−0,16</text><line class="grid" x1="395.5" x2="395.5" y1="56" y2="834"/><text class="t-tick" x="395.5" y="852" text-anchor="middle">−0,12</text><line class="grid" x1="460.9" x2="460.9" y1="56" y2="834"/><text class="t-tick" x="460.9" y="852" text-anchor="middle">−0,08</text><line class="grid" x1="526.4" x2="526.4" y1="56" y2="834"/><text class="t-tick" x="526.4" y="852" text-anchor="middle">−0,04</text><line class="nol" x1="591.8" x2="591.8" y1="56" y2="834"/><text class="t-tick" x="591.8" y="852" text-anchor="middle">0</text><line class="grid" x1="657.3" x2="657.3" y1="56" y2="834"/><text class="t-tick" x="657.3" y="852" text-anchor="middle">+0,04</text><text class="t-ax" x="591.8" y="48" text-anchor="middle">v3.1 (paket produksi)</text><text class="t-ax" x="510.0" y="870" text-anchor="middle">Selisih Macro-F1 terhadap v3.1 · kanan = lebih baik · garis = CI 95%</text><g class="legend"><circle class="s1 ring" cx="24.0" cy="18.0" r="5.5"/><text x="36" y="22">tidak terbedakan dari v3.1</text><rect class="s2 ring" x="230.5" y="12.5" width="11" height="11" rx="1.5"/><text x="248" y="22">lebih buruk dari v3.1</text><path class="s0 ring" d="M424.0 11.0L431.0 18.0L424.0 25.0L417.0 18.0Z"/><text x="436" y="22">sistem awal (pembanding)</text></g><g class="baris" tabindex="0" data-tip="v1: Macro-F1 0,744; selisih dengan v3.1 −0,088 [−0,16…−0,02], P = 0,02"><rect class="hit" x="8" y="65" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="80.0">v1</text><text class="t-ket" x="16" y="95.0">Sistem awal tim</text><line class="ci s0-stroke" x1="330.0" x2="562.7" y1="83.0" y2="83.0"/><path class="s0" d="M328 83.0l8 -5v10z"/><path class="s0 ring" d="M447.9 76.0L454.9 83.0L447.9 90.0L440.9 83.0Z"/><text class="t-nilai" x="712" y="80.0">−0,088</text><text class="t-vonis" x="712" y="95.0">pembanding</text></g><text class="t-grup" x="16" y="126">Eksperimen 1 · 23 Oktober 2026</text><line class="sep" x1="16" x2="864" y1="134" y2="134"/><g class="baris" tabindex="0" data-tip="bawaan: Macro-F1 0,821 [0,68–0,87]; selisih dengan v3.1 −0,010 [−0,06…+0,02], P = 0,34"><rect class="hit" x="8" y="143" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="158.0">bawaan</text><text class="t-ket" x="16" y="173.0">Bobot kelas lunak, resep v3</text><line class="ci s1-stroke" x1="500.7" x2="619.0" y1="161.0" y2="161.0"/><circle class="s1 ring" cx="575.4" cy="161.0" r="5.5"/><text class="t-nilai" x="712" y="158.0">−0,010</text><text class="t-vonis" x="712" y="173.0">tidak terbedakan, P = 0,34</text></g><g class="baris" tabindex="0" data-tip="under: Macro-F1 0,599 [0,49–0,66]; selisih dengan v3.1 −0,233 [−0,38…−0,13], P = 0,00"><rect class="hit" x="8" y="181" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="196.0">under</text><text class="t-ket" x="16" y="211.0">Undersampling ke jumlah AFL</text><line class="ci s2-stroke" x1="330.0" x2="379.5" y1="199.0" y2="199.0"/><path class="s2" d="M328 199.0l8 -5v10z"/><text class="t-luar" x="342" y="191.0">titik −0,233, di luar skala</text><text class="t-nilai" x="712" y="196.0">−0,233</text><text class="t-vonis" x="712" y="211.0">lebih buruk, P = 0,00</text></g><text class="t-grup" x="16" y="242">Eksperimen 2 · 2 November 2026</text><line class="sep" x1="16" x2="864" y1="250" y2="250"/><g class="baris" tabindex="0" data-tip="bawaan_ulang: Macro-F1 0,821 [0,68–0,87]; selisih dengan v3.1 −0,010 [−0,06…+0,02], P = 0,34"><rect class="hit" x="8" y="259" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="274.0">bawaan_ulang</text><text class="t-ket" x="16" y="289.0">Bawaan diulang persis (cek noise)</text><line class="ci s1-stroke" x1="500.7" x2="619.0" y1="277.0" y2="277.0"/><circle class="s1 ring" cx="575.4" cy="277.0" r="5.5"/><text class="t-nilai" x="712" y="274.0">−0,010</text><text class="t-vonis" x="712" y="289.0">tidak terbedakan, P = 0,34</text></g><g class="baris" tabindex="0" data-tip="wp075: Macro-F1 0,821 [0,68–0,89]; selisih dengan v3.1 −0,010 [−0,03…+0,01], P = 0,12"><rect class="hit" x="8" y="297" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="312.0">wp075</text><text class="t-ket" x="16" y="327.0">Bobot kelas ¾</text><line class="ci s1-stroke" x1="535.9" x2="604.2" y1="315.0" y2="315.0"/><circle class="s1 ring" cx="574.9" cy="315.0" r="5.5"/><text class="t-nilai" x="712" y="312.0">−0,010</text><text class="t-vonis" x="712" y="327.0">tidak terbedakan, P = 0,12</text></g><g class="baris" tabindex="0" data-tip="wp100: Macro-F1 0,830 [0,69–0,93]; selisih dengan v3.1 −0,002 [−0,01…+0,02], P = 0,47"><rect class="hl" x="8" y="335" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="350.0">wp100</text><text class="t-ket" x="16" y="365.0">Bobot kelas penuh</text><text class="t-badge" x="67.0" y="350.0">KANDIDAT</text><line class="ci s1-stroke" x1="570.7" x2="622.0" y1="353.0" y2="353.0"/><circle class="s1 ring" cx="588.8" cy="353.0" r="5.5"/><text class="t-nilai" x="712" y="350.0">−0,002</text><text class="t-vonis" x="712" y="365.0">tidak terbedakan, P = 0,47</text></g><g class="baris" tabindex="0" data-tip="over: Macro-F1 0,776 [0,65–0,82]; selisih dengan v3.1 −0,056 [−0,13…−0,01], P = 0,01"><rect class="hit" x="8" y="373" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="388.0">over</text><text class="t-ket" x="16" y="403.0">Oversampling sampai sama dengan Normal</text><line class="ci s2-stroke" x1="387.2" x2="578.9" y1="391.0" y2="391.0"/><rect class="s2 ring" x="495.5" y="385.5" width="11" height="11" rx="1.5"/><text class="t-nilai" x="712" y="388.0">−0,056</text><text class="t-vonis" x="712" y="403.0">lebih buruk, P = 0,01</text></g><g class="baris" tabindex="0" data-tip="h16: Macro-F1 0,824 [0,68–0,90]; selisih dengan v3.1 −0,008 [−0,03…+0,01], P = 0,20"><rect class="hit" x="8" y="411" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="426.0">h16</text><text class="t-ket" x="16" y="441.0">Model lebih kecil</text><line class="ci s1-stroke" x1="543.5" x2="612.6" y1="429.0" y2="429.0"/><circle class="s1 ring" cx="579.1" cy="429.0" r="5.5"/><text class="t-nilai" x="712" y="426.0">−0,008</text><text class="t-vonis" x="712" y="441.0">tidak terbedakan, P = 0,20</text></g><g class="baris" tabindex="0" data-tip="h64: Macro-F1 0,813 [0,67–0,84]; selisih dengan v3.1 −0,018 [−0,08…+0,02], P = 0,28"><rect class="hit" x="8" y="449" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="464.0">h64</text><text class="t-ket" x="16" y="479.0">Model lebih besar</text><line class="ci s1-stroke" x1="455.1" x2="617.5" y1="467.0" y2="467.0"/><circle class="s1 ring" cx="561.6" cy="467.0" r="5.5"/><text class="t-nilai" x="712" y="464.0">−0,018</text><text class="t-vonis" x="712" y="479.0">tidak terbedakan, P = 0,28</text></g><g class="baris" tabindex="0" data-tip="lr5e4: Macro-F1 0,833 [0,68–0,91]; selisih dengan v3.1 +0,002 [−0,03…+0,02], P = 0,61"><rect class="hit" x="8" y="487" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="502.0">lr5e4</text><text class="t-ket" x="16" y="517.0">Learning rate setengah</text><line class="ci s1-stroke" x1="550.3" x2="620.9" y1="505.0" y2="505.0"/><circle class="s1 ring" cx="594.9" cy="505.0" r="5.5"/><text class="t-nilai" x="712" y="502.0">+0,002</text><text class="t-vonis" x="712" y="517.0">tidak terbedakan, P = 0,61</text></g><g class="baris" tabindex="0" data-tip="ep50: Macro-F1 0,797 [0,67–0,83]; selisih dengan v3.1 −0,035 [−0,12…+0,01], P = 0,15"><rect class="hit" x="8" y="525" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="540.0">ep50</text><text class="t-ket" x="16" y="555.0">Latih lebih lama</text><line class="ci s1-stroke" x1="401.3" x2="609.8" y1="543.0" y2="543.0"/><circle class="s1 ring" cx="534.6" cy="543.0" r="5.5"/><text class="t-nilai" x="712" y="540.0">−0,035</text><text class="t-vonis" x="712" y="555.0">tidak terbedakan, P = 0,15</text></g><text class="t-grup" x="16" y="586">Eksperimen 3 · 2 November 2026</text><line class="sep" x1="16" x2="864" y1="594" y2="594"/><g class="baris" tabindex="0" data-tip="w1_h16: Macro-F1 0,782 [0,68–0,87]; selisih dengan v3.1 −0,050 [−0,06…+0,01], P = 0,05"><rect class="hit" x="8" y="603" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="618.0">w1_h16</text><text class="t-ket" x="16" y="633.0">Bobot penuh + model kecil</text><line class="ci s2-stroke" x1="494.4" x2="603.7" y1="621.0" y2="621.0"/><rect class="s2 ring" x="505.0" y="615.5" width="11" height="11" rx="1.5"/><text class="t-nilai" x="712" y="618.0">−0,050</text><text class="t-vonis" x="712" y="633.0">lebih buruk, P = 0,05</text></g><g class="baris" tabindex="0" data-tip="w1_ep20: Macro-F1 0,827 [0,69–0,93]; selisih dengan v3.1 −0,004 [−0,02…+0,02], P = 0,40"><rect class="hit" x="8" y="641" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="656.0">w1_ep20</text><text class="t-ket" x="16" y="671.0">Bobot penuh + latih lebih singkat</text><line class="ci s1-stroke" x1="566.6" x2="618.2" y1="659.0" y2="659.0"/><circle class="s1 ring" cx="584.7" cy="659.0" r="5.5"/><text class="t-nilai" x="712" y="656.0">−0,004</text><text class="t-vonis" x="712" y="671.0">tidak terbedakan, P = 0,40</text></g><g class="baris" tabindex="0" data-tip="w1_bs512: Macro-F1 0,828 [0,67–0,92]; selisih dengan v3.1 −0,003 [−0,01…+0,01], P = 0,32"><rect class="hit" x="8" y="679" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="694.0">w1_bs512</text><text class="t-ket" x="16" y="709.0">Bobot penuh + batch lebih besar</text><line class="ci s1-stroke" x1="571.1" x2="607.8" y1="697.0" y2="697.0"/><circle class="s1 ring" cx="586.4" cy="697.0" r="5.5"/><text class="t-nilai" x="712" y="694.0">−0,003</text><text class="t-vonis" x="712" y="709.0">tidak terbedakan, P = 0,32</text></g><g class="baris" tabindex="0" data-tip="w1_wd1e3: Macro-F1 0,833 [0,68–0,93]; selisih dengan v3.1 +0,001 [−0,01…+0,01], P = 0,63"><rect class="hit" x="8" y="717" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="732.0">w1_wd1e3</text><text class="t-ket" x="16" y="747.0">Bobot penuh + weight decay 10×</text><line class="ci s1-stroke" x1="580.0" x2="613.0" y1="735.0" y2="735.0"/><circle class="s1 ring" cx="593.6" cy="735.0" r="5.5"/><text class="t-nilai" x="712" y="732.0">+0,001</text><text class="t-vonis" x="712" y="747.0">tidak terbedakan, P = 0,63</text></g><g class="baris" tabindex="0" data-tip="w1_wd1e2: Macro-F1 0,832 [0,68–0,93]; selisih dengan v3.1 +0,001 [−0,01…+0,01], P = 0,57"><rect class="hit" x="8" y="755" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="770.0">w1_wd1e2</text><text class="t-ket" x="16" y="785.0">Bobot penuh + weight decay 100×</text><line class="ci s1-stroke" x1="578.8" x2="613.4" y1="773.0" y2="773.0"/><circle class="s1 ring" cx="592.7" cy="773.0" r="5.5"/><text class="t-nilai" x="712" y="770.0">+0,001</text><text class="t-vonis" x="712" y="785.0">tidak terbedakan, P = 0,57</text></g><g class="baris" tabindex="0" data-tip="w1_lr5e4: Macro-F1 0,824 [0,68–0,92]; selisih dengan v3.1 −0,008 [−0,02…+0,01], P = 0,07"><rect class="hit" x="8" y="793" width="864" height="36" rx="6"/><text class="t-nama" x="16" y="808.0">w1_lr5e4</text><text class="t-ket" x="16" y="823.0">Bobot penuh + learning rate setengah</text><line class="ci s1-stroke" x1="566.3" x2="600.3" y1="811.0" y2="811.0"/><circle class="s1 ring" cx="578.9" cy="811.0" r="5.5"/><text class="t-nilai" x="712" y="808.0">−0,008</text><text class="t-vonis" x="712" y="823.0">tidak terbedakan, P = 0,07</text></g></svg></div>
+    <figcaption>Arahkan kursor ke baris untuk melihat Macro-F1 dan CI-nya. Angka lengkap ada di Lampiran.
+      Lebih buruk dari v3.1: <code>under</code>, <code>over</code>, <code>w1_h16</code>. Dibanding referensi eksperimennya sendiri (perbandingan
+      yang lebih peka, karena modelnya mirip), yang lebih buruk: <code>under</code>, <code>over</code>, <code>ep50</code>, <code>w1_h16</code>.</figcaption></figure>
+</section>
+
+<section id="balancing">
+  <span class="eyebrow">Arahan pembimbing</span>
+  <h2>Balancing data vs pembobotan kelas</h2>
+  <p>AFL sangat langka, jadi model perlu dibantu agar tidak mengabaikannya. Ada dua cara. <strong>Balancing</strong> mengubah data
+    latih: membuang data kelas besar (undersampling) atau menyalin data kelas kecil (oversampling). <strong>Pembobotan kelas</strong>
+    membiarkan data apa adanya, tetapi kesalahan pada AFL diberi bobot lebih besar saat latihan. SMOTE tidak bisa dipakai untuk
+    BiGRU, karena mencampur dua urutan detak tidak menghasilkan ritme yang masuk akal. Penggantinya adalah oversampling dengan
+    menyalin window asli.</p>
+  <div class="gulir"><table class="tabel"><thead><tr><th>Setelan</th><th class="num">Window latih<span>Normal / AFIB / AFL</span></th><th class="num">Macro-F1</th><th>vs bawaan</th><th class="num">AFL F1</th><th class="num">Alarm palsu<span>Normal 100–110 bpm</span></th></tr></thead><tbody><tr><th scope="row"><code>bawaan</code><span>Bobot kelas lunak (bawaan)</span></th><td class="num">82.012 / 46.765 / 1.143</td><td class="num">0,821</td><td>referensi</td><td class="num">0,592</td><td class="num">10,0%</td></tr><tr class="hl"><th scope="row"><code>wp100</code><span>Bobot kelas penuh</span></th><td class="num">82.012 / 46.765 / 1.143</td><td class="num">0,830</td><td>+0,008 · tidak terbedakan</td><td class="num">0,625</td><td class="num">12,2%</td></tr><tr><th scope="row"><code>over</code><span>Oversampling</span></th><td class="num">82.012 / 82.012 / 82.012</td><td class="num">0,776</td><td>−0,045 · lebih buruk</td><td class="num">0,465</td><td class="num">12,1%</td></tr><tr><th scope="row"><code>under</code><span>Undersampling</span></th><td class="num">1.143 / 1.143 / 1.143</td><td class="num">0,599</td><td>−0,223 · lebih buruk</td><td class="num">0,302</td><td class="num">71,6%</td></tr></tbody></table></div>
+  <figure><div class="kanvas"><svg viewBox="0 0 880 266" role="img" aria-label="Jumlah AFL palsu per ulangan"><line class="grid" x1="250.0" x2="250.0" y1="10" y2="220"/><text class="t-tick" x="250.0" y="238" text-anchor="middle">0</text><line class="grid" x1="380.0" x2="380.0" y1="10" y2="220"/><text class="t-tick" x="380.0" y="238" text-anchor="middle">500</text><line class="grid" x1="510.0" x2="510.0" y1="10" y2="220"/><text class="t-tick" x="510.0" y="238" text-anchor="middle">1.000</text><line class="grid" x1="640.0" x2="640.0" y1="10" y2="220"/><text class="t-tick" x="640.0" y="238" text-anchor="middle">1.500</text><line class="grid" x1="770.0" x2="770.0" y1="10" y2="220"/><text class="t-tick" x="770.0" y="238" text-anchor="middle">2.000</text><text class="t-ax" x="510.0" y="256" text-anchor="middle">Window yang salah disebut AFL, per ulangan (lebih kecil = lebih baik)</text><g class="baris" tabindex="0" data-tip="v3.1: 274 window AFL palsu per ulangan"><rect class="hit" x="8" y="17" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="33">v3.1</text><text class="t-ket" x="16" y="48">Paket produksi</text><path class="s0" d="M250 26H317.3a4 4 0 0 1 4 4v12a4 4 0 0 1 -4 4H250Z"/><text class="t-nilai" x="329.3" y="41">274</text></g><g class="baris" tabindex="0" data-tip="bawaan: 332 window AFL palsu per ulangan"><rect class="hit" x="8" y="57" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="73">bawaan</text><text class="t-ket" x="16" y="88">Bobot kelas lunak</text><path class="s1" d="M250 66H332.4a4 4 0 0 1 4 4v12a4 4 0 0 1 -4 4H250Z"/><text class="t-nilai" x="344.4" y="81">332</text></g><g class="baris" tabindex="0" data-tip="wp100: 300 window AFL palsu per ulangan"><rect class="hit" x="8" y="97" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="113">wp100</text><text class="t-ket" x="16" y="128">Bobot kelas penuh</text><path class="s1" d="M250 106H323.9a4 4 0 0 1 4 4v12a4 4 0 0 1 -4 4H250Z"/><text class="t-nilai" x="335.9" y="121">300</text></g><g class="baris" tabindex="0" data-tip="over: 525 window AFL palsu per ulangan"><rect class="hit" x="8" y="137" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="153">over</text><text class="t-ket" x="16" y="168">Oversampling</text><path class="s1" d="M250 146H382.6a4 4 0 0 1 4 4v12a4 4 0 0 1 -4 4H250Z"/><text class="t-nilai" x="394.6" y="161">525</text></g><g class="baris" tabindex="0" data-tip="under: 1.937 window AFL palsu per ulangan"><rect class="hit" x="8" y="177" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="193">under</text><text class="t-ket" x="16" y="208">Undersampling</text><path class="s1" d="M250 186H749.7a4 4 0 0 1 4 4v12a4 4 0 0 1 -4 4H250Z"/><text class="t-nilai" x="761.7" y="201">1.937</text></g></svg></div>
+    <figcaption>AFL palsu = window non-AFL yang ditebak AFL, rata-rata per ulangan.</figcaption></figure>
+  <div class="dua">
+    <div class="kartu"><h3>Kenapa undersampling merusak</h3>
+      <p>Hanya 2,6% window latih yang tersisa. Model jarang melihat ritme normal, terutama yang
+        cepat, sehingga 72% ritme normal 100–110 bpm disebut AFIB/AFL (bawaan 10%).</p></div>
+    <div class="kartu"><h3>Kenapa oversampling merusak</h3>
+      <p>Setiap window AFL disalin ±72×. Model menghafal salinan yang sama, dan AFL palsu naik dari
+        332 ke 525 per ulangan.</p></div>
+  </div>
+  <p class="catatan">Jawaban untuk BiGRU: pakai pembobotan kelas, bukan balancing. Hasil ini tidak berlaku untuk semua model. Di XGBoost
+    (16 fitur HRV), undersampling justru lebih baik dari bawaannya (+0,063, P = 0,98). Jadi setiap
+    anggota tim perlu menguji balancing pada modelnya sendiri, dengan opsi <code>balancing</code> yang sama.</p>
+</section>
+
+<section id="pasien">
+  <span class="eyebrow">Per pasien</span>
+  <h2>Recall AFL di tujuh pasien AFL</h2>
+  <p>Recall = bagian window AFL pasien itu yang tertebak AFL. Pasien 08378 adalah satu-satunya contoh AFL 2:1 yang besar.
+    Dengan bobot lunak, recall pasien ini turun ke 0,74. Bobot penuh memulihkannya ke 1,00.</p>
+  <div class="gulir"><table class="tabel heat-tabel"><thead><tr><th>Sistem</th><th class="num">04043<span>1 window</span></th><th class="num">04908<span>46 window</span></th><th class="num sorot">04936<span>673 window</span></th><th class="num">06426<span>21 window</span></th><th class="num">07910<span>96 window</span></th><th class="num">08215<span>9 window</span></th><th class="num sorot">08378<span>306 window</span></th></tr></thead><tbody><tr><th scope="row">v3.1<span>Paket produksi</span></th><td class="heat " style="--p:40%">0,40</td><td class="heat terang" style="--p:92%">0,92</td><td class="heat " style="--p:51%">0,51</td><td class="heat " style="--p:17%">0,17</td><td class="heat " style="--p:0%">0,00</td><td class="heat " style="--p:0%">0,00</td><td class="heat terang" style="--p:96%">0,96</td></tr><tr><th scope="row"><code>bawaan</code><span>Bobot kelas lunak, resep v3</span></th><td class="heat terang" style="--p:80%">0,80</td><td class="heat terang" style="--p:98%">0,98</td><td class="heat " style="--p:52%">0,52</td><td class="heat " style="--p:29%">0,29</td><td class="heat " style="--p:0%">0,00</td><td class="heat " style="--p:0%">0,00</td><td class="heat terang" style="--p:74%">0,74</td></tr><tr class="hl"><th scope="row"><code>wp100</code><span>Bobot kelas penuh</span></th><td class="heat terang" style="--p:60%">0,60</td><td class="heat terang" style="--p:95%">0,95</td><td class="heat " style="--p:45%">0,45</td><td class="heat " style="--p:41%">0,41</td><td class="heat " style="--p:0%">0,00</td><td class="heat " style="--p:0%">0,00</td><td class="heat terang" style="--p:100%">1,00</td></tr><tr><th scope="row"><code>over</code><span>Oversampling sampai sama dengan Normal</span></th><td class="heat " style="--p:40%">0,40</td><td class="heat terang" style="--p:81%">0,81</td><td class="heat " style="--p:44%">0,44</td><td class="heat " style="--p:15%">0,15</td><td class="heat " style="--p:0%">0,00</td><td class="heat " style="--p:0%">0,00</td><td class="heat terang" style="--p:55%">0,55</td></tr><tr><th scope="row"><code>under</code><span>Undersampling ke jumlah AFL</span></th><td class="heat " style="--p:0%">0,00</td><td class="heat terang" style="--p:99%">0,99</td><td class="heat terang" style="--p:62%">0,62</td><td class="heat " style="--p:16%">0,16</td><td class="heat " style="--p:0%">0,00</td><td class="heat " style="--p:0%">0,00</td><td class="heat " style="--p:3%">0,03</td></tr></tbody></table></div>
+  <p class="muted">Pasien 04043 hanya punya 1 window AFL, jadi angkanya tidak bermakna. 07910 dan 08215
+    hampir tidak terdeteksi oleh semua sistem di tabel, termasuk v3.1.</p>
+</section>
+
+<section id="tanpa-04936">
+  <span class="eyebrow">Uji ketahanan</span>
+  <h2>Apa yang terjadi tanpa pasien 04936</h2>
+  <p>Kalau hasil sebuah setelan runtuh saat satu pasien dibuang, model itu belum bisa dipercaya untuk pasien baru. Bobot lunak
+    (bawaan) dan learning rate kecil runtuh. Bobot penuh tetap dekat v3.1.</p>
+  <figure><div class="kanvas"><svg viewBox="0 0 880 382" role="img" aria-label="Macro-F1 dengan dan tanpa pasien 04936"><line class="grid" x1="290.0" x2="290.0" y1="46" y2="336"/><text class="t-tick" x="290.0" y="354" text-anchor="middle">0,5</text><line class="grid" x1="390.0" x2="390.0" y1="46" y2="336"/><text class="t-tick" x="390.0" y="354" text-anchor="middle">0,6</text><line class="grid" x1="490.0" x2="490.0" y1="46" y2="336"/><text class="t-tick" x="490.0" y="354" text-anchor="middle">0,7</text><line class="grid" x1="590.0" x2="590.0" y1="46" y2="336"/><text class="t-tick" x="590.0" y="354" text-anchor="middle">0,8</text><line class="grid" x1="690.0" x2="690.0" y1="46" y2="336"/><text class="t-tick" x="690.0" y="354" text-anchor="middle">0,9</text><g class="legend"><circle class="s1 ring" cx="24.0" cy="18.0" r="5.5"/><text x="36" y="22">data penuh (23 pasien)</text><rect class="s2 ring" x="230.5" y="12.5" width="11" height="11" rx="1.5"/><text x="248" y="22">tanpa pasien 04936 (22 pasien)</text></g><text class="t-ax" x="490.0" y="372" text-anchor="middle">Macro-F1 (+ bias)</text><g class="baris" tabindex="0" data-tip="v3.1: data penuh 0,832 → tanpa 04936 0,859 [0,62–0,92]"><rect class="hit" x="8" y="53" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="69">v3.1</text><text class="t-ket" x="16" y="84">Paket produksi</text><line class="conn" x1="621.5" x2="649.2" y1="72" y2="72"/><circle class="s1 ring" cx="621.5" cy="72.0" r="5.5"/><rect class="s2 ring" x="643.7" y="66.5" width="11" height="11" rx="1.5"/><text class="t-nilai" x="712" y="77">0,832 → 0,859</text></g><g class="baris" tabindex="0" data-tip="bawaan: data penuh 0,821 → tanpa 04936 0,721 [0,63–0,81]"><rect class="hit" x="8" y="93" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="109">bawaan</text><text class="t-ket" x="16" y="124">Bobot kelas lunak, resep v3</text><line class="conn" x1="611.5" x2="510.9" y1="112" y2="112"/><circle class="s1 ring" cx="611.5" cy="112.0" r="5.5"/><rect class="s2 ring" x="505.4" y="106.5" width="11" height="11" rx="1.5"/><text class="t-nilai" x="712" y="117">0,821 → 0,721</text></g><g class="baris" tabindex="0" data-tip="wp100: data penuh 0,830 → tanpa 04936 0,852 [0,63–0,90]"><rect class="hl" x="8" y="133" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="149">wp100</text><text class="t-ket" x="16" y="164">Bobot kelas penuh</text><line class="conn" x1="619.7" x2="642.0" y1="152" y2="152"/><circle class="s1 ring" cx="619.7" cy="152.0" r="5.5"/><rect class="s2 ring" x="636.5" y="146.5" width="11" height="11" rx="1.5"/><text class="t-nilai" x="712" y="157">0,830 → 0,852</text></g><g class="baris" tabindex="0" data-tip="lr5e4: data penuh 0,833 → tanpa 04936 0,721 [0,63–0,81]"><rect class="hit" x="8" y="173" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="189">lr5e4</text><text class="t-ket" x="16" y="204">Learning rate setengah</text><line class="conn" x1="623.4" x2="511.3" y1="192" y2="192"/><circle class="s1 ring" cx="623.4" cy="192.0" r="5.5"/><rect class="s2 ring" x="505.8" y="186.5" width="11" height="11" rx="1.5"/><text class="t-nilai" x="712" y="197">0,833 → 0,721</text></g><g class="baris" tabindex="0" data-tip="h16: data penuh 0,824 → tanpa 04936 0,777 [0,63–0,84]"><rect class="hit" x="8" y="213" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="229">h16</text><text class="t-ket" x="16" y="244">Model lebih kecil</text><line class="conn" x1="613.8" x2="566.5" y1="232" y2="232"/><circle class="s1 ring" cx="613.8" cy="232.0" r="5.5"/><rect class="s2 ring" x="561.0" y="226.5" width="11" height="11" rx="1.5"/><text class="t-nilai" x="712" y="237">0,824 → 0,777</text></g><g class="baris" tabindex="0" data-tip="over: data penuh 0,776 → tanpa 04936 0,768 [0,63–0,83]"><rect class="hit" x="8" y="253" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="269">over</text><text class="t-ket" x="16" y="284">Oversampling sampai sama dengan Normal</text><line class="conn" x1="566.0" x2="558.2" y1="272" y2="272"/><circle class="s1 ring" cx="566.0" cy="272.0" r="5.5"/><rect class="s2 ring" x="552.7" y="266.5" width="11" height="11" rx="1.5"/><text class="t-nilai" x="712" y="277">0,776 → 0,768</text></g><g class="baris" tabindex="0" data-tip="under: data penuh 0,599 → tanpa 04936 0,533 [0,48–0,60]"><rect class="hit" x="8" y="293" width="864" height="38" rx="6"/><text class="t-nama" x="16" y="309">under</text><text class="t-ket" x="16" y="324">Undersampling ke jumlah AFL</text><line class="conn" x1="388.5" x2="323.5" y1="312" y2="312"/><circle class="s1 ring" cx="388.5" cy="312.0" r="5.5"/><rect class="s2 ring" x="318.0" y="306.5" width="11" height="11" rx="1.5"/><text class="t-nilai" x="712" y="317">0,599 → 0,533</text></g></svg></div>
+    <figcaption>Bias kelas dihitung ulang tanpa pasien 04936 (22 pasien, 6
+      pasien AFL, 479 window AFL).</figcaption></figure>
+</section>
+
+<section id="detak-cepat">
+  <span class="eyebrow">Uji stres takikardia</span>
+  <h2>Ritme normal yang cepat masih jadi alarm</h2>
+  <p>AFDB hampir tidak punya ritme normal yang cepat: hanya 100 window Normal di atas 120 bpm. Karena itu
+    setiap model diuji juga dengan ritme teratur buatan. Ambang = detak di mana model berhenti menyebut Normal. Kolom pita
+    detak = persentase window Normal asli yang disebut AFIB/AFL.</p>
+  <div class="gulir"><table class="tabel"><thead><tr><th>Sistem</th><th class="num">Ambang (bpm)<span>4 jenis variasi detak</span></th><th class="num">0–100 bpm<span>89.566 window</span></th><th class="num">100–110 bpm<span>8.766 window</span></th><th class="num">110–120 bpm<span>568 window</span></th><th class="num">120 bpm ke atas<span>100 window</span></th></tr></thead><tbody><tr><th scope="row">v3.1<span>Paket produksi</span></th><td class="num">115 (paket)</td><td class="num">6,7%</td><td class="num">12,7%</td><td class="num">59,0%</td><td class="num">95,2%</td></tr><tr><th scope="row"><code>bawaan</code><span>Bobot kelas lunak, resep v3</span></th><td class="num">120 / 120 / 120 / 120</td><td class="num">4,1%</td><td class="num">10,0%</td><td class="num">52,6%</td><td class="num">86,6%</td></tr><tr class="hl"><th scope="row"><code>wp100</code><span>Bobot kelas penuh</span></th><td class="num">120 / 120 / 120 / 115</td><td class="num">5,5%</td><td class="num">12,2%</td><td class="num">60,5%</td><td class="num">90,2%</td></tr><tr><th scope="row"><code>w1_wd1e2</code><span>Bobot penuh + weight decay 100×</span></th><td class="num">125 / 125 / 120 / 115</td><td class="num">5,6%</td><td class="num">12,2%</td><td class="num">60,8%</td><td class="num">89,8%</td></tr><tr><th scope="row"><code>over</code><span>Oversampling sampai sama dengan Normal</span></th><td class="num">120 / 125 / 125 / 120</td><td class="num">4,6%</td><td class="num">12,1%</td><td class="num">51,4%</td><td class="num">79,2%</td></tr><tr><th scope="row"><code>under</code><span>Undersampling ke jumlah AFL</span></th><td class="num">110 / 110 / 110 / 110</td><td class="num">18,2%</td><td class="num">71,6%</td><td class="num">98,4%</td><td class="num">100,0%</td></tr></tbody></table></div>
+  <p class="catatan">Ambang dari 16 setelan BiGRU berada di 110–125 bpm (v3.1: 115). Yang terendah
+    <code>under</code>, yang tertinggi <code>over</code>, <code>h64</code>, <code>ep50</code>, <code>w1_wd1e2</code>. Pada ritme normal di atas
+    120 bpm, kandidat <code>wp100</code> masih menyebut 90% sebagai AFIB/AFL (v3.1
+    95%). Tuning hanya menggeser ambang beberapa bpm. Data eksternal (v8–v10) juga belum
+    menyelesaikannya. Yang dibutuhkan adalah rekaman perangkat SIHEDAF yang berlabel.</p>
+</section>
+
+<section id="kesimpulan">
+  <span class="eyebrow">Kesimpulan</span>
+  <h2>Kandidat BiGRU dan langkah berikutnya</h2>
+  <div class="dua">
+    <div class="kartu"><h3>Kandidat: <code>{"weight_power": 1.0}</code></h3><ul>
+      <li>Macro-F1 0,830 [0,69–0,93], setara v3.1 (P = 0,47).</li>
+      <li>Tanpa 04936: 0,852 (v3.1 0,859).</li>
+      <li>Lebih baik dari v1 walau bias dipilih ulang di setiap sampel (bootstrap bersarang, P = 0,98).
+        Untuk bawaan, P = 0,91.</li>
+      <li>Resepnya sama dengan BiGRU v3, tetapi kini bobot modelnya tersimpan, sehingga bisa diuji takikardia.</li></ul></div>
+    <div class="kartu"><h3>Yang diusulkan</h3><ul>
+      <li>BiGRU tidak menggantikan paket produksi v3.1, karena hasilnya setara, bukan lebih baik.</li>
+      <li>Tuning BiGRU dihentikan. Setelan tambahan hanya bergeser di dalam rentang ketidakpastian.</li>
+      <li>Bandingkan BiGRU dengan model tim lain di <code>gabungan.ipynb</code> setelah semua model selesai dilatih.</li>
+      <li>Langkah yang paling mungkin membantu: menambah pasien, terutama rekaman perangkat SIHEDAF berlabel.</li></ul></div>
+  </div>
+</section>
+
+<section id="batasan">
+  <span class="eyebrow">Batasan</span>
+  <h2>Yang belum bisa disimpulkan</h2>
+  <ul class="jawab">
+    <li><span>Hanya 23 pasien dan 7 pasien AFL, sehingga CI lebar dan banyak hasil "tidak terbedakan".</span></li>
+    <li><span><code>wp100</code> dipilih setelah melihat hasil. Resepnya memang sudah ada sejak v3, tetapi pada data penuh ia tetap
+      tidak terbedakan dari bawaan (P = 0,65).</span></li>
+    <li><span>6 setelan dilatih di Kaggle (GPU T4), sisanya di PC. Selisih sekecil ±0,003 bisa berasal dari beda mesin.</span></li>
+    <li><span>Semua angka dari AFDB. Ini bukan uji pada perangkat asli, dan masalah ritme normal yang cepat belum selesai.</span></li>
+    <li><span>Dropout dan GRU dua lapis belum dicoba, karena butuh mengubah arsitektur. Karena regularisasi lain tidak membantu,
+      peluangnya kecil.</span></li>
+  </ul>
+</section>
+
+<section id="lampiran">
+  <span class="eyebrow">Lampiran</span>
+  <h2>Semua setelan</h2>
+  <p>Macro-F1 memakai bias kelas cross-fit. Referensi eksperimen 1 dan 2 adalah <code>bawaan</code>, referensi eksperimen 3 adalah
+    <code>wp100</code>.</p>
+  <div class="gulir"><table class="tabel lampiran"><thead><tr><th>Setelan</th><th>Perubahan dari bawaan</th><th class="num">Parameter</th><th class="num">Macro-F1<span>CI 95%</span></th><th class="num">Tanpa 04936</th><th class="num">vs referensi<span>eksperimennya</span></th><th class="num">vs v3.1</th></tr></thead><tbody><tr class="grup"><th colspan="7">Eksperimen 1 · Bobot kelas lunak vs undersampling · referensi <code>bawaan</code></th></tr><tr><th scope="row"><code>bawaan</code><span>Bobot kelas lunak, resep v3</span></th><td class="ubah"><span>tidak ada</span><span>dilatih di PC, RTX 5060</span></td><td class="num">7.172</td><td class="num">0,821<span>[0,68–0,87]</span></td><td class="num">0,721</td><td class="num">—</td><td class="num">−0,010<span>P = 0,34</span></td></tr><tr><th scope="row"><code>under</code><span>Undersampling ke jumlah AFL</span></th><td class="ubah"><code>balancing = under</code><span>dilatih di PC, RTX 5060</span></td><td class="num">7.172</td><td class="num">0,599<span>[0,49–0,66]</span></td><td class="num">0,533</td><td class="num">−0,223<span>[−0,33…−0,14] · P = 0,00</span><span>lebih buruk</span></td><td class="num">−0,233<span>P = 0,00</span></td></tr><tr class="grup"><th colspan="7">Eksperimen 2 · Bobot kelas, kapasitas, resep, dan oversampling · referensi <code>bawaan</code></th></tr><tr><th scope="row"><code>bawaan_ulang</code><span>Bawaan diulang persis (cek noise)</span></th><td class="ubah"><span>tidak ada</span><span>dilatih di PC, RTX 5060</span></td><td class="num">7.172</td><td class="num">0,821<span>[0,68–0,87]</span></td><td class="num">0,721</td><td class="num">0,000<span>[0,00…0,00] · P = 0,00</span><span>identik</span></td><td class="num">−0,010<span>P = 0,34</span></td></tr><tr><th scope="row"><code>wp075</code><span>Bobot kelas ¾</span></th><td class="ubah"><code>weight_power = 0.75</code><span>dilatih di PC, RTX 5060</span></td><td class="num">7.172</td><td class="num">0,821<span>[0,68–0,89]</span></td><td class="num">0,818</td><td class="num">0,000<span>[−0,01…+0,02] · P = 0,47</span><span>tidak terbedakan</span></td><td class="num">−0,010<span>P = 0,12</span></td></tr><tr class="hl"><th scope="row"><code>wp100</code><span>Bobot kelas penuh</span></th><td class="ubah"><code>weight_power = 1.0</code><span>dilatih di PC, RTX 5060</span></td><td class="num">7.172</td><td class="num">0,830<span>[0,69–0,93]</span></td><td class="num">0,852</td><td class="num">+0,008<span>[−0,02…+0,07] · P = 0,65</span><span>tidak terbedakan</span></td><td class="num">−0,002<span>P = 0,47</span></td></tr><tr><th scope="row"><code>over</code><span>Oversampling sampai sama dengan Normal</span></th><td class="ubah"><code>balancing = over</code><span>dilatih di PC, RTX 5060</span></td><td class="num">7.172</td><td class="num">0,776<span>[0,65–0,82]</span></td><td class="num">0,768</td><td class="num">−0,045<span>[−0,07…−0,02] · P = 0,00</span><span>lebih buruk</span></td><td class="num">−0,056<span>P = 0,01</span></td></tr><tr><th scope="row"><code>h16</code><span>Model lebih kecil</span></th><td class="ubah"><code>hidden = 16</code><span>dilatih di Kaggle, T4</span></td><td class="num">2.052</td><td class="num">0,824<span>[0,68–0,90]</span></td><td class="num">0,777</td><td class="num">+0,002<span>[−0,01…+0,03] · P = 0,61</span><span>tidak terbedakan</span></td><td class="num">−0,008<span>P = 0,20</span></td></tr><tr><th scope="row"><code>h64</code><span>Model lebih besar</span></th><td class="ubah"><code>hidden = 64</code><span>dilatih di Kaggle, T4</span></td><td class="num">26.628</td><td class="num">0,813<span>[0,67–0,84]</span></td><td class="num">0,748</td><td class="num">−0,008<span>[−0,03…0,00] · P = 0,18</span><span>tidak terbedakan</span></td><td class="num">−0,018<span>P = 0,28</span></td></tr><tr><th scope="row"><code>lr5e4</code><span>Learning rate setengah</span></th><td class="ubah"><code>lr = 0.0005</code><span>dilatih di Kaggle, T4</span></td><td class="num">7.172</td><td class="num">0,833<span>[0,68–0,91]</span></td><td class="num">0,721</td><td class="num">+0,012<span>[−0,01…+0,04] · P = 0,87</span><span>tidak terbedakan</span></td><td class="num">+0,002<span>P = 0,61</span></td></tr><tr><th scope="row"><code>ep50</code><span>Latih lebih lama</span></th><td class="ubah"><code>epochs = 50</code><span>dilatih di PC, RTX 5060</span></td><td class="num">7.172</td><td class="num">0,797<span>[0,67–0,83]</span></td><td class="num">0,736</td><td class="num">−0,025<span>[−0,06…0,00] · P = 0,00</span><span>lebih buruk</span></td><td class="num">−0,035<span>P = 0,15</span></td></tr><tr class="grup"><th colspan="7">Eksperimen 3 · Regularisasi di atas bobot kelas penuh · referensi <code>wp100</code></th></tr><tr><th scope="row"><code>w1_h16</code><span>Bobot penuh + model kecil</span></th><td class="ubah"><code>weight_power = 1.0</code><br><code>hidden = 16</code><span>dilatih di PC, RTX 5060</span></td><td class="num">2.052</td><td class="num">0,782<span>[0,68–0,87]</span></td><td class="num">0,775</td><td class="num">−0,048<span>[−0,07…−0,01] · P = 0,00</span><span>lebih buruk</span></td><td class="num">−0,050<span>P = 0,05</span></td></tr><tr><th scope="row"><code>w1_ep20</code><span>Bobot penuh + latih lebih singkat</span></th><td class="ubah"><code>weight_power = 1.0</code><br><code>epochs = 20</code><span>dilatih di PC, RTX 5060</span></td><td class="num">7.172</td><td class="num">0,827<span>[0,69–0,93]</span></td><td class="num">0,844</td><td class="num">−0,003<span>[−0,01…0,00] · P = 0,06</span><span>tidak terbedakan</span></td><td class="num">−0,004<span>P = 0,40</span></td></tr><tr><th scope="row"><code>w1_bs512</code><span>Bobot penuh + batch lebih besar</span></th><td class="ubah"><code>weight_power = 1.0</code><br><code>batch_size = 512</code><span>dilatih di PC, RTX 5060</span></td><td class="num">7.172</td><td class="num">0,828<span>[0,67–0,92]</span></td><td class="num">0,845</td><td class="num">−0,001<span>[−0,02…0,00] · P = 0,33</span><span>tidak terbedakan</span></td><td class="num">−0,003<span>P = 0,32</span></td></tr><tr><th scope="row"><code>w1_wd1e3</code><span>Bobot penuh + weight decay 10×</span></th><td class="ubah"><code>weight_power = 1.0</code><br><code>weight_decay = 0.001</code><span>dilatih di Kaggle, T4</span></td><td class="num">7.172</td><td class="num">0,833<span>[0,68–0,93]</span></td><td class="num">0,842</td><td class="num">+0,003<span>[−0,01…+0,01] · P = 0,65</span><span>tidak terbedakan</span></td><td class="num">+0,001<span>P = 0,63</span></td></tr><tr><th scope="row"><code>w1_wd1e2</code><span>Bobot penuh + weight decay 100×</span></th><td class="ubah"><code>weight_power = 1.0</code><br><code>weight_decay = 0.01</code><span>dilatih di Kaggle, T4</span></td><td class="num">7.172</td><td class="num">0,832<span>[0,68–0,93]</span></td><td class="num">0,851</td><td class="num">+0,002<span>[−0,01…+0,01] · P = 0,64</span><span>tidak terbedakan</span></td><td class="num">+0,001<span>P = 0,57</span></td></tr><tr><th scope="row"><code>w1_lr5e4</code><span>Bobot penuh + learning rate setengah</span></th><td class="ubah"><code>weight_power = 1.0</code><br><code>lr = 0.0005</code><span>dilatih di Kaggle, T4</span></td><td class="num">7.172</td><td class="num">0,824<span>[0,68–0,92]</span></td><td class="num">0,848</td><td class="num">−0,006<span>[−0,02…0,00] · P = 0,13</span><span>tidak terbedakan</span></td><td class="num">−0,008<span>P = 0,07</span></td></tr></tbody></table></div>
+  <p class="muted">Sumber: <code>v11_model_tim/bigru/eksperimen.py</code> (definisi dan training), <code>cache/v11/bigru/</code>
+    (hasil per fold). Laporan lengkap: <code>laporan_bigru_e1_balancing.pdf</code>, <code>laporan_bigru_e2_tuning.pdf</code>,
+    <code>laporan_bigru_e3_regularisasi.pdf</code> di <code>v11_model_tim/bigru/laporan/</code>.</p>
+</section>
+</main>
+
+<footer><div class="wrap">Dibuat oleh <code>v11_model_tim/bigru/presentasi/build_presentasi.py</code> dari cache eksperimen.
+  Pemilihan setelan otomatis (cross-fit) di eksperimen 2 memberi 0,816 dan di eksperimen 3 0,830.</div></footer>
+<script>
+(() => {
+  const t = document.createElement('div'); t.className = 'tip'; t.hidden = true; document.body.appendChild(t);
+  const show = (el, x, y) => {
+    t.textContent = el.getAttribute('data-tip'); t.hidden = false;
+    const r = t.getBoundingClientRect();
+    let L = x + 14, T = y + 14;
+    if (L + r.width > innerWidth - 8) L = x - r.width - 14;
+    if (T + r.height > innerHeight - 8) T = y - r.height - 14;
+    t.style.left = Math.max(8, L) + 'px'; t.style.top = Math.max(8, T) + 'px';
+  };
+  document.addEventListener('pointermove', e => {
+    const el = e.target.closest && e.target.closest('[data-tip]');
+    if (el) show(el, e.clientX, e.clientY); else t.hidden = true;
+  });
+  document.addEventListener('focusin', e => {
+    const el = e.target.closest && e.target.closest('[data-tip]');
+    if (el) { const r = el.getBoundingClientRect(); show(el, r.left + 24, r.top + r.height / 2); }
+  });
+  document.addEventListener('focusout', () => { t.hidden = true; });
+  document.addEventListener('scroll', () => { t.hidden = true; }, { passive: true });
+})();
+</script>
+
+</body>
+</html>
