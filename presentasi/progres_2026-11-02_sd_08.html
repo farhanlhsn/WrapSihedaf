@@ -1,0 +1,959 @@
+<title>Progres SIHEDAF 2–8 November</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: satu kolom baca ±72ch; tiap "babak" kerja = satu blok dengan label kiri, angka kunci di kanan saat lebar. */
+:root {
+  --navy: #172B43;
+  --teal: #008B83;
+  --bg: #F6F8F9;
+  --surface: #FFFFFF;
+  --fg: #172B43;
+  --muted: #56677A;
+  --line: #D9E1E6;
+  --accent: #008B83;
+  --accent-soft: #E3F2F1;
+  --d-blue: #2a78d6;
+  --d-orange: #eb6834;
+  --d-green: #1baf7a;
+  --good: #1a8f63;
+  --bad: #c2492a;
+  --neutral: #7a8794;
+  --trace: #008B83;
+  --grid: #E6ECEF;
+  --f-display: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif;
+  --f-body: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1B29; --surface: #16263A; --fg: #E6EDF3; --muted: #9DB0C2; --line: #2A3F57;
+    --accent: #2EC4B9; --accent-soft: #143A3C; --good: #3cc58e; --bad: #f08060; --neutral: #8e9cab;
+    --trace: #2EC4B9; --grid: #1F3349; --d-blue: #5b9be6; --d-orange: #f08455; --d-green: #34c890;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1B29; --surface: #16263A; --fg: #E6EDF3; --muted: #9DB0C2; --line: #2A3F57;
+  --accent: #2EC4B9; --accent-soft: #143A3C; --good: #3cc58e; --bad: #f08060; --neutral: #8e9cab;
+  --trace: #2EC4B9; --grid: #1F3349; --d-blue: #5b9be6; --d-orange: #f08455; --d-green: #34c890;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1040px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.2; }
+p { margin: 0; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow {
+  font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent); font-weight: 600;
+}
+
+/* Hero */
+header.hero { background: var(--navy); color: #fff; }
+header.hero .wrap { padding-block: 48px 40px; display: grid; gap: 20px; }
+header.hero .eyebrow { color: #7fd6cf; }
+header.hero h1 { font-size: clamp(30px, 5vw, 48px); font-weight: 800; letter-spacing: -.01em; max-width: 20ch; }
+header.hero .lede { font-size: 18px; color: #C9D6E2; max-width: 62ch; }
+.trace { width: 100%; height: 70px; display: block; }
+.trace .bg-grid { stroke: #24405f; stroke-width: 1; }
+.trace path.ecg { fill: none; stroke: #2EC4B9; stroke-width: 2; stroke-linejoin: round; }
+.trace text { fill: #7fd6cf; font-family: var(--f-mono); font-size: 11px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 24px; font-family: var(--f-mono); font-size: 13px; color: #9fb4c8; }
+
+/* Kartu angka */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: -28px; }
+.kpi {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 16px 18px; display: grid; gap: 6px; align-content: start;
+}
+.kpi .num { font-family: var(--f-display); font-weight: 800; font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi .num small { font-size: 15px; font-weight: 600; color: var(--muted); }
+.kpi .lab { font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+.kpi .tag { font-family: var(--f-mono); font-size: 11.5px; color: var(--accent); }
+@media (max-width: 860px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 440px) { .kpis { grid-template-columns: minmax(0, 1fr); } }
+
+main section { padding-block: 44px 8px; }
+.sec-head { display: grid; gap: 8px; margin-bottom: 20px; max-width: 72ch; }
+.sec-head h2 { font-size: clamp(22px, 3vw, 28px); font-weight: 700; }
+.sec-head p { color: var(--muted); }
+
+/* Jawaban singkat */
+.answer {
+  background: var(--accent-soft); border-radius: 10px; padding: 20px 22px;
+  display: grid; gap: 10px; max-width: 80ch;
+}
+.answer ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+
+/* Babak kerja */
+.track { border-top: 1px solid var(--line); padding-block: 26px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; }
+.track:last-child { border-bottom: 1px solid var(--line); }
+.track .side { display: grid; gap: 6px; align-content: start; }
+.track .side .when { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); }
+.track .side h3 { font-size: 19px; font-weight: 700; }
+.track .body { display: grid; gap: 14px; min-width: 0; }
+.track .q { font-weight: 600; }
+@media (max-width: 720px) { .track { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+
+.vers { display: grid; gap: 10px; }
+.ver { display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; gap: 4px 14px; align-items: baseline; }
+.ver .id { font-family: var(--f-mono); font-size: 13px; font-weight: 600; color: var(--accent); }
+.ver .txt { font-size: 15px; }
+.ver .txt b { font-weight: 600; }
+@media (max-width: 560px) { .ver { grid-template-columns: minmax(0, 1fr) auto; } .ver .id { grid-column: 1 / -1; } }
+
+.pill {
+  font-family: var(--f-mono); font-size: 11.5px; font-weight: 600; white-space: nowrap;
+  padding: 2px 8px; border-radius: 99px; border: 1px solid currentColor;
+}
+.pill.ok { color: var(--good); }
+.pill.no { color: var(--bad); }
+.pill.mid { color: var(--neutral); }
+
+.lesson { font-size: 14.5px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 12px; }
+
+/* Grafik */
+.chart-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 10px; }
+.chart-card h3 { font-size: 16px; font-weight: 700; }
+.chart-card .note { font-size: 13px; color: var(--muted); }
+.chart-scroll { overflow-x: auto; }
+.chart-scroll svg { display: block; min-width: 560px; width: 100%; height: auto; }
+svg text { font-family: var(--f-body); fill: var(--fg); }
+svg .t-muted { fill: var(--muted); }
+svg .t-mono { font-family: var(--f-mono); }
+
+/* Tabel */
+.tbl-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+td.n { text-align: right; font-family: var(--f-mono); }
+th.n { text-align: right; }
+td .win { color: var(--good); font-weight: 600; }
+td .lose { color: var(--bad); font-weight: 600; }
+
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 820px) { .two { grid-template-columns: minmax(0, 1fr); } }
+
+/* Diskusi */
+.asks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .asks { grid-template-columns: minmax(0, 1fr); } }
+.ask { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+.ask h3 { font-size: 16px; font-weight: 700; }
+.ask p { font-size: 14.5px; color: var(--muted); }
+
+.plan { display: grid; gap: 0; }
+.plan-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; padding-block: 12px; border-top: 1px solid var(--line); }
+.plan-row:last-child { border-bottom: 1px solid var(--line); }
+.plan-row .d { font-family: var(--f-mono); font-size: 13px; color: var(--accent); font-weight: 600; }
+@media (max-width: 480px) { .plan-row { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+
+ul.lim { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80ch; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend svg { width: 14px; height: 14px; }
+.wk { font-family: var(--f-mono); font-size: 10.5px; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
+.vd { font-weight: 600; }
+.vd.ok { color: var(--good); } .vd.no { color: var(--bad); } .vd.mid { color: var(--neutral); } .vd.ref { color: var(--accent); }
+tr.grp td { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+tr.refrow td { font-weight: 600; }
+td.wrap { white-space: normal; min-width: 220px; color: var(--muted); font-size: 13.5px; }
+.recs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .recs { grid-template-columns: minmax(0, 1fr); } }
+.rec { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: grid; gap: 10px; align-content: start; }
+.rec.main { border: 2px solid var(--accent); }
+.rec .role { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.rec h3 { font-size: 20px; font-weight: 800; }
+.rec dl { margin: 0; display: grid; gap: 8px; font-size: 14px; }
+.rec dt { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.rec dd { margin: 0; overflow-wrap: anywhere; }
+.avoid { margin-top: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; display: grid; gap: 8px; }
+.avoid h3 { font-size: 16px; font-weight: 700; }
+.avoid ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14.5px; }
+.exps { display: grid; }
+.exp-grp { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); font-weight: 600; padding-block: 18px 8px; }
+.exp { display: grid; grid-template-columns: 76px minmax(0, 1fr) minmax(0, 300px); gap: 6px 18px; padding-block: 12px; border-top: 1px solid var(--line); align-items: start; }
+.exp .id { font-family: var(--f-mono); font-size: 13.5px; font-weight: 600; color: var(--accent); }
+.exp .do { display: grid; gap: 3px; font-size: 14.5px; }
+.exp .do b { font-weight: 600; }
+.exp .res { font-size: 14px; display: grid; gap: 5px; justify-items: start; }
+@media (max-width: 760px) { .exp { grid-template-columns: minmax(0, 1fr); } }
+footer { padding-block: 40px 56px; color: var(--muted); font-size: 13px; }
+footer .wrap { display: grid; gap: 6px; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">SIHEDAF · laporan progres mingguan</div>
+    <h1>Apa yang kami kerjakan 2–8 November 2026</h1>
+    <p class="lede">Minggu ini kami menutup permintaan pembimbing (enam model tim), menguji alarm palsu pada EKG olahraga asli,
+      mencoba model fondasi EKG, dan menyiapkan dua draf paper. Semua klaim memakai protokol yang sama: fold pasien 5×5,
+      CI bootstrap pasien, dan perbandingan berpasangan dengan paket produksi v3.1.</p>
+    <svg class="trace" viewBox="0 0 1000 70" preserveAspectRatio="none" role="img" aria-label="Ilustrasi jejak EKG: ritme sinus teratur lalu berubah menjadi AF yang tidak teratur">
+      <g class="bg-grid">
+        <line x1="0" y1="35" x2="1000" y2="35"/>
+      </g>
+      <path class="ecg" d="M0 45 L40 45 L48 42 L56 45 L66 45 L70 50 L76 8 L82 58 L88 45 L110 45 L122 38 L136 45
+        L170 45 L178 42 L186 45 L196 45 L200 50 L206 8 L212 58 L218 45 L240 45 L252 38 L266 45
+        L300 45 L308 42 L316 45 L326 45 L330 50 L336 8 L342 58 L348 45 L370 45 L382 38 L396 45
+        L430 45 L438 42 L446 45 L456 45 L460 50 L466 8 L472 58 L478 45 L500 45 L512 38 L526 45
+        L540 46 L548 43 L556 47 L564 44 L570 50 L576 10 L582 58 L588 45 L596 47 L604 43 L612 46
+        L626 50 L632 12 L638 57 L644 45 L652 47 L660 43 L668 46 L676 44 L684 47 L692 43 L700 46 L708 44
+        L714 50 L720 9 L726 58 L732 45 L740 47 L748 43 L752 50 L758 11 L764 57 L770 45 L778 47 L786 43
+        L794 46 L802 44 L810 47 L818 43 L826 46 L834 44 L842 47 L850 43 L856 50 L862 10 L868 58 L874 45
+        L882 47 L890 43 L898 50 L904 12 L910 57 L916 45 L930 47 L944 43 L958 46 L972 44 L1000 45"/>
+      <text x="4" y="66">sinus teratur</text>
+      <text x="996" y="66" text-anchor="end">AF tidak teratur</text>
+    </svg>
+    <div class="meta">
+      <span>11 versi ditutup (v3.3, v11–v17)</span>
+      <span>2 draf paper, tenggat 30 Nov 2026</span>
+      <span>Paket produksi: tetap v3.1</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="kpis">
+    <div class="kpi">
+      <span class="tag">v11 · 6 model tim</span>
+      <span class="num">0 <small>dari 6</small></span>
+      <span class="lab">model RR yang lebih baik dari v3.1. Terbaik: BiGRU &amp; TCN bobot penuh, Macro-F1 0,830 vs 0,832.</span>
+    </div>
+    <div class="kpi">
+      <span class="tag">v3.3 · EKG olahraga asli</span>
+      <span class="num">98,4%</span>
+      <span class="lab">window sinus ≥ 120 bpm yang dialarmkan AF oleh paket v3.1 (41 subjek, CI 97–100%).</span>
+    </div>
+    <div class="kpi">
+      <span class="tag">v16 · ECGFounder tahap 1</span>
+      <span class="num">0,1%</span>
+      <span class="lab">alarm pada sinus takikardia yang sama, tanpa penyetelan. Episode AF palsu 11,9 → 1,2 per jam.</span>
+    </div>
+    <div class="kpi">
+      <span class="tag">v16.2 · CPSC 2021 (data baru)</span>
+      <span class="num">0,953 <small>vs 0,881</small></span>
+      <span class="lab">Macro-F1 detektor AF 2 kelas (D-1) vs v3.1. Sensitivitas sama, spesifisitas 0,958 vs 0,853.</span>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">Jawaban singkat</div>
+      <h2>Tiga hal yang kami pelajari minggu ini</h2>
+    </div>
+    <div class="answer">
+      <ul>
+        <li><b>Arsitektur bukan pembatas.</b> Enam model RR tim tidak ada yang mengalahkan v3.1. Yang menentukan adalah bobot kelas
+          dan kalibrasi bias, bukan jenis jaringan.</li>
+        <li><b>Masalah terbesar produk adalah alarm palsu saat detak cepat.</b> Pada EKG olahraga asli, v3.1 menyebut hampir semua
+          sinus takikardia sebagai AF. Interval RR saja tidak cukup untuk membedakannya.</li>
+        <li><b>Model fondasi EKG (ECGFounder) memecahkan masalah itu untuk 2 kelas</b>, dan hasilnya bertahan di dataset yang belum
+          pernah dilihat (CPSC 2021). Untuk 3 kelas (memisahkan AFL dari AFIB) belum ada yang lebih baik dari v3.1.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="rekomendasi">
+    <div class="sec-head">
+      <div class="eyebrow">Rekomendasi</div>
+      <h2>Model mana yang sebaiknya dipakai</h2>
+      <p>Pilihannya bergantung pada apa yang harus dibedakan produk. Untuk 3 kelas (Normal, AFIB, AFL) belum ada yang mengalahkan v3.1.
+        Untuk 2 kelas (ada AF atau tidak), D-1 lebih baik dan lebih tahan terhadap detak cepat.</p>
+    </div>
+    <div class="recs">
+      <div class="rec main">
+        <span class="role">Dipakai sekarang · 3 kelas</span>
+        <h3>v3.1 (paket produksi)</h3>
+        <dl>
+          <div><dt>Isinya</dt><dd>MicroTransformer, input deret interval RR (IBI, ms) per window 10 detik dari detektor R-peak 50 Hz,
+            bias kelas [0; −0,5; −4,5].</dd></div>
+          <div><dt>Alasan</dt><dd>Satu-satunya paket siap pakai (<span class="mono">v3.1_kalibrasi_produksi/model_export/</span>). Dari
+            31 model yang diuji, tidak ada yang lebih baik di AFDB 3 kelas. Macro-F1 0,832, AFL F1 0,647.</dd></div>
+          <div><dt>Hati-hati</dt><dd>Sinus takikardia ≥ 120 bpm 98,4% dialarmkan sebagai AF. Backend wajib memberi peringatan ini
+            (BACKEND.md).</dd></div>
+        </dl>
+      </div>
+      <div class="rec">
+        <span class="role">Kandidat uji perangkat · 2 kelas</span>
+        <h3>D-1 (ECGFounder, ambang −1)</h3>
+        <dl>
+          <div><dt>Isinya</dt><dd>Model fondasi ECGFounder 1-lead dipakai beku pada EKG 50 Hz window 10 detik, tanpa dilatih ulang.
+            AF bila log((pAF + pAFL) / pNormal) &gt; −1.</dd></div>
+          <div><dt>Alasan</dt><dd>Lolos di CPSC 2021 yang belum pernah dilihat (0,953 vs 0,881), lebih baik di ketujuh dataset publik,
+            alarm sinus takikardia hanya 0,5%.</dd></div>
+          <div><dt>Hati-hati</dt><dd>Belum dikemas (perlu versi minor dan persetujuan). Tidak membedakan AFL dari AFIB. Sensitivitas
+            wearable 3–5 poin lebih rendah; 28% sinus bradikardia LTAFDB dialarmkan. ±29 ms per window di CPU.</dd></div>
+        </dl>
+      </div>
+      <div class="rec">
+        <span class="role">Pembanding untuk paper dan tim</span>
+        <h3>BiGRU bobot penuh (v11)</h3>
+        <dl>
+          <div><dt>Isinya</dt><dd>BiGRU dengan input sama seperti v3.1, bobot kelas penuh (<span class="mono">wp100</span>) dan bias
+            cross-fit.</dd></div>
+          <div><dt>Alasan</dt><dd>Model tim terbaik: 0,830, setara v3.1 (P = 0,47), recall AFL 2:1 pasien 08378 = 1,00, tetap setara
+            tanpa pasien 04936.</dd></div>
+          <div><dt>Hati-hati</dt><dd>Tidak lebih baik dari v3.1, jadi tidak ada alasan mengganti paket. Bobot tersimpan per fold, belum
+            berupa paket.</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="avoid">
+      <h3>Usulan kami dan yang sebaiknya tidak dipakai</h3>
+      <ul>
+        <li><b>Usulan:</b> backend dan uji perangkat tetap memakai v3.1. Jika pembimbing dan pemilik produk setuju bahwa deteksi AF
+          2 kelas sudah cukup, D-1 dikemas sebagai paket uji terpisah dan diuji pada rekaman perangkat SIHEDAF berlabel dokter.</li>
+        <li><b>v16 hierarki 3 kelas:</b> AFL hampir semuanya disebut sinus (Macro-F1 0,650).</li>
+        <li><b>v17 fusi wearable:</b> alarm sinus takikardia naik ke 57%.</li>
+        <li><b>v9 dan v10 (bentuk gelombang):</b> bagus di data eksternal, rusak di AFDB; v10 juga berlisensi non-komersial.</li>
+        <li><b>v7a dan v8c:</b> menurunkan alarm sinus takikardia, tetapi deteksi AFL 2:1 ikut hilang. Menunggu keputusan produk.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">Rincian kerja</div>
+      <h2>Lima jalur kerja</h2>
+      <p>Diurutkan menurut alur pertanyaan, bukan tanggal. Setiap versi punya README, laporan PDF, dan perbandingan berpasangan
+        dengan v3.1.</p>
+    </div>
+
+    <div class="track">
+      <div class="side">
+        <span class="when">selesai 3 Nov</span>
+        <h3>Permintaan pembimbing: model tim</h3>
+      </div>
+      <div class="body">
+        <p class="q">Apakah model RR lain (selain v1) bisa lebih baik dari v3.1?</p>
+        <div class="vers">
+          <div class="ver">
+            <span class="id">v11</span>
+            <span class="txt">6 model, satu folder per anggota: BiGRU, TCN, InceptionTime, MiniRocket, XGBoost, SVM. 31 setelan,
+              termasuk balancing under/over/SMOTE di dalam fold. <b>BiGRU terbaik</b> dengan resep yang sama (0,821).
+              Dengan bobot kelas penuh, BiGRU dan TCN 0,830 (setara v3.1, P = 0,47 dan 0,38).</span>
+            <span class="pill mid">setara</span>
+          </div>
+          <div class="ver">
+            <span class="id">v11.1</span>
+            <span class="txt">Model yang ada dinilai sebagai 2 kelas (Normal vs AF/AFL). <b>Macro-F1 0,916–0,938</b>, target ≥ 0,90
+              tercapai. BiGRU 0,938 lebih baik dari v3.1 (bersarang P = 0,96), tetapi tidak pasti tanpa pasien 04936 (P = 0,92).</span>
+            <span class="pill ok">target tercapai</span>
+          </div>
+        </div>
+        <p class="lesson">Balancing tidak lebih baik dari bobot kelas. Keputusan 2 kelas harus diambil dari bias 3 kelas lalu
+          digabung; bias 2 kelas tersendiri membuat alarm pada ritme normal teratur 80–95 bpm (sampai 22%).</p>
+      </div>
+    </div>
+
+    <div class="track">
+      <div class="side">
+        <span class="when">6 Nov</span>
+        <h3>Uji di kondisi nyata: sinus takikardia</h3>
+      </div>
+      <div class="body">
+        <p class="q">Uji stres sintetis (v3.2) menunjukkan alarm palsu mulai ±115 bpm. Apakah ini terjadi juga pada EKG asli?</p>
+        <div class="vers">
+          <div class="ver">
+            <span class="id">v3.3</span>
+            <span class="txt">EKG latihan fisik asli dari tiga dataset (EPFL, Wrist, EPHNOGRAM; 41 subjek), dengan detektor
+              perangkat dan R-peak manual. <b>v3.1 mengalarmkan 98,4% sinus ≥ 120 bpm.</b> Hanya model yang pernah melihat sinus
+              takikardia membaik (v8c 60%, v7a 64%). Saat aktivitas, detektor 50 Hz memicu alarm juga di bawah 100 bpm (21%).</span>
+            <span class="pill no">masalah nyata</span>
+          </div>
+        </div>
+        <p class="lesson">Abstain conformal tidak menolong (0% window jadi "tidak yakin"), karena model yakin dalam kesalahannya.
+          Metrik episode gaya EC57 yang dibuat di sini dipakai lagi di v13–v17.</p>
+      </div>
+    </div>
+
+    <div class="track">
+      <div class="side">
+        <span class="when">2–6 Nov</span>
+        <h3>Mencari informasi baru di sinyal</h3>
+      </div>
+      <div class="body">
+        <p class="q">Kalau RR sudah habis, adakah fitur lain dari EKG 50 Hz atau dari konteks waktu yang membantu?</p>
+        <div class="vers">
+          <div class="ver">
+            <span class="id">v12</span>
+            <span class="txt">Aktivitas atrium (pembatalan QRST) dengan data Holter SHDB-AF (98 rekaman). Frekuensi atrium dan
+              indeks organisasi tidak memisahkan AFL dari AFIB secara konsisten (AUROC 0,46–0,61). Training tidak dijalankan.</span>
+            <span class="pill no">berhenti di gerbang</span>
+          </div>
+          <div class="ver">
+            <span class="id">v14</span>
+            <span class="txt">Dinamika detak 2–10 menit (XGBoost di atas v3.1). Keempat hipotesis gagal: Macro-F1 0,781 vs 0,832
+              (P = 0,033); alarm sinus asli hanya 98% → 96%. Satu sisi positif: episode AFIB palsu 11,9 → 3,1 per jam.</span>
+            <span class="pill no">lebih buruk</span>
+          </div>
+          <div class="ver">
+            <span class="id">v15</span>
+            <span class="txt">Fitur kuantisasi RR, diuji dengan pra-registrasi. CPSC 2021 hanya punya 2 subjek AFL, jadi hasil utama
+              tidak bisa disimpulkan. Di PTB-XL fitur memisahkan AFL vs AFIB (AUROC 0,92 / 0,86), tetapi gabungan 3 kelas
+              memperburuk AFDB (P = 0,037).</span>
+            <span class="pill mid">tidak cukup data</span>
+          </div>
+        </div>
+        <p class="lesson">Hipotesis dikunci sebelum data dibuka (RANCANGAN.md + hash di logs). Hasil negatif tetap dilaporkan.</p>
+      </div>
+    </div>
+
+    <div class="track">
+      <div class="side">
+        <span class="when">minggu ini</span>
+        <h3>Model fondasi EKG: ECGFounder</h3>
+      </div>
+      <div class="body">
+        <p class="q">Model yang sudah dilatih dengan 1,8 juta pasien (MIT license): bisakah dipakai beku pada EKG 50 Hz kita?</p>
+        <div class="vers">
+          <div class="ver">
+            <span class="id">v13</span>
+            <span class="txt">Zero-shot: alarm sinus takikardia 98,4% → 5,4%, lebih baik dari v3.1 di PTB-XL dan Icentia. Tetapi
+              AFDB 3 kelas tidak lebih baik dan AFL 2:1 (pasien 08378) hilang.</span>
+            <span class="pill mid">campuran</span>
+          </div>
+          <div class="ver">
+            <span class="id">v16</span>
+            <span class="txt">Hierarki: ECGFounder memutuskan sinus vs AF, lalu v3.1 memutuskan AFIB vs AFL. Alarm sinus takikardia
+              <b>0,1%</b>. Namun tahap 1 menyebut 85% window AFL sebagai sinus, jadi 3 kelas lebih buruk (0,650, P = 0,020).</span>
+            <span class="pill no">3 kelas lebih buruk</span>
+          </div>
+          <div class="ver">
+            <span class="id">v16.1</span>
+            <span class="txt">Tahap 1 dinilai sebagai detektor AF 2 kelas. AFDB setara (0,951 vs 0,926), PTB-XL lebih baik, tetapi
+              Icentia (wearable) lebih buruk. Kurva ambang menunjukkan t = −1 lebih seimbang.</span>
+            <span class="pill mid">belum kandidat</span>
+          </div>
+          <div class="ver">
+            <span class="id">v16.2</span>
+            <span class="txt">Ambang t = −1 (D-1) dikunci, lalu diuji di <b>CPSC 2021</b> (1.424 rekaman, 105 subjek, belum pernah
+              dipakai). Macro-F1 0,953 vs 0,881, sensitivitas sama, spesifisitas jauh lebih tinggi.</span>
+            <span class="pill ok">kandidat uji perangkat</span>
+          </div>
+          <div class="ver">
+            <span class="id">v16.3</span>
+            <span class="txt">Replikasi D-1 di CinC 2017, MIT-BIH, LTAFDB. Macro-F1 lebih baik di ketiganya; sensitivitas lebih baik
+              di Holter, tetapi lebih rendah di EKG genggam satu lead (CinC 2017). Sinus bradikardia LTAFDB 28% dialarmkan.</span>
+            <span class="pill mid">replikasi 2/3</span>
+          </div>
+          <div class="ver">
+            <span class="id">v17</span>
+            <span class="txt">Fusi ECGFounder + v3.1 dilatih di CinC 2017 untuk menaikkan sensitivitas wearable. Icentia 0,843 → 0,921,
+              tetapi alarm sinus takikardia naik ke 57%. Tidak menggantikan D-1.</span>
+            <span class="pill no">tidak dipakai</span>
+          </div>
+        </div>
+        <p class="lesson">Titik kerja yang menyeimbangkan sensitivitas wearable dan alarm saat aktivitas hanya bisa dipilih dari
+          rekaman perangkat SIHEDAF. Ketujuh dataset publik sudah terpakai untuk D-1.</p>
+      </div>
+    </div>
+
+    <div class="track">
+      <div class="side">
+        <span class="when">6–8 Nov</span>
+        <h3>Publikasi: dua paper</h3>
+      </div>
+      <div class="body">
+        <p class="q">Hasil evaluasi v1–v11 cukup untuk dua paper yang tidak tumpang tindih. Keduanya ke ICIMPACT 2027
+          (Telkom University, 3–5 Feb 2027, hybrid), tenggat EDAS 30 Nov 2026.</p>
+        <div class="vers">
+          <div class="ver">
+            <span class="id">Paper 1</span>
+            <span class="txt"><i>Where Did the F1 Go?</i> Dekomposisi angka: F1 0,826 yang diklaim v1 bisa direproduksi (0,828),
+              turun ke 0,759 dengan window uji yang adil, dan ke 0,418 dengan front-end aslinya. 10 model, tidak ada yang mengalahkan
+              v3.1. Disertai daftar periksa evaluasi.</span>
+            <span class="pill ok">draf 5 hal.</span>
+          </div>
+          <div class="ver">
+            <span class="id">Paper 2</span>
+            <span class="txt"><i>Sinus tachycardia is a blind spot</i> dari klasifikasi AF/AFL berbasis RR: uji stres sintetis
+              60–170 bpm, EKG olahraga asli, dan sinus takikardia klinis Chapman (1.743 EKG, alarm 99,2%).</span>
+            <span class="pill ok">draf 5 hal.</span>
+          </div>
+        </div>
+        <p class="lesson">EMBC 2027 dibatalkan karena biaya (±USD 2.000 dengan perjalanan). Draf sudah dibuat versi anonim untuk
+          blind review dan referensinya diverifikasi lewat Crossref/PubMed/arXiv.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="perbandingan">
+    <div class="sec-head">
+      <div class="eyebrow">Perbandingan model</div>
+      <h2>Semua versi di AFDB 3 kelas: belum ada yang melewati v3.1</h2>
+      <p>Macro-F1 pooled out-of-fold dengan CI 95% bootstrap pasien, window detektor 50 Hz, fold pasien 5×5 yang sama. Garis putus-putus
+        hijau = v3.1 (0,832). Vonis dari perbandingan berpasangan: P ≥ 0,95 lebih baik, P ≤ 0,05 lebih buruk, selebihnya setara.</p>
+    </div>
+    <div class="chart-card">
+      <div class="legend">
+        <span><svg viewBox="0 0 14 14"><path d="M7 1 L13 7 L7 13 L1 7 Z" style="fill:var(--d-green)"/></svg>referensi v3.1</span>
+        <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" style="fill:var(--d-blue)"/></svg>setara (tidak terbedakan)</span>
+        <span><svg viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" style="fill:var(--d-orange)"/></svg>lebih buruk</span>
+        <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="4.5" style="fill:var(--surface);stroke:var(--muted);stroke-width:1.6"/></svg>berongga = CI tidak tercatat di README</span>
+      </div>
+      <div class="chart-scroll" id="forest"></div>
+      <p class="note">Tidak ada titik di kanan garis dengan vonis "lebih baik". Paling dekat: late fusion v6 (0,838), v5a (0,836), ensemble v4
+        (0,835), BiGRU/TCN bobot penuh v11 (0,830), semuanya setara. CI lebar karena AFDB hanya punya 7 pasien AFL. v8c, v9a, v10a
+        dibandingkan dengan v3.1 yang dilatih ulang di lingkungan yang sama (0,830).</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">Perbandingan model · 2 kelas</div>
+      <h2>Detektor AF (Normal vs AF/AFL) di tujuh dataset</h2>
+      <p>Macro-F1 2 kelas. D-1 = ECGFounder beku dengan ambang −1 (v16.2), W-F = fusi wearable v17. Dataset bertanda * bersifat
+        deskriptif: ambang D-1 dipilih dari AFDB, dan W-F dilatih di CinC 2017.</p>
+    </div>
+    <div class="chart-card">
+      <div class="legend">
+        <span><svg viewBox="0 0 14 14"><path d="M7 1 L13 7 L7 13 L1 7 Z" style="fill:var(--d-green)"/></svg>v3.1 (paket produksi)</span>
+        <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" style="fill:var(--d-blue)"/></svg>D-1 (v16.2)</span>
+        <span><svg viewBox="0 0 14 14"><path d="M7 2 L12.5 12 L1.5 12 Z" style="fill:var(--surface);stroke:var(--d-orange);stroke-width:1.8"/></svg>W-F (v17)</span>
+      </div>
+      <div class="chart-scroll" id="duakelas"></div>
+      <div class="tbl-scroll">
+        <table id="tbl-duakelas"></table>
+      </div>
+      <p class="note">Macro-F1 dan spesifisitas D-1 lebih tinggi dari v3.1 di ketujuh dataset, termasuk tiga yang tidak dipakai saat memilih
+        ambang (CPSC 2021, MIT-BIH, LTAFDB). Sensitivitasnya kalah di EKG genggam/wearable (CinC 2017, Icentia11k). W-F menutup celah itu, tetapi
+        alarm sinus takikardia asli naik dari 0,5% ke 57%.</p>
+    </div>
+  </section>
+
+  <section id="eksperimen">
+    <div class="sec-head">
+      <div class="eyebrow">Daftar eksperimen</div>
+      <h2>Apa yang dilakukan di tiap versi</h2>
+      <p>Semua versi dari v1 sampai v17. Kolom tengah menjelaskan apa yang diubah (data, input, model, atau cara menilai). Kolom kanan
+        berisi hasil singkat dibanding v3.1.</p>
+    </div>
+    <div class="exps">
+      <div class="exp-grp">Membangun dan membenahi sistem (v1–v3.1)</div>
+      <div class="exp"><span class="id">v1</span><div class="do"><b>Pipeline awal tim.</b><span>Fitur HRV dari interval RR, model klasik
+        (<span class="mono">final.joblib</span>), backend mencari R-peak dengan <span class="mono">find_peaks</span>.</span></div>
+        <div class="res"><span class="pill no">diukur ulang 0,744</span><span>Klaim 0,826 karena window uji AFL tumpang tindih 90%; dengan
+        front-end aslinya 0,418.</span></div></div>
+      <div class="exp"><span class="id">v2</span><div class="do"><b>Membenahi pipeline.</b><span>Praproses yang sama untuk training dan
+        backend (<span class="mono">hrv_core.py</span>), detektor R-peak 50 Hz + cek kualitas window, window AFL tidak tumpang tindih, 3 model
+        DL (MicroTransformer, ResNet1D, BiGRU) + LightGBM, koreksi bias kelas.</span></div>
+        <div class="res"><span class="pill mid">0,779</span><span>Bias dicari di grid sempit (−3…+3), optimum terpotong.</span></div></div>
+      <div class="exp"><span class="id">v3</span><div class="do"><b>Membuat protokol evaluasi.</b><span>Fold pasien 5 ulangan × 5 fold,
+        metrik pooled OOF, CI bootstrap pasien, perbandingan berpasangan; 4 kandidat model; v1 dilatih ulang di fold yang sama.</span></div>
+        <div class="res"><span class="pill mid">kandidat setara</span><span>Selisih antar model ternyata noise; batasnya data AFL.</span></div></div>
+      <div class="exp"><span class="id">v3.1</span><div class="do"><b>Kalibrasi ulang tanpa training.</b><span>Bias kelas dipilih cross-fit
+        antar fold dengan grid lebar −7…+3, lalu dikemas sebagai paket backend.</span></div>
+        <div class="res"><span class="pill ok">0,832 · paket produksi</span><span>Lebih baik dari v2 (bersarang P = 0,993).</span></div></div>
+
+      <div class="exp-grp">Menguji kondisi yang tidak ada di AFDB (v3.2, v3.3)</div>
+      <div class="exp"><span class="id">v3.2</span><div class="do"><b>Uji stres takikardia sintetis.</b><span>Ritme teratur buatan 60–170
+        bpm dengan 4 jenis variasi, bootstrap bersarang, analisis tanpa pasien 04936.</span></div>
+        <div class="res"><span class="pill no">alarm ≥ ±115 bpm</span><span>Semua versi menebak ritme teratur cepat sebagai AF.</span></div></div>
+      <div class="exp"><span class="id">v3.3</span><div class="do"><b>Uji dengan EKG olahraga asli.</b><span>3 dataset (41 subjek), R-peak
+        dari detektor perangkat dan manual, aturan produk, abstain conformal, metrik episode.</span></div>
+        <div class="res"><span class="pill no">98,4% dialarmkan</span><span>Masalah nyata, bukan artefak data sintetis.</span></div></div>
+
+      <div class="exp-grp">Memeras input interval RR (v4, v5, v7, v11)</div>
+      <div class="exp"><span class="id">v4</span><div class="do"><b>Pasca-proses tanpa training.</b><span>Smoothing keputusan antar-window
+        dan ensemble MicroTransformer + BiGRU di atas prediksi OOF v3.</span></div>
+        <div class="res"><span class="pill mid">setara</span><span>Alarm palsu turun, tetapi separuh episode AFL hilang.</span></div></div>
+      <div class="exp"><span class="id">v5</span><div class="do"><b>Mengubah resep training.</b><span>(a) window AFL rapat sebagai augmentasi,
+        (b) bobot kelas lunak (akar).</span></div>
+        <div class="res"><span class="pill mid">setara</span><span>Bobot lunak jadi resep bawaan model baru.</span></div></div>
+      <div class="exp"><span class="id">v7</span><div class="do"><b>Augmentasi sinus takikardia sintetis.</b><span>Detak Normal asli pasien
+        latih dipercepat ke 100–130 bpm (7a) dan 100–160 bpm (7b), lalu ikut dilatih.</span></div>
+        <div class="res"><span class="pill mid">7a setara</span><span>Batas alarm geser 115 → 135 bpm; recall AFL 08378 turun.</span></div></div>
+      <div class="exp"><span class="id">v11</span><div class="do"><b>Enam model tim (arahan pembimbing).</b><span>BiGRU, TCN, InceptionTime,
+        MiniRocket, XGBoost, SVM; 31 setelan termasuk balancing under/over/SMOTE di dalam fold dan bobot kelas penuh.</span></div>
+        <div class="res"><span class="pill mid">terbaik setara</span><span>Bobot kelas lebih menentukan daripada arsitektur.</span></div></div>
+      <div class="exp"><span class="id">v11.1</span><div class="do"><b>Menilai ulang sebagai 2 kelas.</b><span>Model yang ada dinilai
+        Normal vs AF/AFL dengan protokol lengkap, tanpa training.</span></div>
+        <div class="res"><span class="pill ok">0,916–0,938</span><span>Target ≥ 0,90 tercapai; alarm takikardia tetap tinggi.</span></div></div>
+
+      <div class="exp-grp">Menambah informasi: sinyal EKG dan data eksternal (v6, v8–v10, v12)</div>
+      <div class="exp"><span class="id">v6</span><div class="do"><b>Sinyal EKG mentah 50 Hz.</b><span>CNN EKG saja, dua cabang EKG + RR
+        dilatih bersama, dan late fusion.</span></div>
+        <div class="res"><span class="pill mid">late fusion setara</span><span>CNN overfit per pasien (hanya 23 pasien).</span></div></div>
+      <div class="exp"><span class="id">v8</span><div class="do"><b>Data eksternal Chapman–Shaoxing.</b><span>42 ribu pasien (lead II)
+        ditambahkan ke training model RR; varian 8c tanpa label AFL Ningbo yang tidak andal.</span></div>
+        <div class="res"><span class="pill mid">8c setara</span><span>Alarm takikardia 42% → 9%, tetapi AFL 2:1 dan SVT hilang.</span></div></div>
+      <div class="exp"><span class="id">v9</span><div class="do"><b>Bentuk gelombang + Chapman.</b><span>CNN v6 dilatih dengan AFDB + 34
+        ribu pasien Chapman berlabel andal (Kaggle 2× T4).</span></div>
+        <div class="res"><span class="pill no">rusak di AFDB</span><span>Chapman: alarm 42% → 2%. Masalahnya pergeseran domain.</span></div></div>
+      <div class="exp"><span class="id">v10</span><div class="do"><b>Data wearable Icentia11k.</b><span>510 pasien AFL dari patch EKG satu
+        lead ditambahkan ke model bentuk gelombang.</span></div>
+        <div class="res"><span class="pill no">lebih buruk di AFDB</span><span>Definisi AFL berbeda antar dataset.</span></div></div>
+      <div class="exp"><span class="id">v12</span><div class="do"><b>Fitur aktivitas atrium.</b><span>Pembatalan QRST untuk melihat gelombang
+        atrium + data Holter SHDB-AF (98 rekaman); cek fitur dulu sebelum training.</span></div>
+        <div class="res"><span class="pill no">berhenti di gerbang</span><span>Fitur tidak memisahkan AFL dari AFIB secara konsisten.</span></div></div>
+
+      <div class="exp-grp">Model fondasi dan tahap kedua, dengan pra-registrasi (v13–v17)</div>
+      <div class="exp"><span class="id">v13</span><div class="do"><b>ECGFounder beku.</b><span>Model yang dilatih 1,8 juta pasien dipakai
+        tanpa dilatih ulang: zero-shot, probe linear per fold, dan fusi dengan v3.1; kontrol 250 Hz.</span></div>
+        <div class="res"><span class="pill mid">campuran</span><span>Alarm takikardia 5,4%, tetapi AFL 2:1 hilang.</span></div></div>
+      <div class="exp"><span class="id">v14</span><div class="do"><b>Konteks menit.</b><span>XGBoost tahap kedua di atas v3.1 dengan dinamika
+        detak 2–10 menit (cara mulai, kedataran, lama keadaan cepat-teratur).</span></div>
+        <div class="res"><span class="pill no">lebih buruk</span><span>Keempat hipotesis yang dikunci gagal.</span></div></div>
+      <div class="exp"><span class="id">v15</span><div class="do"><b>Fitur kuantisasi RR.</b><span>Hipotesis dari v12 dikunci, lalu diuji di
+        CPSC 2021 dan PTB-XL; tahap gabungan dengan v3.1.</span></div>
+        <div class="res"><span class="pill mid">tidak cukup data</span><span>Memisahkan AFL vs AFIB di PTB-XL, tetapi memperburuk AFDB.</span></div></div>
+      <div class="exp"><span class="id">v16</span><div class="do"><b>Hierarki dua tahap.</b><span>ECGFounder memutuskan sinus vs AF, lalu
+        v3.1 (atau fitur atrium) memutuskan AFIB vs AFL.</span></div>
+        <div class="res"><span class="pill no">3 kelas lebih buruk</span><span>Alarm takikardia 0,1%, tetapi 85% AFL disebut sinus.</span></div></div>
+      <div class="exp"><span class="id">v16.1</span><div class="do"><b>Tahap 1 sebagai detektor AF.</b><span>Dinilai 2 kelas di AFDB, PTB-XL,
+        Icentia; kurva ambang; fungsi prediksi <span class="mono">DetektorAF</span> + uji latensi.</span></div>
+        <div class="res"><span class="pill mid">belum kandidat</span><span>Kurva menyarankan ambang −1.</span></div></div>
+      <div class="exp"><span class="id">v16.2</span><div class="do"><b>Kunci ambang −1, uji data baru.</b><span>Ambang dikunci sebelum sinyal
+        CPSC 2021 (1.424 rekaman, 105 subjek) dibaca; label mengikuti kode penilaian resmi.</span></div>
+        <div class="res"><span class="pill ok">kandidat uji perangkat</span><span>0,953 vs 0,881, sensitivitas sama.</span></div></div>
+      <div class="exp"><span class="id">v16.3</span><div class="do"><b>Replikasi.</b><span>D-1 diuji ulang tanpa penyetelan di CinC 2017, MIT-BIH,
+        LTAFDB.</span></div>
+        <div class="res"><span class="pill mid">2 dari 3 lolos</span><span>Sensitivitas kalah di EKG genggam satu lead.</span></div></div>
+      <div class="exp"><span class="id">v17</span><div class="do"><b>Fusi untuk wearable.</b><span>Regresi logistik 3 parameter (skor
+        ECGFounder + log-odds v3.1) dilatih di CinC 2017, diuji di Icentia11k.</span></div>
+        <div class="res"><span class="pill no">tidak dipakai</span><span>Sensitivitas wearable naik, alarm takikardia 57%.</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">Angka utama</div>
+      <h2>Alarm palsu pada sinus takikardia asli</h2>
+      <p>Persentase window sinus ≥ 120 bpm dari EKG latihan fisik (v3.3, 41 subjek) yang ditebak AF/AFL. Makin pendek makin baik.
+        Model RR berwarna oranye, model yang memakai bentuk gelombang EKG berwarna biru.</p>
+    </div>
+    <div class="chart-card">
+      <div class="chart-scroll">
+        <svg viewBox="0 0 760 330" role="img" aria-label="Diagram batang alarm sinus takikardia per model">
+          <!-- skala: x=230 untuk 0%, x=700 untuk 100% (4,7 px per persen) -->
+          <g stroke="var(--grid)" stroke-width="1">
+            <line x1="230" y1="14" x2="230" y2="294"/>
+            <line x1="347.5" y1="14" x2="347.5" y2="294"/>
+            <line x1="465" y1="14" x2="465" y2="294"/>
+            <line x1="582.5" y1="14" x2="582.5" y2="294"/>
+            <line x1="700" y1="14" x2="700" y2="294"/>
+          </g>
+          <g font-size="12" class="t-muted t-mono" text-anchor="middle">
+            <text x="230" y="314">0%</text><text x="347.5" y="314">25%</text><text x="465" y="314">50%</text>
+            <text x="582.5" y="314">75%</text><text x="700" y="314">100%</text>
+          </g>
+          <g font-size="13.5" text-anchor="end">
+            <text x="218" y="39">v3.1 (produksi)</text>
+            <text x="218" y="77">v14 konteks menit</text>
+            <text x="218" y="115">v7a sintetis 100–130</text>
+            <text x="218" y="153">v8c + Chapman</text>
+            <text x="218" y="191">v17 fusi wearable</text>
+            <text x="218" y="229">v13 ECGFounder zero-shot</text>
+            <text x="218" y="267">v16 / D-1 tahap 1</text>
+          </g>
+          <!-- RR (oranye, kotak) -->
+          <rect x="230" y="24" width="462.5" height="22" rx="3" fill="var(--d-orange)"/>
+          <rect x="230" y="62" width="451.2" height="22" rx="3" fill="var(--d-orange)"/>
+          <rect x="230" y="100" width="300.3" height="22" rx="3" fill="var(--d-orange)"/>
+          <rect x="230" y="138" width="283.4" height="22" rx="3" fill="var(--d-orange)"/>
+          <!-- EKG (biru) -->
+          <rect x="230" y="176" width="267.9" height="22" rx="3" fill="var(--d-blue)"/>
+          <rect x="230" y="214" width="25.4" height="22" rx="3" fill="var(--d-blue)"/>
+          <rect x="230" y="252" width="2" height="22" rx="1" fill="var(--d-blue)"/>
+          <g font-size="13" class="t-mono" font-weight="600">
+            <text x="684" y="39" text-anchor="end" style="fill:#fff">98,4%</text>
+            <text x="673" y="77" text-anchor="end" style="fill:#fff">96%</text>
+            <text x="538" y="115">63,9%</text>
+            <text x="521" y="153">60,3%</text>
+            <text x="506" y="191">57%</text>
+            <text x="263" y="229">5,4%</text>
+            <text x="240" y="267">0,1%</text>
+          </g>
+        </svg>
+      </div>
+      <p class="note">Sumber: README v3.3, v13, v14, v16, v17. v7a dan v8c tidak dikemas; v17 dipakai hanya sebagai pembanding.
+        Model yang menurunkan alarm ini (v13, v16) belum memisahkan AFL dari AFIB dengan baik.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">Kandidat</div>
+      <h2>Detektor AF 2 kelas D-1 di data yang belum pernah dilihat</h2>
+      <p>D-1 = ECGFounder beku, ambang t = −1 dikunci dari v16.1 sebelum sinyal CPSC 2021 dibaca. Dibandingkan dengan keputusan
+        2 kelas dari paket v3.1 pada window yang sama.</p>
+    </div>
+    <div class="two">
+      <div class="chart-card">
+        <h3>CPSC 2021 (v16.2)</h3>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr><th>Metrik</th><th class="n">D-1</th><th class="n">v3.1</th></tr></thead>
+            <tbody>
+              <tr><td>Macro-F1</td><td class="n"><span class="win">0,953</span></td><td class="n">0,881</td></tr>
+              <tr><td>Sensitivitas</td><td class="n">0,955</td><td class="n">0,951</td></tr>
+              <tr><td>Spesifisitas</td><td class="n"><span class="win">0,958</span></td><td class="n">0,853</td></tr>
+              <tr><td>Episode AF palsu / jam</td><td class="n"><span class="win">7,0</span></td><td class="n">25,7</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Sensitivitas di replikasi (v16.3, v16.1)</h3>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr><th>Dataset</th><th>Jenis</th><th class="n">D-1</th><th class="n">v3.1</th></tr></thead>
+            <tbody>
+              <tr><td>MIT-BIH</td><td>Holter</td><td class="n"><span class="win">0,983</span></td><td class="n">0,916</td></tr>
+              <tr><td>LTAFDB</td><td>Holter 24 jam</td><td class="n"><span class="win">0,974</span></td><td class="n">0,948</td></tr>
+              <tr><td>CinC 2017</td><td>genggam 1 lead</td><td class="n"><span class="lose">0,830</span></td><td class="n">0,884</td></tr>
+              <tr><td>Icentia11k</td><td>patch wearable</td><td class="n"><span class="lose">0,843</span></td><td class="n">0,871</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <p class="note" style="margin-top:10px;color:var(--muted);font-size:13px;max-width:80ch">D-1 lebih baik di Macro-F1 dan
+      spesifisitas pada ketujuh dataset publik. Kelemahannya di sensitivitas EKG genggam/wearable (3–5 poin lebih rendah). D-1 adalah
+      kandidat untuk uji perangkat, bukan pengganti paket 3 kelas.</p>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">Batasan</div>
+      <h2>Yang belum bisa kami simpulkan</h2>
+    </div>
+    <ul class="lim">
+      <li>Pemisahan AFL vs AFIB tetap paling baik di v3.1. AFDB hanya punya 7 pasien AFL dan 58% window AFL berasal dari satu pasien
+        (04936).</li>
+      <li>ECGFounder pada EKG 1-lead 50 Hz menyebut 85% window AFL AFDB sebagai sinus, termasuk AFL 2:1 pasien 08378.</li>
+      <li>Semua angka berasal dari dataset publik. Belum ada uji pada rekaman perangkat SIHEDAF yang dilabel dokter.</li>
+      <li>Cek visual gelombang P di paper 2 baru dinilai oleh asisten AI; perlu konfirmasi klinisi.</li>
+      <li>Icentia11k berlisensi CC BY-NC-SA, jadi model yang dilatih dengannya hanya boleh untuk riset.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">Untuk didiskusikan</div>
+      <h2>Yang kami butuhkan dari Bapak/Ibu pembimbing</h2>
+    </div>
+    <div class="asks">
+      <div class="ask">
+        <h3>Review dua draf paper</h3>
+        <p>Draf paper 1 dan 2 sudah lengkap (5 halaman, batas 6). Mohon masukan isi dan kesediaan dicantumkan sebagai penulis
+          sebelum tenggat 30 November.</p>
+      </div>
+      <div class="ask">
+        <h3>Rekaman perangkat berlabel</h3>
+        <p>Langkah berikutnya butuh rekaman perangkat SIHEDAF yang dilabel dokter, termasuk saat aktivitas. Kami butuh arahan soal
+          izin etik dan dokter pelabel.</p>
+      </div>
+      <div class="ask">
+        <h3>2 kelas atau 3 kelas?</h3>
+        <p>Untuk produk, cukupkah deteksi AF (Normal vs AF/AFL)? Jika ya, D-1 siap diuji di perangkat. Jika AFL harus dipisah,
+          kita bertahan di v3.1 dengan alarm takikardia yang tinggi.</p>
+      </div>
+      <div class="ask">
+        <h3>Biaya registrasi</h3>
+        <p>ICIMPACT ±Rp3 juta per paper (early bird sampai 18 Des 2026). Kami akan menanyakan ke panitia apakah satu registrasi
+          bisa untuk dua paper.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">Rencana</div>
+      <h2>Tiga minggu ke depan</h2>
+    </div>
+    <div class="plan">
+      <div class="plan-row"><span class="d">9–14 Nov</span><span>Kesepakatan penulis; Methods dan Results paper 1 dari skrip angka
+        (angka diambil otomatis dari cache).</span></div>
+      <div class="plan-row"><span class="d">15–20 Nov</span><span>Introduction, Related Work, Discussion dan daftar periksa; konfirmasi
+        cek gelombang P paper 2.</span></div>
+      <div class="plan-row"><span class="d">21–29 Nov</span><span>Review tim dan pembimbing, perbaikan, format template IEEE A4.</span></div>
+      <div class="plan-row"><span class="d">30 Nov</span><span>Submisi kedua paper ke EDAS (saling menyebut sebagai submisi terkait).</span></div>
+    </div>
+  </section>
+
+  <section id="lampiran">
+    <div class="sec-head">
+      <div class="eyebrow">Lampiran</div>
+      <h2>Angka lengkap AFDB 3 kelas</h2>
+      <p>Sama dengan grafik perbandingan di atas. P = peluang model lebih baik dari v3.1 menurut bootstrap pasien berpasangan.
+        Baris bertanda "minggu ini" dikerjakan atau ditutup 2–8 November.</p>
+    </div>
+    <div class="chart-card">
+      <div class="tbl-scroll">
+        <table id="tbl-lampiran"></table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Sumber angka: README dan laporan PDF tiap folder versi di repo WrapSihedaf (v3.3, v11–v17) dan publikasi/rencana_dua_paper.md.</span>
+    <span>Macro-F1 = rata-rata F1 per kelas, pooled out-of-fold (pasien uji tidak pernah ikut dilatih). P = peluang model baru lebih
+      baik dari v3.1 menurut bootstrap pasien; ≥ 0,95 lebih baik, ≤ 0,05 lebih buruk.</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Sumber: README tiap folder versi (tabel hasil) dan laporan_v11_model_tim.pdf. m = Macro-F1, lo/hi = CI 95%, p = P(lebih baik dari v3.1).
+  var G = [
+    { g: "Referensi", wk: false, rows: [
+      { v: "v3.1", n: "MicroTransformer + bias (produksi)", m: .832, lo: .67, hi: .92, p: null, vd: "ref", c: "referensi semua perbandingan" },
+      { v: "v1", n: "pipeline lama (argmax)", m: .744, lo: .64, hi: .81, p: "0,015", vd: "no", c: "diklaim 0,826 dengan window uji tumpang tindih" },
+      { v: "v2", n: "MicroTransformer, bias lama", m: .779, lo: .63, hi: .82, p: "0,00", vd: "no", c: "bias terpotong grid −3…+3" }
+    ]},
+    { g: "Resep dan pasca-proses RR (v4, v5, v7)", wk: false, rows: [
+      { v: "v4", n: "ensemble MT + BiGRU", m: .835, p: "0,72", vd: "mid", c: "tidak dipakai sebagai default" },
+      { v: "v4", n: "MT + smoothing offline", m: .810, p: "0,11", vd: "mid", c: "alarm palsu 0,51 → 0,09/jam, episode AFL 74% → 38%" },
+      { v: "v5a", n: "window AFL rapat", m: .836, p: "0,78", vd: "mid", c: "" },
+      { v: "v5b", n: "bobot kelas lunak", m: .830, p: "0,48", vd: "mid", c: "jadi resep bawaan model baru" },
+      { v: "v7a", n: "+ sinus takikardia sintetis 100–130", m: .825, lo: .68, hi: .88, p: "0,41", vd: "mid", c: "ambang alarm 115 → 135 bpm" },
+      { v: "v7b", n: "+ sinus takikardia sintetis 100–160", m: .700, lo: .62, hi: .75, p: "0,00", vd: "no", c: "rusak" }
+    ]},
+    { g: "Bentuk gelombang EKG dan data eksternal (v6, v8–v10)", wk: false, rows: [
+      { v: "v6a", n: "CNN EKG saja", m: .651, p: "0,00", vd: "no", c: "overfit per pasien" },
+      { v: "v6b", n: "dua cabang EKG + RR", m: .747, p: "0,07", vd: "mid", c: "cenderung buruk" },
+      { v: "v6", n: "late fusion EKG + RR", m: .838, p: "0,62", vd: "mid", c: "Normal R 0,965" },
+      { v: "v8c", n: "+ Chapman tanpa label AFL", m: .799, lo: .66, hi: .83, p: "0,23", vd: "mid", c: "alarm ST 42% → 9%; 08378 hilang separuh" },
+      { v: "v9a", n: "EKG + RR, AFDB + Chapman", m: .687, lo: .64, hi: .77, p: "0,07", vd: "mid", c: "bias menyentuh kedua batas grid" },
+      { v: "v10a", n: "EKG + RR, + Icentia11k", m: .646, lo: .61, hi: .67, p: "0,01", vd: "no", c: "AF kasar disebut AFL" }
+    ]},
+    { g: "Model tim v11", wk: true, rows: [
+      { v: "v11", n: "BiGRU", m: .821, lo: .68, hi: .87, p: "0,34", vd: "mid", c: "terbaik dengan resep sama" },
+      { v: "v11", n: "SVM", m: .773, lo: .64, hi: .92, p: "0,07", vd: "mid", c: "RAM ±7–8 GB per fold" },
+      { v: "v11", n: "InceptionTime", m: .767, lo: .64, hi: .86, p: "0,006", vd: "no", c: "" },
+      { v: "v11", n: "TCN", m: .752, lo: .63, hi: .80, p: "0,035", vd: "no", c: "08378 hilang (0,01)" },
+      { v: "v11", n: "XGBoost", m: .730, lo: .62, hi: .78, p: "0,004", vd: "no", c: "" },
+      { v: "v11", n: "MiniRocket", m: .709, lo: .62, hi: .76, p: "< 0,001", vd: "no", c: "belum konvergen di 11/25 fold" },
+      { v: "v11", n: "BiGRU bobot penuh", m: .830, lo: .69, hi: .93, p: "0,47", vd: "mid", c: "kandidat; 08378 pulih (1,00)" },
+      { v: "v11", n: "TCN bobot penuh", m: .830, lo: .67, hi: .91, p: "0,38", vd: "mid", c: "kandidat; 08378 0,92" }
+    ]},
+    { g: "Model fondasi dan tahap kedua (v13–v16)", wk: true, rows: [
+      { v: "v13", n: "ECGFounder zero-shot", m: .663, lo: .64, hi: .68, p: "0,026", vd: "no", c: "alarm sinus takikardia 5,4%" },
+      { v: "v13", n: "ECGFounder probe", m: .746, lo: .62, hi: .81, p: "0,087", vd: "mid", c: "" },
+      { v: "v13", n: "fusi probe + v3.1", m: .775, lo: .66, hi: .82, p: "0,19", vd: "mid", c: "" },
+      { v: "v14", n: "konteks 2–10 menit (XGBoost)", m: .781, lo: .64, hi: .87, p: "0,033", vd: "no", c: "episode AFIB palsu 11,9 → 3,1/jam" },
+      { v: "v15", n: "gabungan kuantisasi RR", m: .756, lo: .66, hi: .86, p: "0,037", vd: "no", c: "AUROC AFL vs AFIB PTB-XL 0,92" },
+      { v: "v16", n: "hierarki H-0", m: .650, lo: .62, hi: .67, p: "0,020", vd: "no", c: "85% AFL disebut sinus; alarm ST 0,1%" },
+      { v: "v16", n: "hierarki H-X (disetel di AFDB)", m: .709, lo: .63, hi: .75, p: "0,015", vd: "no", c: "bias menempel di batas grid" }
+    ]}
+  ];
+  var VD = { ref: "referensi", mid: "setara", no: "lebih buruk", ok: "lebih baik" };
+  var COL = { ref: "var(--d-green)", mid: "var(--d-blue)", no: "var(--d-orange)", ok: "var(--d-blue)" };
+  function f(x, d) { return x.toFixed(d).replace(".", ","); }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+  function mark(kind, x, y, hollow) {
+    var c = COL[kind];
+    var st = hollow ? "fill:var(--surface);stroke:" + c + ";stroke-width:1.8" : "fill:" + c;
+    if (kind === "ref") return '<path d="M' + x + ' ' + (y - 7) + ' L' + (x + 7) + ' ' + y + ' L' + x + ' ' + (y + 7) + ' L' + (x - 7) + ' ' + y + ' Z" style="' + st + '"/>';
+    if (kind === "no") return '<rect x="' + (x - 5) + '" y="' + (y - 5) + '" width="10" height="10" style="' + st + '"/>';
+    return '<circle cx="' + x + '" cy="' + y + '" r="5.5" style="' + st + '"/>';
+  }
+
+  // Forest plot
+  var L = 300, R = 700, X0 = .60, X1 = .95, RH = 24, GH = 32, top = 20;
+  function xs(v) { return L + (v - X0) / (X1 - X0) * (R - L); }
+  var y = top, body = "";
+  G.forEach(function (g) {
+    y += GH;
+    body += '<text x="0" y="' + (y - 9) + '" font-size="12" font-weight="700" style="fill:var(--accent)" class="t-mono">' + esc(g.g.toUpperCase()) + (g.wk ? "  · MINGGU INI" : "") + '</text>';
+    g.rows.forEach(function (r) {
+      y += RH;
+      var cy = y - 8;
+      body += '<text x="0" y="' + (cy + 4) + '" font-size="13"><tspan class="t-mono" font-weight="600" style="fill:var(--accent)">' + esc(r.v) + '</tspan><tspan dx="8">' + esc(r.n) + '</tspan></text>';
+      if (r.lo != null) body += '<line x1="' + xs(r.lo) + '" y1="' + cy + '" x2="' + xs(r.hi) + '" y2="' + cy + '" style="stroke:' + COL[r.vd] + ';stroke-width:2"/>';
+      body += mark(r.vd, xs(r.m), cy, r.lo == null);
+      body += '<text x="' + (R + 14) + '" y="' + (cy + 4) + '" font-size="12.5" class="t-mono">' + f(r.m, 3) + (r.lo != null ? ' <tspan class="t-muted">[' + f(r.lo, 2) + '–' + f(r.hi, 2) + ']</tspan>' : "") + '</text>';
+    });
+  });
+  var H = y + 40, grid = "";
+  for (var t = 0; t <= 7; t++) {
+    var v = X0 + t * .05, gx = xs(v);
+    grid += '<line x1="' + gx + '" y1="' + top + '" x2="' + gx + '" y2="' + (y + 8) + '" style="stroke:var(--grid);stroke-width:1"/>';
+    grid += '<text x="' + gx + '" y="' + (y + 28) + '" font-size="12" text-anchor="middle" class="t-muted t-mono">' + f(v, 2) + '</text>';
+  }
+  var refx = xs(.832);
+  grid += '<line x1="' + refx + '" y1="' + top + '" x2="' + refx + '" y2="' + (y + 8) + '" style="stroke:var(--d-green);stroke-width:1.5;stroke-dasharray:5 4"/>';
+  document.getElementById("forest").innerHTML = '<svg viewBox="0 0 860 ' + H + '" role="img" aria-label="Forest plot Macro-F1 AFDB 3 kelas dengan CI 95% untuk semua versi, garis putus-putus = v3.1" style="min-width:760px">' + grid + body + '</svg>';
+
+  // Tabel lampiran
+  var th = '<thead><tr><th>Versi</th><th>Model</th><th class="n">Macro-F1 [CI 95%]</th><th class="n">P vs v3.1</th><th>Vonis</th><th>Catatan</th></tr></thead><tbody>';
+  G.forEach(function (g) {
+    th += '<tr class="grp"><td colspan="6">' + esc(g.g) + (g.wk ? " · minggu ini" : "") + "</td></tr>";
+    g.rows.forEach(function (r) {
+      th += "<tr" + (r.vd === "ref" ? ' class="refrow"' : "") + '><td class="mono">' + esc(r.v) + "</td><td>" + esc(r.n) + '</td><td class="n">' + f(r.m, 3) +
+        (r.lo != null ? " [" + f(r.lo, 2) + "–" + f(r.hi, 2) + "]" : ' <span style="color:var(--muted)">(tanpa CI)</span>') + '</td><td class="n">' + (r.p || "–") +
+        '</td><td><span class="vd ' + r.vd + '">' + VD[r.vd] + '</span></td><td class="wrap">' + esc(r.c) + "</td></tr>";
+    });
+  });
+  document.getElementById("tbl-lampiran").innerHTML = th + "</tbody>";
+
+  // 2 kelas: sumber README v16.3 dan v17 (tabel penjaga/deskriptif), v16.1 untuk alarm sinus takikardia D-1 (ambang −1).
+  var D = [
+    { d: "CPSC 2021", j: "Holter, data baru", v31: .881, d1: .953, wf: .931, s: [.951, .955, .993] },
+    { d: "MIT-BIH", j: "Holter", v31: .754, d1: .967, wf: .867, s: [.916, .983, .998] },
+    { d: "LTAFDB", j: "Holter 24 jam", v31: .933, d1: .967, wf: .971, s: [.948, .974, .989] },
+    { d: "CinC 2017*", j: "genggam 1 lead", v31: .757, d1: .867, wf: .823, s: [.884, .830, .918] },
+    { d: "Icentia11k", j: "patch wearable", v31: .858, d1: .870, wf: .913, s: [.871, .843, .921] },
+    { d: "AFDB*", j: "Holter, data latih", v31: .929, d1: .968, wf: .980, s: [.939, .935, .984] },
+    { d: "PTB-XL*", j: "EKG klinis 10 detik", v31: .817, d1: .939, wf: .906, s: [.917, .912, .964] }
+  ];
+  var L2 = 210, R2 = 760, A = .70, B = 1.0, rh = 40, t2 = 16;
+  function x2(v) { return L2 + (v - A) / (B - A) * (R2 - L2); }
+  var s2 = "", yy = t2;
+  D.forEach(function (r) {
+    yy += rh;
+    var cy = yy - 14;
+    s2 += '<text x="0" y="' + (cy - 1) + '" font-size="13.5" font-weight="600">' + esc(r.d) + '</text>';
+    s2 += '<text x="0" y="' + (cy + 14) + '" font-size="11.5" class="t-muted">' + esc(r.j) + '</text>';
+    var lo = Math.min(r.v31, r.d1, r.wf), hi = Math.max(r.v31, r.d1, r.wf);
+    s2 += '<line x1="' + x2(lo) + '" y1="' + cy + '" x2="' + x2(hi) + '" y2="' + cy + '" style="stroke:var(--line);stroke-width:3"/>';
+    var tx = x2(r.wf);
+    s2 += '<path d="M' + tx + ' ' + (cy - 6) + ' L' + (tx + 6) + ' ' + (cy + 5) + ' L' + (tx - 6) + ' ' + (cy + 5) + ' Z" style="fill:var(--surface);stroke:var(--d-orange);stroke-width:1.8"/>';
+    s2 += mark("ref", x2(r.v31), cy, false);
+    s2 += '<circle cx="' + x2(r.d1) + '" cy="' + cy + '" r="6" style="fill:var(--d-blue)"/>';
+  });
+  var g2 = "";
+  for (var k = 0; k <= 6; k++) {
+    var vv = A + k * .05, gx2 = x2(vv);
+    g2 += '<line x1="' + gx2 + '" y1="' + t2 + '" x2="' + gx2 + '" y2="' + (yy + 4) + '" style="stroke:var(--grid);stroke-width:1"/>';
+    g2 += '<text x="' + gx2 + '" y="' + (yy + 24) + '" font-size="12" text-anchor="middle" class="t-muted t-mono">' + f(vv, 2) + '</text>';
+  }
+  document.getElementById("duakelas").innerHTML = '<svg viewBox="0 0 780 ' + (yy + 36) + '" role="img" aria-label="Macro-F1 2 kelas v3.1, D-1, dan W-F di tujuh dataset" style="min-width:620px">' + g2 + s2 + '</svg>';
+
+  function cell(vals, i) {
+    var mx = Math.max.apply(null, vals);
+    return '<td class="n">' + (vals[i] === mx ? '<span class="win">' + f(vals[i], 3) + "</span>" : f(vals[i], 3)) + "</td>";
+  }
+  var tb = '<thead><tr><th>Dataset</th><th class="n">Macro-F1 v3.1</th><th class="n">D-1</th><th class="n">W-F</th><th class="n">Sensitivitas v3.1</th><th class="n">D-1</th><th class="n">W-F</th></tr></thead><tbody>';
+  D.forEach(function (r) {
+    var mf = [r.v31, r.d1, r.wf];
+    tb += "<tr><td>" + esc(r.d) + "</td>" + cell(mf, 0) + cell(mf, 1) + cell(mf, 2) + cell(r.s, 0) + cell(r.s, 1) + cell(r.s, 2) + "</tr>";
+  });
+  tb += '<tr><td>Alarm sinus takikardia asli</td><td class="n"><span class="lose">98,4%</span></td><td class="n"><span class="win">0,5%</span></td><td class="n"><span class="lose">57%</span></td><td colspan="3" class="wrap">window sinus ≥ 120 bpm dari EKG olahraga (v3.3); makin kecil makin baik</td></tr>';
+  document.getElementById("tbl-duakelas").innerHTML = tb + "</tbody>";
+})();
+</script>
